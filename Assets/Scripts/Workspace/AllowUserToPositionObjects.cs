@@ -1,16 +1,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lean.Common;
+using Piglet;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Utility;
 using UXHandlers;
+using Workspace.UxHandlers.ObjectInspectors;
 
 namespace Workspace
 {
     public class AllowUserToPositionObjects: AbstractUxHandler
     {
+        private IGameObjectPositionInspector GameObjectPositionInspector { get; set; }
+
+        public AllowUserToPositionObjects()
+        {
+            GameObjectPositionInspector = new NullGameObjectPositionInspector();
+        }
+
+
         protected override void OnSelected(IWorkspaceScene scene, GameObject go)
         {
+            // add component that listens for position changes
+            var tc = go.GetOrAddComponent<TransformChangedHandler>();
+            tc.enabled = true;
+            tc.OnPositionChanged.AddListener(position => GameObjectPositionInspector.OnPositionChanged(position));
+            
+            // Create our nice HUD
             scene.UseHud("user-has-selected-workspace-object-hud", root =>
             {
                 root.Q<Button>("remove").clicked += () =>
@@ -22,11 +39,15 @@ namespace Workspace
                 {
                     go.GetComponent<LeanSelectable>().Deselect();
                 };
+
+                // and attach it to our position changed logic 
+                GameObjectPositionInspector = new GameObjectPositionInspector(go, root);
             });
         }
 
         protected override void OnDeselected(IWorkspaceScene scene, GameObject go)
         {
+            go.RemoveComponent<TransformChangedHandler>();
             scene.UseUxHandler(new AllowUserToPositionObjects());
         }
 
