@@ -49,7 +49,9 @@ namespace Data
         public string TempPath { get; }
         public string IndexPath { get { return Path.Combine(TempPath, "cache.index.json"); } }
 
-        public async Task<string> GetResourcePath (string url) {
+        public async Task<string> GetResourcePath (string url)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(IndexPath));
             var cachePath = GetCachePath(url);
             if (string.IsNullOrEmpty(cachePath)) {
                 return null;
@@ -81,6 +83,7 @@ namespace Data
 
         public async Task<Dictionary<string, string>> GetResourcePaths(IEnumerable<string> urls)
         {
+            Debug.Log($"[WebResourceManager] using cache in {TempPath}");   
             var uniqueUrls = urls
                 .Where(url => !string.IsNullOrEmpty(url))
                 .UniqueBy(url => url)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Data;
 using Data.Dialogs;
@@ -27,13 +28,13 @@ namespace Pipelines
         public Pipeline()
         {
             CreateDialogProjectRepository = () => new SampleDialogProjectRepository(Application.temporaryCachePath);
-            CreateWebResourceManager = () => new WebResourceManager(Application.temporaryCachePath);
+            CreateWebResourceManager = () => new WebResourceManager(Path.Combine(Application.temporaryCachePath, "resources"));
             CreateWorkspaceResource = (resource, prefab) => new WorkspaceResource { Prefab = prefab, ResourceID = resource.Url };
             CreateWorkspaceResourceCollection = (project, items) => new WorkspaceResourceCollection { Resources = items };
 
             OnTaskStarted += label => Debug.Log($"[pipline] {label}...");
             OnTaskDone += label => Debug.Log($"[pipline] done {label}");
-            OnTaskProgress += (label, step) => Debug.Log($"[pipline] {"................".Substring(0, step)}");
+            OnTaskProgress += (label, step) => Debug.Log($"[pipline] {new String('.', step)}");
         }
 
         private CustomYieldInstruction WrapEnumerator<T>(string label, Func<T> factory) where T : CustomYieldInstruction
@@ -60,11 +61,14 @@ namespace Pipelines
                 get
                 {
                     var w = Inner.keepWaiting;
-                    if (!w)
+                    if (w)
                     {
                         Pipeline.OnTaskProgress(Label, ++Step);
                     }
-                    Pipeline.OnTaskDone(Label);
+                    else
+                    {
+                        Pipeline.OnTaskDone(Label);
+                    }
                     return w;
                 }
             }

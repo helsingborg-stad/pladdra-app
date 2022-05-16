@@ -32,7 +32,7 @@ namespace ExampleScreens
             };
             pipeline.OnTaskStarted += label => setLabelText(label);
             pipeline.OnTaskDone += label => setLabelText("");
-            pipeline.OnTaskProgress += (label, step) => setLabelText($"{label} {"............".Substring(0, step)}");
+            pipeline.OnTaskProgress += (label, step) => setLabelText($"{label} {new String('.', step)}");
 
             // run pipeline, and when done: clear hud, transition to another screen
             StartCoroutine(pipeline.LoadWorkspace((configuration) =>
