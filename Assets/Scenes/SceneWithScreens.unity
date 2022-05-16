@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
+  m_IndirectSpecularColor: {r: 0.44407925, g: 0.49333048, b: 0.5723981, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a8ba1911bd247e6ad79a2efea8955d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotateAmount: {x: 16, y: 16, z: 16}
+  RotateAmount: {x: 0, y: 0, z: 0}
 --- !u!65 &46329643
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -312,9 +312,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deselectWithNothing: 0
-  limit: 2
-  maxSelectables: 1
-  reselect: 0
+  limit: 0
+  maxSelectables: 5
+  reselect: 3
   selectables: []
   onSelected:
     m_PersistentCalls:
@@ -644,7 +644,7 @@ MonoBehaviour:
   pinchTwistKey: 306
   movePivotKey: 308
   multiDragKey: 308
-  fingerTexture: {fileID: 2800000, guid: 25c48be3a87ea0f489a6d41c9c9a2194, type: 3}
+  fingerTexture: {fileID: 0}
 --- !u!114 &918458079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -657,8 +657,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fc98219a83dff145947365dc914d06e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tapThreshold: 0.5
-  swipeThreshold: 50
+  tapThreshold: 0.2
+  swipeThreshold: 100
   referenceDpi: 200
   guiLayers:
     serializedVersion: 2
@@ -667,9 +667,10 @@ MonoBehaviour:
   useHover: 1
   useMouse: 1
   useSimulator: 1
+  disableMouseEmulation: 1
   recordFingers: 1
   recordThreshold: 5
-  recordLimit: 0
+  recordLimit: 10
 --- !u!4 &918458080
 Transform:
   m_ObjectHideFlags: 0

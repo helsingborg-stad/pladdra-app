@@ -24,8 +24,8 @@ namespace UXHandlers
 
                 var selectable = obj.GetComponent<LeanSelectable>();
                 selectable.enabled = true;
-                selectable.OnSelected.AddListener(() => OnSelected(scene, obj));
-                selectable.OnDeselected.AddListener(() => OnDeselected(scene, obj));
+                selectable.OnSelected.AddListener((lol) => OnSelected(scene, obj));
+                selectable.OnDeselected.AddListener((lol) => OnDeselected(scene, obj));
             }
         }
 
