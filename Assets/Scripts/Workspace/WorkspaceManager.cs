@@ -76,8 +76,8 @@ namespace Workspace
                     spawn.ci.Rotation,
                     spawn.ci.Scale);
             }
-
-            UseUxHandler(new AllowUserToPositionPlane());
+            UseUxHandler(new AllowUserToPositionObjects());
+//            UseUxHandler(new AllowUserToPositionPlane());
 //            SetModeAllowUserToPositionPlane();
         }
     }
