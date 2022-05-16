@@ -1,0 +1,9 @@
+{
+    "fileOptions": {
+      "excludeSearchPatterns": [
+          "./Library/**/*",
+          "**/obj/**/*",
+          "**/ios/**/*"
+        ]
+    }
+  }

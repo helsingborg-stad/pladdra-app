@@ -1,0 +1,49 @@
+:root {
+    --color-white: white;
+    --color-gray: #E5E5E5;
+    --border-radius-sm: 9.5px;
+    --border-radius-md: 9.5px;
+    --border-radius-lg: 9.5px;
+}
+
+.container {
+    flex-grow: 1;
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 32px;
+    padding-bottom: 32px;
+}
+
+.paper, .card {
+    background-color: white;
+    border-radius: var( --border-radius-md);
+}
+
+.card {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+}
+
+.btn {
+    background-color: var(--color-gray);
+    border-radius: var( --border-radius-md);
+    border-width: 1px;
+    border-color: var(--color-gray);
+    padding: 16px 24px;
+    margin: 0;
+    font-size: 16px;
+    -unity-font-style: bold;
+}
+
+.btn--small {
+    border-radius: var( --border-radius-sm);
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+
+.btn.btn--light {
+    background-color: var(--color-white);
+}

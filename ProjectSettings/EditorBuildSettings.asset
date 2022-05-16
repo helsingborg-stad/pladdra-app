@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 0
+    path: Assets/Scenes/ExampleScene.unity
+    guid: 2dff912cebe394c7ba69ab50d0e76795
+  - enabled: 1
+    path: Assets/Scenes/SceneWithScreens.unity
+    guid: a408f2c3c49d94201ac0702e16211237
+  m_configObjects:
+    AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: d4a3157bed67d4b62a27ccab4df216db,
+      type: 2}
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 24d010f36dc4841d0bef65eafa99f28c,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 15bfd088686cd4158a7e8453fe9b94ac,
+      type: 2}

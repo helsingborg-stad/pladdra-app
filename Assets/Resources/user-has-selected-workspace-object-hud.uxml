@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement class="container" style="justify-content: flex-end;">
+        <ui:VisualElement style="flex-direction: row; justify-content: space-between; align-items: stretch; margin-left: -4px; margin-right: -4px;">
+            <ui:Button text="Ta bort" display-tooltip-when-elided="true" name="remove" class="btn btn--light" style="flex-grow: 0; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px;" />
+            <ui:Button text="Klar" display-tooltip-when-elided="true" name="done" class="btn btn--light" style="flex-grow: 0; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
