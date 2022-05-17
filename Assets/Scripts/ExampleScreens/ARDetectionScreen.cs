@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using ARHandlers;
 using DefaultNamespace;
 using Screens;
 using UnityEngine;
+using UnityEngine.XR.ARFoundation;
 using Workspace;
 using Screen = Screens.Screen;
 
@@ -12,12 +15,12 @@ namespace ExampleScreens
     {
         public IARHandler ARHandler { get; set; }
         public WorkspaceConfiguration configuration { get; private set; }
-        
+
         public void SetWorkspaceConfiguration(WorkspaceConfiguration wc)
         {
             configuration = wc;
         }
-        
+
         public ARDetectionScreen()
         {
             ARHandler = new NullARHandler();
@@ -25,9 +28,8 @@ namespace ExampleScreens
 
         protected override void BeforeActivateScreen()
         {
+        }
 
-        }        
-        
         protected override void AfterActivateScreen()
         {
             FindObjectOfType<HudManager>().UseHud("ar-is-detecting-tracked-image", root =>
@@ -45,39 +47,38 @@ namespace ExampleScreens
 
         private void TrackImageOnFloorAndThen(Action<GameObject> action)
         {
-            var raycastHit;
-            var trackedImage;
-            var foundImage = false;
-
+            var hits = new List<ARRaycastHit>();
+            var actions = new[]
+            {
+                action
+            };
+            
             UseARHandler(
                 new CompositeARHandler(new IARHandler[]
                 {
-                    new ARPlaneDetectionHandler(planeEvent =>
-                    {
-                        
-                    }),
-                    new ARRaycastHandler(raycastUpdatedEventArgs =>
-                    {
-                        
-                        Debug.Log(raycastUpdatedEventArgs.raycast.plane);
-                    }),
+                    new ARPlaneDetectionHandler(),
+                    new ARScreenRaycastHandler(successHits => { hits = successHits; },
+                        h => { hits = new List<ARRaycastHit>(); }),
                     new ARTrackImage(trackedImageEvent =>
                     {
-                        if (raycastHit && !trackedImage)
-                        {
-                            trackedImage = trackedImageEvent;
-                            var go = new GameObject();
-                            go.transform.position = new Vector3(trackedImage.position.x, raycastHit.position.y, trackedImage.position.z);
-                            go.transform.rotation = Quaternion.Euler(0, trackedImage.rotation.eulerAngles.y, 0);
-                            UseARHandler(new NullARHandler());
-                            action(go);
-                            
-                            // FROM OLD CODE:
-                            //planner.fixedSpace.transform.position = new Vector3(planner.context.ar.trackedImagePosition.x, planner.context.ar.raycastHitPosition.Y, planner.context.ar.trackedImagePosition.z);
-                            //Vector3 trackedImageEuler = planner.context.ar.trackedImageRotation.eulerAngles;
-                            //Quaternion trackedImageRotation = Quaternion.Euler(0, trackedImageEuler.y, 0);
-                            // ........
-                        }
+                        actions
+                            .ToList()
+                            .Where(a => hits.Count > 0)
+                            .ToList()
+                            .ForEach(a =>
+                            {
+                                actions = Array.Empty<Action<GameObject>>();
+                                var go = new GameObject(); 
+                                // TODO: Aggregate TrackedImage & RaycastHit transforms into GO
+                                // ........
+                                // FROM OLD CODE:
+                                //  planner.fixedSpace.transform.position = new Vector3(planner.context.ar.trackedImagePosition.x, planner.context.ar.raycastHitPosition.Y, planner.context.ar.trackedImagePosition.z);
+                                //  Vector3 trackedImageEuler = planner.context.ar.trackedImageRotation.eulerAngles;
+                                //  Quaternion trackedImageRotation = Quaternion.Euler(0, trackedImageEuler.y, 0);
+                                // ........
+                                UseARHandler(new NullARHandler());
+                                a(go);
+                            });
                     })
                 })
             );
