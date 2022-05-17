@@ -659,6 +659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ceb66cac107a4d70bc9a4e138275c21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UseARSceneAfterLoad: 1
 --- !u!4 &722250305
 Transform:
   m_ObjectHideFlags: 0
@@ -1272,6 +1273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7c08e1b61eee4bf2927ef3e9e62fdf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OriginPrefab: {fileID: 4938587329134014850, guid: 8c608c0b205604ae9b62769b3a4a0819,
+    type: 3}
 --- !u!4 &2060554055
 Transform:
   m_ObjectHideFlags: 0
