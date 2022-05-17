@@ -24,8 +24,15 @@ namespace Workspace.UxHandlers
                 var nameInput = root.Q<TextField>("name");
                 saveButton.clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToPositionObjects());
-                    scene.DialogProjectRepository.SaveScene(nameInput.value, scene.CreateWorkspaceSceneDescription());
+                    // extract stuff in man thread
+                    var repo = scene.DialogProjectRepository;
+                    var sceneDescription = scene.CreateWorkspaceSceneDescription();
+                    // ...and then save in worker
+                    scene.WaitForThen(
+                        () => repo.SaveScene(nameInput.value,
+                            sceneDescription),
+                        (_) => scene.UseUxHandler(new AllowUserToPositionObjects())
+                    );
                 };
                 cancelButton.clicked += () =>
                 {

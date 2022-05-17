@@ -60,7 +60,11 @@ namespace Workspace
                 {
                     scene.UseUxHandler(new AllowUserToSpawnItemFromResource());
                 };
-                root.Q<Button>("save").clicked += () =>
+                root.Q<Button>("load-scene").clicked += () =>
+                {
+                    scene.UseUxHandler(new AllowUserToLoadWorkspaceScene());
+                };
+                root.Q<Button>("save-scene").clicked += () =>
                 {
                     scene.UseUxHandler(new AllowUserToSaveWorkspaceScene());
                 };

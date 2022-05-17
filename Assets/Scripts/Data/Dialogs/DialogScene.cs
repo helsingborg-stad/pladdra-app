@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Workspace;
 
-namespace Workspace.Snapshot
+namespace Data.Dialogs
 {
-    public class WorkspaceSceneDescription
+    public class DialogScene
     {
-        public static WorkspaceSceneDescription Describe(IWorkspaceScene scene)
+        public static DialogScene Describe(IWorkspaceScene scene)
         {
-            return new WorkspaceSceneDescription()
+            return new DialogScene()
             {
                 Plane = UpdateTransform(new PlaneDescription(), scene.Plane),
                 Items = scene.ObjectsManager.Objects.Select(o => UpdateTransform(

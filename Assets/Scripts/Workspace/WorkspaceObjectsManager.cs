@@ -48,6 +48,15 @@ namespace Workspace
             UnityEngine.Object.Destroy(go);
         }
 
+        public void DestroyAll()
+        {
+            foreach (var item in Items)
+            {
+                UnityEngine.Object.Destroy(item.GameObject);
+            }
+            Items.Clear();
+        }
+
         private void TransformItem(GameObject go, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             go.transform.localPosition = position;

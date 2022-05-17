@@ -10,7 +10,6 @@ using Repository;
 using UnityEngine;
 using Utility;
 using Workspace;
-using Workspace.Snapshot;
 
 namespace Pipelines
 {
@@ -153,12 +152,12 @@ namespace Pipelines
                 },
                 ResourceCollection = CreateWorkspaceResourceCollection(project, modelItems.Concat(markerItems)
                     .ToList()),
-                SceneDescription = new WorkspaceSceneDescription()
+                Scene = new DialogScene()
                 {
-                    Items = allResources.Select((resource, index) => new WorkspaceSceneDescription.ItemDescription()
+                    Items = allResources.Select((resource, index) => new DialogScene.ItemDescription()
                     {
                         ResourceId = resource.ResourceID,
-                        Position = new WorkspaceSceneDescription.V3(){X = index, Y = 0, Z = 0}
+                        Position = new DialogScene.V3(){X = index, Y = 0, Z = 0}
                     }).ToList()
                 }
             });

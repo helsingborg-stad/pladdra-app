@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,6 @@ using System.Threading.Tasks;
 using Data.Dialogs;
 using Newtonsoft.Json;
 using UnityEngine;
-using Workspace.Snapshot;
 
 namespace Repository
 {
@@ -33,7 +33,7 @@ namespace Repository
                 Resources = SampleModels.Select(url => new DialogResource{Url = url, Type = "model"}).ToList()
         });
 
-        public override Task SaveScene(string name, WorkspaceSceneDescription scene)
+        public override Task<DialogScene> SaveScene(string name, DialogScene scene)
         {
             var path = Path.Combine(TempPath, "scenes", $"{name}.scene.json");
             Debug.Log($"Saving scene {name} to {path}");
@@ -41,7 +41,30 @@ namespace Repository
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             
             File.WriteAllText(path, JsonConvert.SerializeObject(scene, Formatting.Indented), Encoding.UTF8);
-            return Task.FromResult(0);
+            return Task.FromResult(scene);
         }
+
+        public override Task<Dictionary<string, DialogScene>> LoadScenes()
+        {
+            var path = Path.Combine(TempPath, "scenes");
+            var result = Directory.EnumerateFiles(path, "*.scene.json")
+                .Select(path => new { path, name = TrimSuffix(Path.GetFileName(path), ".scene.json") })
+                .Select(o => new
+                {
+                    name = o.name,
+                    scene = TryLoadScene(o.path)
+                })
+                .Where(o => o.scene != null)
+                .ToDictionary(o => o.name, o => o.scene);
+            return Task.FromResult(result);
+        }
+
+        private DialogScene TryLoadScene(string path)
+        {
+            var text = File.ReadAllText(path, Encoding.UTF8);
+            return JsonConvert.DeserializeObject<DialogScene>(text);
+        }
+
+        private string TrimSuffix(string value, string suffix) => value.EndsWith(suffix) ? value.Remove(value.Length - suffix.Length) : value;
     }
 }

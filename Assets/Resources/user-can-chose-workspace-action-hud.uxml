@@ -2,7 +2,8 @@
     <ui:VisualElement picking-mode="Ignore" name="root" class="container" style="justify-content: flex-end; align-items: center;">
         <ui:VisualElement class="card" style="flex-direction: row; justify-content: center; align-items: stretch; margin-left: -4px; margin-right: -4px; margin-top: 0; margin-bottom: 0; flex-wrap: nowrap;">
             <ui:Button text="Justera yta" display-tooltip-when-elided="true" name="edit-plane" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
-            <ui:Button text="Spara" display-tooltip-when-elided="true" name="save" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
+            <ui:Button text="Ladda scen" display-tooltip-when-elided="true" name="load-scene" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
+            <ui:Button text="Spara scen" display-tooltip-when-elided="true" name="save-scene" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
             <ui:Button text="Lägg till Objekt" display-tooltip-when-elided="true" name="inventory" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
         </ui:VisualElement>
     </ui:VisualElement>

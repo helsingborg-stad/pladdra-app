@@ -23,7 +23,7 @@ namespace Pipelines
         private Action<T> Callback { get; }
         private Task<T> Task { get; }
 
-        protected TaskYieldInstruction(Func<Task<T>> action, Action<T> callback)
+        public TaskYieldInstruction(Func<Task<T>> action, Action<T> callback)
         {
             Action = action;
             Callback = callback;

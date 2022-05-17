@@ -1,5 +1,6 @@
 using System;
 using Data.Dialogs;
+using Repository;
 
 namespace Pipelines
 {

@@ -1,4 +1,4 @@
-using Workspace.Snapshot;
+using Data.Dialogs;
 
 namespace Workspace
 {
@@ -9,6 +9,6 @@ namespace Workspace
         public IWorkspaceCosmos Cosmos { get; set; }
         public IWorkspaceResourceCollection ResourceCollection { get; set; }
         
-        public WorkspaceSceneDescription SceneDescription { get; set; } 
+        public DialogScene Scene { get; set; } 
     }
 }

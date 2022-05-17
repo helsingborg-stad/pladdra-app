@@ -1,13 +1,16 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Data.Dialogs;
 using DefaultNamespace;
 using Newtonsoft.Json;
+using Pipelines;
 using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
-using Workspace.Snapshot;
 
 namespace Workspace
 {
@@ -19,6 +22,36 @@ namespace Workspace
         public IWorkspaceObjectsManager ObjectsManager { get; set; }
         public IWorkspaceResourceCollection Resources => Configuration.ResourceCollection;
 
+        public void UseScene(string name, DialogScene scene)
+        {
+            UpdateTransform(Plane, scene?.Plane);
+
+            ObjectsManager.DestroyAll();
+            
+            foreach (var item in scene?.Items ??
+                                 Enumerable.Empty<DialogScene.ItemDescription>())
+            {
+                var resource = Configuration.ResourceCollection.TryGetResource(item.ResourceId);
+                if (resource != null)
+                {
+                    ObjectsManager.SpawnItem(
+                        Plane,
+                        resource,
+                        item.Position?.ToVector3() ?? new Vector3(1, 1, 1),
+                        item.Rotation?.ToQuaternion() ?? new Quaternion(),
+                        item.Scale?.ToVector3() ?? new Vector3(1, 1, 1)
+                    );
+                } 
+            }
+
+            void UpdateTransform(GameObject go, DialogScene.TransformDescription t)
+            {
+                go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
+                go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
+                go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
+            }
+        }
+
         public void UseHud(string templatePath, Action<VisualElement> bindUi)
         {
             FindObjectOfType<HudManager>()
@@ -28,7 +61,7 @@ namespace Workspace
         public void UseUxHandler(IUxHandler handler)
         {
             Debug.Log(JsonConvert.SerializeObject(
-                WorkspaceSceneDescription.Describe(this),
+                DialogScene.Describe(this),
                 Formatting.Indented
                 ));
             UxHandler.Deactivate(this);
@@ -36,7 +69,16 @@ namespace Workspace
             UxHandler.Activate(this);
         }
 
-        public WorkspaceSceneDescription CreateWorkspaceSceneDescription() => WorkspaceSceneDescription.Describe(this);
+        public DialogScene CreateWorkspaceSceneDescription() => DialogScene.Describe(this);
+        public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
+        {
+            ClearHud();
+            StartCoroutine(CR());
+            IEnumerator CR()
+            {
+                yield return new TaskYieldInstruction<T>(waitFor, then);
+            }
+        }
 
         public void ClearHud()
         {
@@ -67,34 +109,11 @@ namespace Workspace
 
             Plane = FindObjectOfType<PlaneFactory>()
                 .SpawnPlane(Configuration.Plane.Width, Configuration.Plane.Height);
-
+            
             Plane.transform.SetParent(workspaceOrigin.transform);
 
-            UpdateTransform(Plane, wc?.SceneDescription?.Plane);
-
-            foreach (var item in wc?.SceneDescription?.Items ??
-                                 Enumerable.Empty<WorkspaceSceneDescription.ItemDescription>())
-            {
-                var resource = Configuration.ResourceCollection.TryGetResource(item.ResourceId);
-                if (resource != null)
-                {
-                    ObjectsManager.SpawnItem(
-                        Plane,
-                        resource,
-                        item.Position?.ToVector3() ?? new Vector3(1, 1, 1),
-                        item.Rotation?.ToQuaternion() ?? new Quaternion(),
-                        item.Scale?.ToVector3() ?? new Vector3(1, 1, 1)
-                        );
-                } 
-            }
-
-            void UpdateTransform(GameObject go, WorkspaceSceneDescription.TransformDescription t)
-            {
-                go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
-                go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
-                go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
-            }
-
+            UseScene("", wc.Scene);
+ 
             /*
             var spawns = Configuration.Cosmos.SpaceItems
                 .Select(ci => new

@@ -9,5 +9,6 @@ namespace Workspace
 
         void SpawnItem(GameObject targetParent, IWorkspaceResource resource, Vector3 position, Quaternion rotation, Vector3 scale);
         void DestroyItem(GameObject go);
+        void DestroyAll();
     }
 }

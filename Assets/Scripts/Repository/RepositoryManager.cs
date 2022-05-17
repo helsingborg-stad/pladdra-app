@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Data.Dialogs;
 using UnityEngine;
-using Workspace.Snapshot;
 
 namespace Repository
 {
@@ -15,9 +15,14 @@ namespace Repository
             return repository.Load();
         }
 
-        public Task SaveScene(string name, WorkspaceSceneDescription scene)
+        public Task<DialogScene> SaveScene(string name, DialogScene scene)
         {
             return repository.SaveScene(name, scene);
+        }
+
+        public Task<Dictionary<string, DialogScene>> LoadScenes()
+        {
+            return repository.LoadScenes();
         }
     }
 }
