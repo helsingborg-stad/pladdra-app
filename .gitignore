@@ -77,3 +77,6 @@ crashlytics-build.properties
 UserSettings
 
 ios/
+
+com.kyrylokuzyk.arfoundationremote
+ARFoundationRemoteInstaller
