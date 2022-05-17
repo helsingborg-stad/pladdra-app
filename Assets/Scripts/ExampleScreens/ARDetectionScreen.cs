@@ -26,10 +26,6 @@ namespace ExampleScreens
             ARHandler = new NullARHandler();
         }
 
-        protected override void BeforeActivateScreen()
-        {
-        }
-
         protected override void AfterActivateScreen()
         {
             FindObjectOfType<HudManager>().UseHud("ar-is-detecting-tracked-image", root =>
@@ -61,7 +57,7 @@ namespace ExampleScreens
                         successHits => { hits = successHits; },
                         h => { hits = new List<ARRaycastHit>(); }),
                     new ARTrackImageHandler(trackedImageEvent =>
-                    { 
+                    {
                         var trackedImages = new[]
                             {
                                 trackedImageEvent.added,
@@ -83,12 +79,11 @@ namespace ExampleScreens
                             .ForEach(obj =>
                             {
                                 actions = Array.Empty<Action<GameObject>>();
-                                
+
                                 var go = new GameObject();
 
                                 go.transform.position = new Vector3(obj.trackedImage.transform.position.x,
                                     obj.hit.pose.position.y, obj.trackedImage.transform.position.z);
-
                                 go.transform.rotation =
                                     Quaternion.Euler(0, obj.trackedImage.transform.eulerAngles.y, 0);
 
