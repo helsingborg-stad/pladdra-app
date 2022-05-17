@@ -156,7 +156,7 @@ namespace Data
                     Headers = headers.AllKeys.ToDictionary(key => key, key => headers.Get(key))
                 };
                 newIndex.EntriesByUrl[url] = entry;
-                File.WriteAllText(IndexPath, JsonConvert.SerializeObject(newIndex, Formatting.Indented));
+                File.WriteAllText(IndexPath, JsonConvert.SerializeObject(newIndex, Formatting.Indented), Encoding.UTF8);
                 return newIndex;
             });
         }
@@ -165,7 +165,7 @@ namespace Data
             lock(_lock) {
                 if (_cacheIndex == null) {
                     try {
-                        var text = File.ReadAllText(IndexPath);
+                        var text = File.ReadAllText(IndexPath, Encoding.UTF8);
                         _cacheIndex = JsonConvert.DeserializeObject<CacheIndex>(text);
                     } catch (FileNotFoundException) {
                         _cacheIndex = new CacheIndex();
