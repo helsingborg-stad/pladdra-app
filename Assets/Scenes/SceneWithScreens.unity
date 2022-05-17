@@ -355,9 +355,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deselectWithNothing: 0
-  limit: 0
-  maxSelectables: 5
-  reselect: 3
+  limit: 2
+  maxSelectables: 1
+  reselect: 0
   selectables: []
   onSelected:
     m_PersistentCalls:
