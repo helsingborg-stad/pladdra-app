@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace DefaultNamespace
+namespace Workspace.Hud
 {
-    public class HudManager : MonoBehaviour
+    public class HudManager : MonoBehaviour, IHudManager
     {
         public void UseHud(string templatePath, Action<VisualElement> bindUi)
         {

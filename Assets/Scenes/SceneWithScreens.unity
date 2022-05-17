@@ -245,7 +245,7 @@ GameObject:
   - component: {fileID: 225243938}
   - component: {fileID: 225243937}
   m_Layer: 0
-  m_Name: WorkspaceManager
+  m_Name: WorkspaceManager => manages plane and objects within WorkspaceScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -452,7 +452,7 @@ GameObject:
   - component: {fileID: 660779248}
   - component: {fileID: 660779249}
   m_Layer: 0
-  m_Name: HUD Manager
+  m_Name: HUD Manager => Logic for handling HUDs in our application
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -528,7 +528,7 @@ Transform:
   m_Children:
   - {fileID: 46329641}
   m_Father: {fileID: 2042462683}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &809919392
 GameObject:
@@ -777,6 +777,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   repository: {fileID: 562288754}
+--- !u!1 &1134860150
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1134860151}
+  m_Layer: 0
+  m_Name: == List of available screens ==
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1134860151
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134860150}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2042462683}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1316490485
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,7 +850,7 @@ GameObject:
   - component: {fileID: 1320340157}
   - component: {fileID: 1320340154}
   m_Layer: 0
-  m_Name: PlaneFactory
+  m_Name: PlaneFactory => factory for creating workspace plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -884,7 +915,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2042462683}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1448749542
 MonoBehaviour:
@@ -1095,6 +1126,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1134860151}
   - {fileID: 1448749541}
   - {fileID: 722250305}
   - {fileID: 2060554055}
@@ -1143,7 +1175,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2042462683}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1735382697328653842
 MonoBehaviour:
@@ -1187,7 +1219,7 @@ GameObject:
   - component: {fileID: 1735382697328653843}
   - component: {fileID: 1735382697328653842}
   m_Layer: 0
-  m_Name: UI Document
+  m_Name: UI Document => singleton for hosting our cool HUDs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

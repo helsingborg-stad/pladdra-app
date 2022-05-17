@@ -1,11 +1,9 @@
 using System;
-using Data.Dialogs;
-using DefaultNamespace;
 using Pipelines;
 using Repository;
 using Screens;
-using UnityEngine;
 using UnityEngine.UIElements;
+using Workspace.Hud;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens
@@ -21,7 +19,7 @@ namespace ExampleScreens
             // show progress HUD
             FindObjectOfType<HudManager>().UseHud("app-is-loading-project-hud", root =>
             {
-                var labelElement = root.Q<Label>();
+                var labelElement = root.Q<Label>("label");
                 setLabelText = s => labelElement.text = s;
             });
 
@@ -33,7 +31,7 @@ namespace ExampleScreens
 
             };
             pipeline.OnTaskStarted += label => setLabelText(label);
-            pipeline.OnTaskDone += label => setLabelText("");
+            // pipeline.OnTaskDone += label => setLabelText("");
             pipeline.OnTaskProgress += (label, step) => setLabelText($"{label} {new String('.', step)}");
 
             // run pipeline, and when done: clear hud, transition to another screen
