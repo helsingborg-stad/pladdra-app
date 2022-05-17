@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.DirectoryServices.Protocols;
 using System.IO;
 using System.Linq;
 using Data;
 using Data.Dialogs;
+using Repository;
 using UnityEngine;
 using Utility;
 using Workspace;
@@ -28,7 +30,10 @@ namespace Pipelines
 
         public Pipeline()
         {
-            CreateDialogProjectRepository = () => new SampleDialogProjectRepository(Application.temporaryCachePath);
+            CreateDialogProjectRepository = () =>
+            {
+                throw new ApplicationException("No factory for Dialog Project Repository is specified");
+            };
             CreateWebResourceManager = () => new WebResourceManager(Path.Combine(Application.temporaryCachePath, "resources"));
             CreateWorkspaceResource = (resource, prefab) => new WorkspaceResource { Prefab = prefab, ResourceID = resource.Url };
             CreateWorkspaceResourceCollection = (project, items) => new WorkspaceResourceCollection { Resources = items };

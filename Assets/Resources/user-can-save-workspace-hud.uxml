@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement picking-mode="Ignore" class="container" style="justify-content: flex-end; align-items: center;">
+        <ui:VisualElement class="card" style="flex-direction: column; justify-content: center; align-items: stretch; margin-left: -4px; margin-right: -4px; margin-top: 0; margin-bottom: 0; flex-wrap: nowrap;">
+            <ui:TextField picking-mode="Ignore" label="Ange namn" value="" name="name" />
+            <ui:VisualElement style="flex-direction: row; justify-content: center; align-items: stretch; margin-left: -4px; margin-right: -4px; margin-top: 0; margin-bottom: 0; flex-wrap: nowrap;">
+                <ui:Button text="Spara" display-tooltip-when-elided="true" name="save" />
+                <ui:Button text="Avbryt" display-tooltip-when-elided="true" name="cancel" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

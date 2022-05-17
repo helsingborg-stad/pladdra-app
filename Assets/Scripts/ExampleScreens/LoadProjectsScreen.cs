@@ -2,6 +2,7 @@ using System;
 using Data.Dialogs;
 using DefaultNamespace;
 using Pipelines;
+using Repository;
 using Screens;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,10 +25,11 @@ namespace ExampleScreens
                 setLabelText = s => labelElement.text = s;
             });
 
+            
             // configure pipeline
             var pipeline = new Pipeline()
             {
-                CreateDialogProjectRepository = () => new SampleDialogProjectRepository(Application.temporaryCachePath)
+                CreateDialogProjectRepository = FindObjectOfType<RepositoryManager> // () => new SampleDialogProjectRepository(Application.temporaryCachePath)
 
             };
             pipeline.OnTaskStarted += label => setLabelText(label);

@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using Data.Dialogs;
 using DefaultNamespace;
 using Newtonsoft.Json;
+using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -34,6 +36,8 @@ namespace Workspace
             UxHandler.Activate(this);
         }
 
+        public WorkspaceSceneDescription CreateWorkspaceSceneDescription() => WorkspaceSceneDescription.Describe(this);
+
         public void ClearHud()
         {
             FindObjectOfType<HudManager>().ClearHud();
@@ -41,6 +45,7 @@ namespace Workspace
 
         private WorkspaceConfiguration Configuration { get; set; }
 
+        public IDialogProjectRepository DialogProjectRepository => FindObjectOfType<RepositoryManager>();
         public GameObject Plane { get; set; }
 
         public WorkspaceManager()
