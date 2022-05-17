@@ -10,9 +10,10 @@ using Screen = Screens.Screen;
 
 namespace ExampleScreens
 {
-
     public class LoadProjectsScreen : Screen
     {
+        public bool UseARSceneAfterLoad;
+
         private void Start()
         {
             // this action is updated to map to a label in our HUD
@@ -49,9 +50,22 @@ namespace ExampleScreens
                 updateUI = () => { };
                 setLabelText = s => { };
                 FindObjectOfType<HudManager>().ClearHud();
-                GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
-                    beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
-                );
+                
+                var screenHandlers = new Dictionary<string, Action>()
+                {
+                    {
+                        "Default", () => GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
+                            beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
+                        )
+                    },
+                    {
+                        "AR", () => GetComponentInParent<ScreenManager>().SetActiveScreen<ARDetectionScreen>(
+                            beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
+                        )
+                    }
+                };
+
+                screenHandlers[UseARSceneAfterLoad ? "AR" : "Default"]();
             }));
         }
     }
