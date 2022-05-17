@@ -23,12 +23,11 @@ namespace Workspace
 
         public void SpawnItem(GameObject targetParent, IWorkspaceResource resource, Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            var go = Object.Instantiate(itemPrefab, position, rotation, targetParent.transform);
+            var go = Object.Instantiate(itemPrefab, targetParent.transform);
             go.SetActive(false);
-            go.transform.SetParent(targetParent.transform);
             TransformItem(go, position, rotation, scale);
 
-            var resourceGo = Object.Instantiate(resource.Prefab, position, rotation, go.transform);
+            var resourceGo = Object.Instantiate(resource.Prefab, go.transform);
             resourceGo.SetActive(true);
 
             Items.Add(new Item

@@ -11,21 +11,20 @@ namespace Data.Dialogs
         {
             return new DialogScene()
             {
-                Plane = UpdateTransform(new PlaneDescription(), scene.Plane),
-                Items = scene.ObjectsManager.Objects.Select(o => UpdateTransform(
-                        new ItemDescription()
-                        {
-                            ResourceId = o.WorkspaceResource.ResourceID
-                        }, o.GameObject))
+                Plane = CopyTransformTo(scene.Plane, new PlaneDescription()),
+                Items = scene.ObjectsManager.Objects.Select(o => CopyTransformTo(o.GameObject, new ItemDescription()
+                    {
+                        ResourceId = o.WorkspaceResource.ResourceID
+                    }))
                     .ToList()
             };
         }
-        private static T UpdateTransform<T>(T obj, GameObject go) where T : TransformDescription
+        private static T CopyTransformTo<T>(GameObject from, T to) where T : TransformDescription
         {
-            obj.Position = MakeV3(go.transform.localPosition);
-            obj.Scale = MakeV3(go.transform.localScale);
-            obj.Rotation = MakeQ(go.transform.localRotation);
-            return obj;
+            to.Position = MakeV3(from.transform.localPosition);
+            to.Scale = MakeV3(from.transform.localScale);
+            to.Rotation = MakeQ(from.transform.localRotation);
+            return to;
         }
 
         private static Q MakeQ(Quaternion q) => new()
