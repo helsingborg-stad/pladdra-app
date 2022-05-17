@@ -129,9 +129,10 @@ MonoBehaviour:
     RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 5466477533273893819}
   ScreenDepth:
-    Conversion: 1
+    Conversion: 3
     Camera: {fileID: 0}
-    Object: {fileID: 0}
+    Object: {fileID: 8231571904891062300, guid: b92c3d80c6b3d40b994ab3519c413958,
+      type: 3}
     Layers:
       serializedVersion: 2
       m_Bits: 4294967291
