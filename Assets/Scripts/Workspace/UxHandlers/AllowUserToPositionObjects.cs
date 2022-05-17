@@ -6,10 +6,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Utility;
 using UXHandlers;
-using Workspace.UxHandlers;
 using Workspace.UxHandlers.ObjectInspectors;
 
-namespace Workspace
+namespace Workspace.UxHandlers
 {
     public class AllowUserToPositionObjects: AbstractUxHandler
     {
@@ -20,6 +19,11 @@ namespace Workspace
             GameObjectPositionInspector = new NullGameObjectPositionInspector();
         }
 
+        public override void Activate(IWorkspaceScene scene)
+        {
+            base.Activate(scene);
+            UserCanSelectObjectHud(scene);
+        }
 
         protected override void OnSelected(IWorkspaceScene scene, GameObject go)
         {
@@ -34,50 +38,23 @@ namespace Workspace
         protected override void OnDeselected(IWorkspaceScene scene, GameObject go)
         {
             go.RemoveComponent<TransformChangedHandler>();
-            scene.UseUxHandler(new AllowUserToPositionObjects());
-        }
-
-        public override void Activate(IWorkspaceScene scene)
-        {
-            base.Activate(scene);
-            UseUserCanChoseWorkspaceActionHud(scene);
+            //scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+            UserCanSelectObjectHud(scene);
         }
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
             return scene.ObjectsManager.Objects.Select(o => o.GameObject);
         }
-
-        protected void UseUserCanChoseWorkspaceActionHud(IWorkspaceScene scene)
+        
+        private void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, GameObject go)
         {
-            scene.UseHud("user-can-chose-workspace-action-hud", root =>
-            {
-                root.Q<Button>("edit-plane").clicked += () =>
-                {
-                    scene.UseUxHandler(new AllowUserToPositionPlane());
-                };
-                root.Q<Button>("inventory").clicked += () =>
-                {
-                    scene.UseUxHandler(new AllowUserToSpawnItemFromResource());
-                };
-                root.Q<Button>("load-scene").clicked += () =>
-                {
-                    scene.UseUxHandler(new AllowUserToLoadWorkspaceScene());
-                };
-                root.Q<Button>("save-scene").clicked += () =>
-                {
-                    scene.UseUxHandler(new AllowUserToSaveWorkspaceScene());
-                };
-            });
-        }
-        protected void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, GameObject go) {
-            // Create our nice HUD
             scene.UseHud("user-has-selected-workspace-object-hud", root =>
             {
                 root.Q<Button>("remove").clicked += () =>
                 {
                     scene.ObjectsManager.DestroyItem(go);
-                    scene.UseUxHandler(new AllowUserToPositionObjects());
+                    // scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
                 root.Q<Button>("done").clicked += () =>
                 {
@@ -87,6 +64,15 @@ namespace Workspace
                 // and attach it to our position changed logic 
                 GameObjectPositionInspector = new GameObjectPositionInspector(go, root);
             });
+        }
+
+        private void UserCanSelectObjectHud(IWorkspaceScene scene)
+        {
+            scene.UseHud("user-can-select-object-hud", root =>
+            {
+                root.Q<Button>("done").clicked += () => scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+            });
+
         }
     }
 }

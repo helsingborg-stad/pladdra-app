@@ -39,11 +39,11 @@ namespace Workspace.UxHandlers
                             new Vector3(1, 1, 1));
                         */
                         scene.UseScene(kv.Key, kv.Value);
-                        scene.UseUxHandler(new AllowUserToPositionObjects());
+                        scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);
                 }
-                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserToPositionObjects()); };
+                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
             });
         }
 

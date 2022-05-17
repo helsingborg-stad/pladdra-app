@@ -6,7 +6,6 @@ namespace Workspace
     {
         public WorkspaceOrigin Origin { get; set; }
         public IWorkspacePlane Plane { get; set; }
-        public IWorkspaceCosmos Cosmos { get; set; }
         public IWorkspaceResourceCollection ResourceCollection { get; set; }
         
         public DialogScene Scene { get; set; } 

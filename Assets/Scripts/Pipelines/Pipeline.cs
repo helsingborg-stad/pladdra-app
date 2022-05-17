@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.DirectoryServices.Protocols;
 using System.IO;
 using System.Linq;
 using Data;
@@ -128,38 +127,16 @@ namespace Pipelines
 
 
             var allResources = modelItems.Concat(markerItems);
-
-            var cosmos = Wrap("faking cosmos", () => new WorkspaceCosmos
-            {
-                SpaceItems = /* fake */ allResources
-                    .Select((resource, index) => new WorkspaceItemInSpace
-                    {
-                        ResourceId = resource.ResourceID,
-                        Position = new Vector3(index, 0, 0),
-                        Scale = new Vector3(1, 1, 1),
-                        Rotation = new Quaternion()
-                    }).ToList()
-            });
-
+            
             var configuration = Wrap("creating workspace configuration", () => new WorkspaceConfiguration
             {
                 Origin = new WorkspaceOrigin(),
-                Cosmos = cosmos,
                 Plane = new WorkspacePlane
                 {
                     Width = 6,
                     Height = 12
                 },
-                ResourceCollection = CreateWorkspaceResourceCollection(project, modelItems.Concat(markerItems)
-                    .ToList()),
-                Scene = new DialogScene()
-                {
-                    Items = allResources.Select((resource, index) => new DialogScene.ItemDescription()
-                    {
-                        ResourceId = resource.ResourceID,
-                        Position = new DialogScene.V3(){X = index, Y = 0, Z = 0}
-                    }).ToList()
-                }
+                ResourceCollection = CreateWorkspaceResourceCollection(project, allResources.ToList()),
             });
 
             callback(configuration);

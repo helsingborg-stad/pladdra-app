@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -31,12 +30,12 @@ namespace Workspace.UxHandlers
                     scene.WaitForThen(
                         () => repo.SaveScene(nameInput.value,
                             sceneDescription),
-                        (_) => scene.UseUxHandler(new AllowUserToPositionObjects())
+                        (_) => scene.UseUxHandler(new AllowUserSelectWorkspaceActions())
                     );
                 };
                 cancelButton.clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToPositionObjects());
+                    scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
 
                 nameInput.RegisterValueChangedCallback(e => ToggleSaveButton(e.newValue));

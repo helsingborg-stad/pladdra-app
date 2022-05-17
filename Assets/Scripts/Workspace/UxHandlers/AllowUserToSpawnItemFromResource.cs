@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
 
-namespace Workspace
+namespace Workspace.UxHandlers
 {
     public class AllowUserToSpawnItemFromResource : AbstractUxHandler
     {
@@ -31,13 +30,13 @@ namespace Workspace
                     {
                         scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
                             new Vector3(1, 1, 1));
-                        scene.UseUxHandler(new AllowUserToPositionObjects());
+                        scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);
                 });
 
 
-                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserToPositionObjects()); };
+                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
             });
         }
     }

@@ -11,6 +11,7 @@ using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
+using Workspace.UxHandlers;
 
 namespace Workspace
 {
@@ -113,7 +114,7 @@ namespace Workspace
             Plane.transform.SetParent(workspaceOrigin.transform);
 
             UseScene("", wc.Scene);
-            UseUxHandler(new AllowUserToPositionObjects());
+            UseUxHandler(new AllowUserSelectWorkspaceActions());
         }
     }
 }

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using Lean.Common;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
 
-namespace Workspace
+namespace Workspace.UxHandlers
 {
     public class AllowUserToPositionPlane : AbstractUxHandler
     {
@@ -20,7 +19,7 @@ namespace Workspace
                 root.Q<Button>("done").clicked += () =>
                 {
                     DeselectAll();
-                    scene.UseUxHandler(new AllowUserToPositionObjects());
+                    scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
             });
         }
