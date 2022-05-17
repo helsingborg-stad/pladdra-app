@@ -48,11 +48,14 @@ namespace Workspace.Snapshot
             public float X { get; set; }
             public float Y { get; set; }
             public float Z { get; set; }
+
+            public Vector3 ToVector3() => new (X, Y, Z);
         }
 
         public class Q : V3
         {
             public float W { get; set; }
+            public Quaternion ToQuaternion() => new(X, Y, Z, W);
         }
         
         public PlaneDescription Plane { get; set; }

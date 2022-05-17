@@ -8,6 +8,7 @@ using Data.Dialogs;
 using UnityEngine;
 using Utility;
 using Workspace;
+using Workspace.Snapshot;
 
 namespace Pipelines
 {
@@ -146,7 +147,15 @@ namespace Pipelines
                     Height = 12
                 },
                 ResourceCollection = CreateWorkspaceResourceCollection(project, modelItems.Concat(markerItems)
-                    .ToList())
+                    .ToList()),
+                SceneDescription = new WorkspaceSceneDescription()
+                {
+                    Items = allResources.Select((resource, index) => new WorkspaceSceneDescription.ItemDescription()
+                    {
+                        ResourceId = resource.ResourceID,
+                        Position = new WorkspaceSceneDescription.V3(){X = index, Y = 0, Z = 0}
+                    }).ToList()
+                }
             });
 
             callback(configuration);

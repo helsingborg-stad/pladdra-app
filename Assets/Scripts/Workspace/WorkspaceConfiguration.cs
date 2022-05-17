@@ -1,3 +1,5 @@
+using Workspace.Snapshot;
+
 namespace Workspace
 {
     public class WorkspaceConfiguration
@@ -6,5 +8,7 @@ namespace Workspace
         public IWorkspacePlane Plane { get; set; }
         public IWorkspaceCosmos Cosmos { get; set; }
         public IWorkspaceResourceCollection ResourceCollection { get; set; }
+        
+        public WorkspaceSceneDescription SceneDescription { get; set; } 
     }
 }

@@ -65,6 +65,32 @@ namespace Workspace
 
             Plane.transform.SetParent(workspaceOrigin.transform);
 
+            UpdateTransform(Plane, wc?.SceneDescription?.Plane);
+
+            foreach (var item in wc?.SceneDescription?.Items ??
+                                 Enumerable.Empty<WorkspaceSceneDescription.ItemDescription>())
+            {
+                var resource = Configuration.ResourceCollection.TryGetResource(item.ResourceId);
+                if (resource != null)
+                {
+                    ObjectsManager.SpawnItem(
+                        Plane,
+                        resource,
+                        item.Position?.ToVector3() ?? new Vector3(1, 1, 1),
+                        item.Rotation?.ToQuaternion() ?? new Quaternion(),
+                        item.Scale?.ToVector3() ?? new Vector3(1, 1, 1)
+                        );
+                } 
+            }
+
+            void UpdateTransform(GameObject go, WorkspaceSceneDescription.TransformDescription t)
+            {
+                go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
+                go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
+                go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
+            }
+
+            /*
             var spawns = Configuration.Cosmos.SpaceItems
                 .Select(ci => new
                 {
@@ -82,6 +108,7 @@ namespace Workspace
                     spawn.ci.Rotation,
                     spawn.ci.Scale);
             }
+            */
             UseUxHandler(new AllowUserToPositionObjects());
 //            UseUxHandler(new AllowUserToPositionPlane());
 //            SetModeAllowUserToPositionPlane();
