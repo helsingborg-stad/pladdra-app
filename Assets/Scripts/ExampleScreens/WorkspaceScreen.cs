@@ -7,6 +7,7 @@ namespace ExampleScreens
 {
     public class WorkspaceScreen : Screen
     {
+        public GameObject OriginPrefab;
         public WorkspaceConfiguration configuration { get; private set; }
 
         private void Start()
@@ -24,6 +25,7 @@ namespace ExampleScreens
 
         protected override void AfterActivateScreen()
         {
+            configuration.Origin.go = configuration.Origin.go ?? Instantiate(OriginPrefab);
             FindObjectOfType<WorkspaceManager>()
                 .Activate(configuration);
         }
