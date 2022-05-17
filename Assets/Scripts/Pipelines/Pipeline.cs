@@ -34,7 +34,7 @@ namespace Pipelines
 
             OnTaskStarted += label => Debug.Log($"[pipline] {label}...");
             OnTaskDone += label => Debug.Log($"[pipline] done {label}");
-            OnTaskProgress += (label, step) => Debug.Log($"[pipline] {new String('.', step)}");
+            // OnTaskProgress += (label, step) => Debug.Log($"[pipline] {new String('.', step)}");
         }
 
         private CustomYieldInstruction WrapEnumerator<T>(string label, Func<T> factory) where T : CustomYieldInstruction
