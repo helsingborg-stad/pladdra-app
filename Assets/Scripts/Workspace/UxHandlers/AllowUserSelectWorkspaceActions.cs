@@ -8,30 +8,30 @@ namespace Workspace.UxHandlers
 {
     public class AllowUserSelectWorkspaceActions: AbstractUxHandler
     {
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
-            scene.UseHud("user-can-chose-workspace-action-hud", root =>
+            base.Activate(scene, workspace);
+            workspace.UseHud("user-can-chose-workspace-action-hud", root =>
             {
                 root.Q<Button>("edit-plane").clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToPositionPlane());
+                    workspace.UseUxHandler(new AllowUserToPositionPlane());
                 };
                 root.Q<Button>("edit-objects").clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToPositionObjects());
+                    workspace.UseUxHandler(new AllowUserToPositionObjects());
                 };
                 root.Q<Button>("inventory").clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToSpawnItemFromResource());
+                    workspace.UseUxHandler(new AllowUserToSpawnItemFromResource());
                 };
                 root.Q<Button>("load-scene").clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToLoadWorkspaceScene());
+                    workspace.UseUxHandler(new AllowUserToLoadWorkspaceScene());
                 };
                 root.Q<Button>("save-scene").clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserToSaveWorkspaceScene());
+                    workspace.UseUxHandler(new AllowUserToSaveWorkspaceScene());
                 };
             });
         }

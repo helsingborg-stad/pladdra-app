@@ -10,10 +10,10 @@ namespace UXHandlers
     {
         protected abstract IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene);
 
-        protected virtual void OnSelected(IWorkspaceScene scene, GameObject go) {}
-        protected virtual void OnDeselected(IWorkspaceScene scene, GameObject go) {}
+        protected virtual void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go) {}
+        protected virtual void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go) {}
         
-        public virtual void Activate(IWorkspaceScene scene)
+        public virtual void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             foreach (var obj in GetSelectableObjects(scene))
             {
@@ -24,12 +24,12 @@ namespace UXHandlers
 
                 var selectable = obj.GetComponent<LeanSelectable>();
                 selectable.enabled = true;
-                selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, obj));
-                selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, obj));
+                selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, obj));
+                selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, obj));
             }
         }
 
-        public virtual void Deactivate(IWorkspaceScene scene)
+        public virtual void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
         {
             foreach (var obj in GetSelectableObjects(scene))
             {

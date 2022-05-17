@@ -11,19 +11,19 @@ namespace UXHandlers
 
         private IUxHandler[] Handlers { get; set; }
 
-        public void Activate(IWorkspaceScene scene)
+        public void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             foreach (var handler in Handlers)
             {
-                handler.Activate(scene);
+                handler.Activate(scene, workspace);
             }
         }
 
-        public void Deactivate(IWorkspaceScene scene)
+        public void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
         {
             foreach (var handler in Handlers)
             {
-                handler.Deactivate(scene);
+                handler.Deactivate(scene, workspace);
             }
         }
     }

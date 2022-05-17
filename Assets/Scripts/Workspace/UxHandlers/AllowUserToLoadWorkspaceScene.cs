@@ -14,16 +14,16 @@ namespace Workspace.UxHandlers
             return Enumerable.Empty<GameObject>();
         }
 
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
-            var repo = scene.DialogProjectRepository;
-            scene.WaitForThen(() => repo.LoadScenes(), scenes => UseUserCanSelectSceneHud(scene, scenes));
+            base.Activate(scene, workspace);
+            var repo = workspace.DialogProjectRepository;
+            workspace.WaitForThen(() => repo.LoadScenes(), scenes => UseUserCanSelectSceneHud(workspace, scenes));
         }
 
-        private void UseUserCanSelectSceneHud(IWorkspaceScene scene, Dictionary<string, DialogScene> scenes)
+        private void UseUserCanSelectSceneHud(IWorkspace workspace, Dictionary<string, DialogScene> scenes)
         {
-            scene.UseHud("user-can-select-scene-hud", root =>
+            workspace.UseHud("user-can-select-scene-hud", root =>
             {
                 var container = root.Q<VisualElement>("content");
                 
@@ -38,12 +38,12 @@ namespace Workspace.UxHandlers
                         scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
                             new Vector3(1, 1, 1));
                         */
-                        scene.UseScene(kv.Key, kv.Value);
-                        scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                        workspace.UseScene(kv.Key, kv.Value);
+                        workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);
                 }
-                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
+                root.Q<Button>("close").clicked += () => { workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
             });
         }
 

@@ -19,27 +19,27 @@ namespace Workspace.UxHandlers
             GameObjectPositionInspector = new NullGameObjectPositionInspector();
         }
 
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
-            UserCanSelectObjectHud(scene);
+            base.Activate(scene, workspace);
+            UserCanSelectObjectHud(workspace);
         }
 
-        protected override void OnSelected(IWorkspaceScene scene, GameObject go)
+        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             // add component that listens for position changes
             var tc = go.GetOrAddComponent<TransformChangedHandler>();
             tc.enabled = true;
             tc.OnPositionChanged.AddListener(position => GameObjectPositionInspector.OnPositionChanged(position));
 
-            UseUserHasSelectedWorkspaceObjectHud(scene, go);
+            UseUserHasSelectedWorkspaceObjectHud(scene, workspace, go);
         }
         
-        protected override void OnDeselected(IWorkspaceScene scene, GameObject go)
+        protected override void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             go.RemoveComponent<TransformChangedHandler>();
             //scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
-            UserCanSelectObjectHud(scene);
+            UserCanSelectObjectHud(workspace);
         }
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
@@ -47,9 +47,9 @@ namespace Workspace.UxHandlers
             return scene.ObjectsManager.Objects.Select(o => o.GameObject);
         }
         
-        private void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, GameObject go)
+        private void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-            scene.UseHud("user-has-selected-workspace-object-hud", root =>
+            workspace.UseHud("user-has-selected-workspace-object-hud", root =>
             {
                 root.Q<Button>("remove").clicked += () =>
                 {
@@ -66,11 +66,11 @@ namespace Workspace.UxHandlers
             });
         }
 
-        private void UserCanSelectObjectHud(IWorkspaceScene scene)
+        private void UserCanSelectObjectHud(IWorkspace workspace)
         {
-            scene.UseHud("user-can-select-object-hud", root =>
+            workspace.UseHud("user-can-select-object-hud", root =>
             {
-                root.Q<Button>("done").clicked += () => scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                root.Q<Button>("done").clicked += () => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
             });
 
         }

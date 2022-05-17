@@ -12,21 +12,21 @@ namespace Workspace.UxHandlers
             return new[] { scene.Plane };
         }
 
-        protected override void OnSelected(IWorkspaceScene scene, GameObject go)
+        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-            scene.UseHud("user-has-selected-plane-hud", root =>
+            workspace.UseHud("user-has-selected-plane-hud", root =>
             {
                 root.Q<Button>("done").clicked += () =>
                 {
                     DeselectAll();
-                    scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                    workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
             });
         }
 
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
+            base.Activate(scene, workspace);
             SelectObject(scene.Plane);
         }
     }

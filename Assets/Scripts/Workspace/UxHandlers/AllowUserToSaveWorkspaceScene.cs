@@ -13,10 +13,10 @@ namespace Workspace.UxHandlers
             return Enumerable.Empty<GameObject>();
         }
 
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
-            scene.UseHud("user-can-save-workspace-hud", root =>
+            base.Activate(scene, workspace);
+            workspace.UseHud("user-can-save-workspace-hud", root =>
             {
                 var saveButton = root.Q<Button>("save");
                 var cancelButton = root.Q<Button>("cancel");
@@ -24,18 +24,18 @@ namespace Workspace.UxHandlers
                 saveButton.clicked += () =>
                 {
                     // extract stuff in man thread
-                    var repo = scene.DialogProjectRepository;
+                    var repo = workspace.DialogProjectRepository;
                     var sceneDescription = scene.CreateWorkspaceSceneDescription();
                     // ...and then save in worker
-                    scene.WaitForThen(
+                    workspace.WaitForThen(
                         () => repo.SaveScene(nameInput.value,
                             sceneDescription),
-                        (_) => scene.UseUxHandler(new AllowUserSelectWorkspaceActions())
+                        (_) => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions())
                     );
                 };
                 cancelButton.clicked += () =>
                 {
-                    scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                    workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
 
                 nameInput.RegisterValueChangedCallback(e => ToggleSaveButton(e.newValue));

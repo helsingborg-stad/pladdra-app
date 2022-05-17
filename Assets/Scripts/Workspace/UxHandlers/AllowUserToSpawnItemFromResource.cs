@@ -13,11 +13,11 @@ namespace Workspace.UxHandlers
             return Enumerable.Empty<GameObject>();
         }
 
-        public override void Activate(IWorkspaceScene scene)
+        public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            base.Activate(scene);
+            base.Activate(scene, workspace);
 
-            scene.UseHud("user-can-chose-resource-to-spawn-hud", root =>
+            workspace.UseHud("user-can-chose-resource-to-spawn-hud", root =>
             {
                 var container = root.Q<VisualElement>("content");
                 var items = scene.Resources.Resources.ToList();
@@ -30,13 +30,13 @@ namespace Workspace.UxHandlers
                     {
                         scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
                             new Vector3(1, 1, 1));
-                        scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                        workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);
                 });
 
 
-                root.Q<Button>("close").clicked += () => { scene.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
+                root.Q<Button>("close").clicked += () => { workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
             });
         }
     }

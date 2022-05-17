@@ -15,7 +15,7 @@ using Workspace.UxHandlers;
 
 namespace Workspace
 {
-    public class WorkspaceManager : MonoBehaviour, IWorkspaceManager, IWorkspaceScene
+    public class WorkspaceManager : MonoBehaviour, IWorkspaceScene, IWorkspace
     {
         public IUxHandler UxHandler { get; set; }
         public GameObject workspaceOrigin;
@@ -28,13 +28,12 @@ namespace Workspace
             ObjectsManager.DestroyAll();
 
             UpdateTransform(Plane, scene?.Plane);
-            
+
             foreach (var item in scene?.Items ??
                                  Enumerable.Empty<DialogScene.ItemDescription>())
             {
                 var resource = Configuration.ResourceCollection.TryGetResource(item.ResourceId);
                 if (resource != null)
-                {
                     ObjectsManager.SpawnItem(
                         Plane,
                         resource,
@@ -42,7 +41,6 @@ namespace Workspace
                         item.Rotation?.ToQuaternion() ?? new Quaternion(),
                         item.Scale?.ToVector3() ?? new Vector3(1, 1, 1)
                     );
-                } 
             }
 
             void UpdateTransform(GameObject go, DialogScene.TransformDescription t)
@@ -61,20 +59,21 @@ namespace Workspace
 
         public void UseUxHandler(IUxHandler handler)
         {
-            Debug.Log(JsonConvert.SerializeObject(
-                DialogScene.Describe(this),
-                Formatting.Indented
-                ));
-            UxHandler.Deactivate(this);
+            UxHandler.Deactivate(this, this);
             UxHandler = handler ?? new NullUxHandler();
-            UxHandler.Activate(this);
+            UxHandler.Activate(this, this);
         }
 
-        public DialogScene CreateWorkspaceSceneDescription() => DialogScene.Describe(this);
+        public DialogScene CreateWorkspaceSceneDescription()
+        {
+            return DialogScene.Describe(this);
+        }
+
         public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
         {
             ClearHud();
             StartCoroutine(CR());
+
             IEnumerator CR()
             {
                 yield return new TaskYieldInstruction<T>(waitFor, then);
@@ -110,7 +109,7 @@ namespace Workspace
 
             Plane = FindObjectOfType<PlaneFactory>()
                 .SpawnPlane(Configuration.Plane.Width, Configuration.Plane.Height);
-            
+
             Plane.transform.SetParent(workspaceOrigin.transform);
 
             UseScene("", wc.Scene);
