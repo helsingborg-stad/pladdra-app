@@ -89,27 +89,27 @@ namespace Pipelines
         public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration> callback)
         {
             
-            var repo = Wrap("loading external project", () => CreateDialogProjectRepository());
+            var repo = Wrap("Nu kör vi!", () => CreateDialogProjectRepository());
 
             DialogProject project = null;
-            yield return WrapEnumerator("loading external project", () => new LoadExternalProject(repo, p => project = p));
+            yield return WrapEnumerator("Nu hämtar vi definitioner från servern", () => new LoadExternalProject(repo, p => project = p));
 
             yield return new WaitForSeconds(4);
             
             var wrm = CreateWebResourceManager();
             Dictionary<string, string> url2path = null;
-            yield return WrapEnumerator("mapping external resources to local", () => new MapExternalResourceToLocalPaths(wrm, project, p => url2path = p));
+            yield return WrapEnumerator("Vi tankar ner alla modeller för at det ska gå snabbare sen", () => new MapExternalResourceToLocalPaths(wrm, project, p => url2path = p));
 
             var path2model = new Dictionary<string, GameObject>();
             foreach (var path in url2path.Values)
             {
-                yield return WrapEnumerator($"loading 3d model {path}", () => new Load3dModel(path, go =>
+                yield return WrapEnumerator($"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path)} i minnet", () => new Load3dModel(path, go =>
                 {
                     path2model[path] = go;
                 }));
             }
 
-            var modelItems = Wrap("creating model items", () => project.Resources
+            var modelItems = Wrap("Nu skapar vi modeller", () => project.Resources
                     .Where(resource => resource.Type == "model")
                     .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.Url)) })
                     .Where(o => o.gameObject != null)
@@ -117,7 +117,7 @@ namespace Pipelines
                     .Where(item => item != null)
                     .ToList());
 
-            var markerItems = Wrap("creating marker items", () => project.Resources
+            var markerItems = Wrap("Nu skapar vi markörer", () => project.Resources
                     .Where(resource => resource.Type == "marker")
                     .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.Url)) })
                     .Where(o => o.gameObject != null)
@@ -128,7 +128,7 @@ namespace Pipelines
 
             var allResources = modelItems.Concat(markerItems);
             
-            var configuration = Wrap("creating workspace configuration", () => new WorkspaceConfiguration
+            var configuration = Wrap("Här skapas det en konfiguration minsann", () => new WorkspaceConfiguration
             {
                 Origin = new WorkspaceOrigin(),
                 Plane = new WorkspacePlane
