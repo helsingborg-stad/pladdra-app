@@ -59,8 +59,8 @@ namespace ExampleScreens
                     new ARPlaneDetectionHandler(),
                     new ARScreenRaycastHandler(successHits => { hits = successHits; },
                         h => { hits = new List<ARRaycastHit>(); }),
-                    new ARTrackImage(trackedImageEvent =>
-                    {
+                    new ARTrackImageHandler(trackedImageEvent =>
+                    { 
                         var trackedImages = new[]
                             {
                                 trackedImageEvent.added,

@@ -3,10 +3,10 @@ using UnityEngine.XR.ARFoundation;
 
 namespace ARHandlers
 {
-    public class ARTrackImage : IARHandler
+    public class ARTrackImageHandler : IARHandler
     {
         private Action<ARTrackedImagesChangedEventArgs> OnHitHandler;
-        public ARTrackImage(Action<ARTrackedImagesChangedEventArgs> action)
+        public ARTrackImageHandler(Action<ARTrackedImagesChangedEventArgs> action)
         {
             OnHitHandler = action;
         }
