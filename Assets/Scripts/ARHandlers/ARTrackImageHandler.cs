@@ -14,14 +14,12 @@ namespace ARHandlers
         public void Activate()
         {
             UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().enabled = true;
-            UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().trackedImagesChanged += OnImagesChanged;
+            UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().trackedImagesChanged += OnHitHandler;
         }
-
-        private void OnImagesChanged(ARTrackedImagesChangedEventArgs args) => OnHitHandler(args);
 
         public void Deactivate()
         {
-            UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().trackedImagesChanged -= OnImagesChanged;
+            UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().trackedImagesChanged -= OnHitHandler;
             UnityEngine.Object.FindObjectOfType<ARTrackedImageManager>().enabled = false;
         }
     }

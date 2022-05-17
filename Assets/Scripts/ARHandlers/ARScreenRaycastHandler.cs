@@ -12,18 +12,18 @@ namespace ARHandlers
 
         private ARRaycast raycast;
         private UnityAction<List<ARRaycastHit>> OnHitAction;
-        private UnityAction<List<ARRaycastHit>> OnFailAction;
+        private UnityAction<List<ARRaycastHit>> OnMissAction;
         
-        public ARScreenRaycastHandler(UnityAction<List<ARRaycastHit>> hitAction)
+        public ARScreenRaycastHandler(UnityAction<List<ARRaycastHit>> onHitAction)
         {
-            OnHitAction = hitAction;
-            OnFailAction = hits => { };
+            OnHitAction = onHitAction;
+            OnMissAction = hits => { };
         }
 
-        public ARScreenRaycastHandler(UnityAction<List<ARRaycastHit>> hitAction, UnityAction<List<ARRaycastHit>> failAction)
+        public ARScreenRaycastHandler(UnityAction<List<ARRaycastHit>> onHitAction, UnityAction<List<ARRaycastHit>> onMissAction)
         {
-            OnHitAction = hitAction;
-            OnFailAction = failAction;
+            OnHitAction = onHitAction;
+            OnMissAction = onMissAction;
         }
 
         public void Activate()
@@ -31,13 +31,13 @@ namespace ARHandlers
             UnityEngine.Object.FindObjectOfType<ARRaycastManager>().enabled = true;
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().enabled = true;
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().HitEvent.AddListener(OnHitAction);
-            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.AddListener(OnFailAction);
+            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.AddListener(OnMissAction);
         }
 
         public void Deactivate()
         {
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().HitEvent.RemoveListener(OnHitAction);
-            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.RemoveListener(OnFailAction);
+            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.RemoveListener(OnMissAction);
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().enabled = false;
             UnityEngine.Object.FindObjectOfType<ARRaycastManager>().enabled = false;
         }

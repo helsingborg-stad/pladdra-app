@@ -57,7 +57,8 @@ namespace ExampleScreens
                 new CompositeARHandler(new IARHandler[]
                 {
                     new ARPlaneDetectionHandler(),
-                    new ARScreenRaycastHandler(successHits => { hits = successHits; },
+                    new ARScreenRaycastHandler(
+                        successHits => { hits = successHits; },
                         h => { hits = new List<ARRaycastHit>(); }),
                     new ARTrackImageHandler(trackedImageEvent =>
                     { 
@@ -74,14 +75,15 @@ namespace ExampleScreens
                             .Select(a => new
                             {
                                 trackedImage = trackedImages.FirstOrDefault(),
-                                hit = hits.FirstOrDefault()
+                                hit = hits.FirstOrDefault(),
+                                callback = a
                             })
                             .Where(obj => (obj.trackedImage != null))
                             .ToList()
                             .ForEach(obj =>
                             {
                                 actions = Array.Empty<Action<GameObject>>();
-
+                                
                                 var go = new GameObject();
 
                                 go.transform.position = new Vector3(obj.trackedImage.transform.position.x,
@@ -92,7 +94,7 @@ namespace ExampleScreens
 
                                 UseARHandler(new NullARHandler());
 
-                                action(go);
+                                obj.callback(go);
                             });
                     })
                 })
