@@ -52,7 +52,7 @@ namespace ExampleScreens
             {
                 action
             };
-            
+
             UseARHandler(
                 new CompositeARHandler(new IARHandler[]
                 {
@@ -61,23 +61,38 @@ namespace ExampleScreens
                         h => { hits = new List<ARRaycastHit>(); }),
                     new ARTrackImage(trackedImageEvent =>
                     {
+                        var trackedImages = new[]
+                            {
+                                trackedImageEvent.added,
+                                trackedImageEvent.updated,
+                            }
+                            .SelectMany(items => items)
+                            .ToArray();
+
                         actions
+                            .Where(a => actions.Length == 1 && hits.Count > 0 && trackedImages.Length > 0)
+                            .Select(a => new
+                            {
+                                trackedImage = trackedImages.FirstOrDefault(),
+                                hit = hits.FirstOrDefault()
+                            })
+                            .Where(obj => (obj.trackedImage != null))
                             .ToList()
-                            .Where(a => hits.Count > 0)
-                            .ToList()
-                            .ForEach(a =>
+                            .ForEach(obj =>
                             {
                                 actions = Array.Empty<Action<GameObject>>();
-                                var go = new GameObject(); 
-                                // TODO: Aggregate TrackedImage & RaycastHit transforms into GO
-                                // ........
-                                // FROM OLD CODE:
-                                //  planner.fixedSpace.transform.position = new Vector3(planner.context.ar.trackedImagePosition.x, planner.context.ar.raycastHitPosition.Y, planner.context.ar.trackedImagePosition.z);
-                                //  Vector3 trackedImageEuler = planner.context.ar.trackedImageRotation.eulerAngles;
-                                //  Quaternion trackedImageRotation = Quaternion.Euler(0, trackedImageEuler.y, 0);
-                                // ........
+
+                                var go = new GameObject();
+
+                                go.transform.position = new Vector3(obj.trackedImage.transform.position.x,
+                                    obj.hit.pose.position.y, obj.trackedImage.transform.position.z);
+
+                                go.transform.rotation =
+                                    Quaternion.Euler(0, obj.trackedImage.transform.eulerAngles.y, 0);
+
                                 UseARHandler(new NullARHandler());
-                                a(go);
+
+                                action(go);
                             });
                     })
                 })
