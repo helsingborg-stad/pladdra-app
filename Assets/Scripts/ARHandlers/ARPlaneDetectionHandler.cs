@@ -11,6 +11,10 @@ namespace ARHandlers
         {
             Callback = callback;
         }
+        public ARPlaneDetectionHandler()
+        {
+            Callback = args => {};
+        }
 
         public void Activate()
         {
