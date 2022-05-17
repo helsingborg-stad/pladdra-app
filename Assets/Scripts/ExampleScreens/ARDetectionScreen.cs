@@ -43,7 +43,7 @@ namespace ExampleScreens
 
         private void TrackImageOnFloorAndThen(Action<GameObject> action)
         {
-            var hits = new List<ARRaycastHit>();
+            var hitsOnFloor = new List<ARRaycastHit>();
             var actions = new[]
             {
                 action
@@ -54,42 +54,43 @@ namespace ExampleScreens
                 {
                     new ARPlaneDetectionHandler(),
                     new ARScreenRaycastHandler(
-                        successHits => { hits = successHits; },
-                        h => { hits = new List<ARRaycastHit>(); }),
-                    new ARTrackImageHandler(trackedImageEvent =>
+                        hits => { hitsOnFloor = hits; },
+                        h => { hitsOnFloor = new List<ARRaycastHit>(); }),
+                    new ARTrackImageHandler(trackedImagesChangedEventArgs =>
                     {
-                        var trackedImages = new[]
+                        var trackedImagesChangedEvents = new[]
                             {
-                                trackedImageEvent.added,
-                                trackedImageEvent.updated,
+                                trackedImagesChangedEventArgs.added,
+                                trackedImagesChangedEventArgs.updated,
                             }
                             .SelectMany(items => items)
                             .ToArray();
 
                         actions
-                            .Where(a => actions.Length == 1 && hits.Count > 0 && trackedImages.Length > 0)
+                            .Where(a
+                                => actions.Length == 1 && hitsOnFloor.Count > 0 && trackedImagesChangedEvents.Length > 0)
                             .Select(a => new
                             {
-                                trackedImage = trackedImages.FirstOrDefault(),
-                                hit = hits.FirstOrDefault(),
-                                callback = a
+                                trackedImage = trackedImagesChangedEvents.FirstOrDefault(),
+                                hit = hitsOnFloor.FirstOrDefault()
                             })
-                            .Where(obj => (obj.trackedImage != null))
+                            .Select(sources => new
+                            {
+                                position = new Vector3(sources.trackedImage.transform.position.x,
+                                    sources.hit.pose.position.y, sources.trackedImage.transform.position.z),
+                                rotation = Quaternion.Euler(0, sources.trackedImage.transform.eulerAngles.y, 0)
+                            })
                             .ToList()
-                            .ForEach(obj =>
+                            .ForEach(aggregated =>
                             {
                                 actions = Array.Empty<Action<GameObject>>();
-
-                                var go = new GameObject();
-
-                                go.transform.position = new Vector3(obj.trackedImage.transform.position.x,
-                                    obj.hit.pose.position.y, obj.trackedImage.transform.position.z);
-                                go.transform.rotation =
-                                    Quaternion.Euler(0, obj.trackedImage.transform.eulerAngles.y, 0);
-
                                 UseARHandler(new NullARHandler());
 
-                                obj.callback(go);
+                                var go = new GameObject();
+                                go.transform.position = aggregated.position;
+                                go.transform.rotation = aggregated.rotation;
+
+                                action(go);
                             });
                     })
                 })

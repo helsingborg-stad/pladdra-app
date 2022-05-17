@@ -31,13 +31,13 @@ namespace ARHandlers
             UnityEngine.Object.FindObjectOfType<ARRaycastManager>().enabled = true;
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().enabled = true;
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().HitEvent.AddListener(OnHitAction);
-            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.AddListener(OnMissAction);
+            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().MissEvent.AddListener(OnMissAction);
         }
 
         public void Deactivate()
         {
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().HitEvent.RemoveListener(OnHitAction);
-            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().FailedEvent.RemoveListener(OnMissAction);
+            UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().MissEvent.RemoveListener(OnMissAction);
             UnityEngine.Object.FindObjectOfType<ARScreenRaycastManager>().enabled = false;
             UnityEngine.Object.FindObjectOfType<ARRaycastManager>().enabled = false;
         }

@@ -13,17 +13,17 @@ namespace DefaultNamespace
 
         public UnityEvent<List<ARRaycastHit>> HitEvent;        
         
-        public UnityEvent<List<ARRaycastHit>> FailedEvent;
+        public UnityEvent<List<ARRaycastHit>> MissEvent;
         
         private void Awake()
         {
             HitEvent.AddListener(hits => {});
-            FailedEvent.AddListener(hits => {});
+            MissEvent.AddListener(hits => {});
         }
 
         private void Update()
         {
-            var eventHandler = TryRaycast() ? HitEvent : FailedEvent;
+            var eventHandler = TryRaycast() ? HitEvent : MissEvent;
             eventHandler.Invoke(hits);
         }
 
