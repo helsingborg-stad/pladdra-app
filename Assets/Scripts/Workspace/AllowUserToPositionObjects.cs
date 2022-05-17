@@ -33,16 +33,13 @@ namespace Workspace
 
         public override void Activate(IWorkspaceScene scene)
         {
-            base.Activate(scene);
-
-            var leanPlane = scene.Plane.gameObject.GetComponentInChildren<LeanPlane>();
-            foreach (var obj in GetSelectableObjects(scene))
-            {
-                obj.GetComponent<LeanDragTranslateAlong>().ScreenDepth.Object = leanPlane;
-            }
-            
             scene.UseHud("user-can-chose-workspace-action-hud", root =>
             {
+                base.Activate(scene);
+                BindDraggablesToLeanPlaneInstance(
+                    GetSelectableObjects(scene),
+                    scene.Plane.gameObject.GetComponentInChildren<LeanPlane>());
+
                 root.Q<Button>("edit-plane").clicked += () =>
                 {
                     scene.UseUxHandler(new AllowUserToPositionPlane());
@@ -53,6 +50,8 @@ namespace Workspace
                 };
             });
         }
+        private void BindDraggablesToLeanPlaneInstance(IEnumerable<GameObject> selectableObjects, LeanPlane leanPlane) =>
+            selectableObjects.ToList().ForEach(go => go.GetComponent<LeanDragTranslateAlong>().ScreenDepth.Object = leanPlane);
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
