@@ -888,6 +888,7 @@ GameObject:
   - component: {fileID: 1212205647}
   - component: {fileID: 1212205646}
   - component: {fileID: 1212205645}
+  - component: {fileID: 1212205650}
   m_Layer: 0
   m_Name: AR Session Origin
   m_TagString: Untagged
@@ -923,7 +924,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa17d122634046b4a8e23048891fafc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RaycastPrefab: {fileID: 0}
+  m_RaycastPrefab: {fileID: 3933288375027194849, guid: 1354995284ba0480a88b83aa649792d6,
+    type: 3}
 --- !u!114 &1212205647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -968,6 +970,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1212205650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1212205644}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d20dcdd43c7a4006b78a6d9f41338afd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HitEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  FailedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1320340153
 GameObject:
   m_ObjectHideFlags: 0
