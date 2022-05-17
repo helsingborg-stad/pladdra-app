@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
 using DefaultNamespace;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
+using Workspace.Snapshot;
 
 namespace Workspace
 {
@@ -23,6 +25,10 @@ namespace Workspace
 
         public void UseUxHandler(IUxHandler handler)
         {
+            Debug.Log(JsonConvert.SerializeObject(
+                WorkspaceSceneDescription.Describe(this),
+                Formatting.Indented
+                ));
             UxHandler.Deactivate(this);
             UxHandler = handler ?? new NullUxHandler();
             UxHandler.Activate(this);
