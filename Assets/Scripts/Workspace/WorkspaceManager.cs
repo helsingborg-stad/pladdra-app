@@ -1,5 +1,6 @@
 using Repository;
 using UnityEngine;
+using Workspace.EditHistory;
 using Workspace.Hud;
 using Workspace.UxHandlers;
 
@@ -7,6 +8,7 @@ namespace Workspace
 {
     public class WorkspaceManager : MonoBehaviour
     {
+        private IWorkspaceEditHistory History => new WorkspaceEditHistory();
         private IWorkspaceScene Scene { get; set; }
         private IWorkspace Workspace { get; set; }
         
@@ -30,8 +32,9 @@ namespace Workspace
             plane.transform.SetParent(workspaceOrigin.transform);
 
             Scene = new WorkspaceScene(plane, objectsManager, wc.ResourceCollection);
-            
-            Workspace = new Workspace(this, Scene, objectsManager, wc.ResourceCollection, hudManager, dialogProjectRepository);
+
+            Workspace = new Workspace(this, Scene, objectsManager, wc.ResourceCollection, hudManager,
+                dialogProjectRepository, History);
             
             Workspace.UseScene(wc.Scene);
             Workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());

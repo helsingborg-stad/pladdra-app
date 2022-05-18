@@ -8,12 +8,13 @@ using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
+using Workspace.EditHistory;
 using Workspace.Hud;
 
 namespace Workspace
 {
     public class Workspace: IWorkspace {
-        public Workspace(MonoBehaviour owner, IWorkspaceScene scene, IWorkspaceObjectsManager objectsManager, IWorkspaceResourceCollection resourceCollection, IHudManager hudManager, IDialogProjectRepository dialogProjectRepository)
+        public Workspace(MonoBehaviour owner, IWorkspaceScene scene, IWorkspaceObjectsManager objectsManager, IWorkspaceResourceCollection resourceCollection, IHudManager hudManager, IDialogProjectRepository dialogProjectRepository, IWorkspaceEditHistory history)
         {
             Owner = owner;
             Scene = scene;
@@ -21,7 +22,9 @@ namespace Workspace
             ResourceCollection = resourceCollection;
             HudManager = hudManager;
             DialogProjectRepository = dialogProjectRepository;
+            History = history;
             UxHandler = new NullUxHandler();
+            HistoryActions = new WorkspaceEditHistoryActions(History, scene => this.UseScene(scene, true));
         }
 
         private MonoBehaviour Owner { get; set; }
@@ -30,11 +33,58 @@ namespace Workspace
         private IWorkspaceObjectsManager ObjectsManager { get; set; }
         private IWorkspaceResourceCollection ResourceCollection { get; set; }
         private IHudManager HudManager { get; set; }
-
+        private IWorkspaceEditHistory History { get;  set;  }
         public string Name { get; private set; }
+        public IWorkspaceEditHistoryActions HistoryActions { get; }
         public IDialogProjectRepository DialogProjectRepository { get; }
 
+        public DialogScene GetSceneDescription()
+        {
+            return Scene.CreateWorkspaceSceneDescription(Name);
+        }
+
         public void UseScene(DialogScene scene)
+        {
+            UseScene(scene, false);
+        }
+
+        public void UseHud(string templatePath, Action<VisualElement> bindUi)
+        {
+            HudManager.UseHud(templatePath, bindUi);
+        }
+
+        public void UseUxHandler(IUxHandler handler)
+        {
+            UseUxHandler(handler, false);
+        }
+
+        public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
+        {
+            ClearHud();
+            Owner.StartCoroutine(CR());
+            IEnumerator CR()
+            {
+                yield return new TaskYieldInstruction<T>(waitFor, then);
+            }
+        }
+
+        public void ClearHud()
+        {
+            HudManager.ClearHud();
+        }
+
+        private void UseUxHandler(IUxHandler handler, bool wasRestored)
+        {
+            if (!wasRestored)
+            {
+                History.SaveSnapshot(this);
+            }
+            UxHandler.Deactivate(Scene, this);
+            UxHandler = handler ?? new NullUxHandler();
+            UxHandler.Activate(Scene, this);
+        }
+
+        private void UseScene(DialogScene scene, bool wasRestored)
         {
             ObjectsManager.DestroyAll();
 
@@ -62,33 +112,12 @@ namespace Workspace
             }
 
             Name = scene?.Name ?? "";
-        }
 
-        public void UseHud(string templatePath, Action<VisualElement> bindUi)
-        {
-            HudManager.UseHud(templatePath, bindUi);
-        }
-
-        public void UseUxHandler(IUxHandler handler)
-        {
-            UxHandler.Deactivate(Scene, this);
-            UxHandler = handler ?? new NullUxHandler();
-            UxHandler.Activate(Scene, this);
-        }
-
-        public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
-        {
-            ClearHud();
-            Owner.StartCoroutine(CR());
-            IEnumerator CR()
+            if (wasRestored)
             {
-                yield return new TaskYieldInstruction<T>(waitFor, then);
+                UseUxHandler(UxHandler, true);
             }
         }
 
-        public void ClearHud()
-        {
-            HudManager.ClearHud();
-        }
     }
 }

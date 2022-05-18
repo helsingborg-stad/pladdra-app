@@ -34,6 +34,14 @@ namespace Workspace.UxHandlers
                 {
                     workspace.UseUxHandler(new AllowUserToSaveWorkspaceScene());
                 };
+                
+                var undoButton = root.Q<Button>("history-undo");
+                undoButton.SetEnabled(workspace.HistoryActions.CanUndo);
+                undoButton.clicked += () => workspace.HistoryActions.Undo();
+                
+                var redoButton = root.Q<Button>("history-redo");
+                redoButton.SetEnabled(workspace.HistoryActions.CanRedo);
+                redoButton.clicked += () => workspace.HistoryActions.Redo();
             });
         }
 

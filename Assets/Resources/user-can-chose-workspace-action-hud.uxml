@@ -11,6 +11,8 @@
                 <ui:Button text="Ladda scen" display-tooltip-when-elided="true" name="load-scene" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
                 <ui:Button text="Spara scen" display-tooltip-when-elided="true" name="save-scene" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
                 <ui:Button text="Lägg till Objekt" display-tooltip-when-elided="true" name="inventory" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
+                <ui:Button text="Ångra senaste" display-tooltip-when-elided="true" name="history-undo" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
+                <ui:Button text="Upprepa senaste" display-tooltip-when-elided="true" name="history-redo" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
