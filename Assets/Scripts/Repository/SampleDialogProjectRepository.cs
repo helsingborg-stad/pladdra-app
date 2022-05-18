@@ -47,16 +47,23 @@ namespace Repository
         public override Task<Dictionary<string, DialogScene>> LoadScenes()
         {
             var path = Path.Combine(TempPath, "scenes");
-            var result = Directory.EnumerateFiles(path, "*.scene.json")
-                .Select(path => new { path, name = TrimSuffix(Path.GetFileName(path), ".scene.json") })
-                .Select(o => new
-                {
-                    name = o.name,
-                    scene = TryLoadScene(o.path)
-                })
-                .Where(o => o.scene != null)
-                .ToDictionary(o => o.name, o => PatchScene(o.name, o.scene));
-            return Task.FromResult(result);
+            try
+            {
+                var result = Directory.EnumerateFiles(path, "*.scene.json")
+                    .Select(path => new { path, name = TrimSuffix(Path.GetFileName(path), ".scene.json") })
+                    .Select(o => new
+                    {
+                        name = o.name,
+                        scene = TryLoadScene(o.path)
+                    })
+                    .Where(o => o.scene != null)
+                    .ToDictionary(o => o.name, o => PatchScene(o.name, o.scene));
+                return Task.FromResult(result);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return Task.FromResult(new Dictionary<string, DialogScene>());
+            }
         }
 
         private DialogScene TryLoadScene(string path)
