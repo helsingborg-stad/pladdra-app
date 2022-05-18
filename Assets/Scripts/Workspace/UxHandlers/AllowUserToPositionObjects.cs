@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Lean.Common;
+using Lean.Touch;
 using Piglet;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -22,6 +23,11 @@ namespace Workspace.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
+            
+            BindDraggablesToLeanPlaneInstance(
+                GetSelectableObjects(scene),
+                scene.Plane.gameObject.GetComponentInChildren<LeanPlane>());
+            
             UserCanSelectObjectHud(workspace);
         }
 
@@ -66,6 +72,10 @@ namespace Workspace.UxHandlers
             });
         }
 
+        private void BindDraggablesToLeanPlaneInstance(IEnumerable<GameObject> selectableObjects, LeanPlane leanPlane) =>
+            selectableObjects.ToList().ForEach(go => go.GetComponent<LeanDragTranslateAlong>().ScreenDepth.Object = leanPlane);
+
+        
         private void UserCanSelectObjectHud(IWorkspace workspace)
         {
             workspace.UseHud("user-can-select-object-hud", root =>

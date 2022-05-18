@@ -10,10 +10,10 @@ using Screen = Screens.Screen;
 
 namespace ExampleScreens
 {
+
     public class LoadProjectsScreen : Screen
     {
         public bool UseARSceneAfterLoad;
-
         private void Start()
         {
             // this action is updated to map to a label in our HUD

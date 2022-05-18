@@ -7,6 +7,7 @@ using Screens;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using Workspace;
+using Workspace.Hud;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens
