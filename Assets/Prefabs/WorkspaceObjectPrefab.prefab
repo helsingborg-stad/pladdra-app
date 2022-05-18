@@ -104,7 +104,7 @@ MonoBehaviour:
   Use:
     Filter: 0
     IgnoreStartedOverGui: 1
-    RequiredFingerCount: 0
+    RequiredFingerCount: 3
     RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 0}
   axis: {x: 0, y: -1, z: 0}
@@ -188,7 +188,7 @@ MonoBehaviour:
   Use:
     Filter: 0
     IgnoreStartedOverGui: 1
-    RequiredFingerCount: 0
+    RequiredFingerCount: 2
     RequiredMouseButtons: 0
     RequiredSelectable: {fileID: 5466477533273893819}
   _camera: {fileID: 0}
