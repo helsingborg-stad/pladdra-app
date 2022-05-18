@@ -24,7 +24,14 @@ namespace Workspace
             DialogProjectRepository = dialogProjectRepository;
             History = history;
             UxHandler = new NullUxHandler();
-            HistoryActions = new WorkspaceEditHistoryActions(History, scene => this.UseScene(scene, true));
+            HistoryActions = new WorkspaceEditHistoryActions(History, scene =>
+            {
+                var handler = UxHandler;
+                UseUxHandler(null);
+                this.UseScene(scene);
+                // we need to 
+                UseUxHandler(handler);
+            });
         }
 
         private MonoBehaviour Owner { get; set; }
@@ -44,47 +51,6 @@ namespace Workspace
         }
 
         public void UseScene(DialogScene scene)
-        {
-            UseScene(scene, false);
-        }
-
-        public void UseHud(string templatePath, Action<VisualElement> bindUi)
-        {
-            HudManager.UseHud(templatePath, bindUi);
-        }
-
-        public void UseUxHandler(IUxHandler handler)
-        {
-            UseUxHandler(handler, false);
-        }
-
-        public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
-        {
-            ClearHud();
-            Owner.StartCoroutine(CR());
-            IEnumerator CR()
-            {
-                yield return new TaskYieldInstruction<T>(waitFor, then);
-            }
-        }
-
-        public void ClearHud()
-        {
-            HudManager.ClearHud();
-        }
-
-        private void UseUxHandler(IUxHandler handler, bool wasRestored)
-        {
-            if (!wasRestored)
-            {
-                History.SaveSnapshot(this);
-            }
-            UxHandler.Deactivate(Scene, this);
-            UxHandler = handler ?? new NullUxHandler();
-            UxHandler.Activate(Scene, this);
-        }
-
-        private void UseScene(DialogScene scene, bool wasRestored)
         {
             ObjectsManager.DestroyAll();
 
@@ -112,12 +78,37 @@ namespace Workspace
             }
 
             Name = scene?.Name ?? "";
+        }
 
-            if (wasRestored)
+        public void UseHud(string templatePath, Action<VisualElement> bindUi)
+        {
+            HudManager.UseHud(templatePath, bindUi);
+        }
+
+        public void UseUxHandler(IUxHandler handler)
+        {
+            if (handler != null)
             {
-                UseUxHandler(UxHandler, true);
+                History.SaveSnapshot(this);
+            }
+            UxHandler.Deactivate(Scene, this);
+            UxHandler = handler ?? new NullUxHandler();
+            UxHandler.Activate(Scene, this);
+        }
+
+        public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
+        {
+            ClearHud();
+            Owner.StartCoroutine(CR());
+            IEnumerator CR()
+            {
+                yield return new TaskYieldInstruction<T>(waitFor, then);
             }
         }
 
+        public void ClearHud()
+        {
+            HudManager.ClearHud();
+        }
     }
 }
