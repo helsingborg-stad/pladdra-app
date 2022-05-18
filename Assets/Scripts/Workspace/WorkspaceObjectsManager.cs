@@ -29,6 +29,7 @@ namespace Workspace
 
             var resourceGo = Object.Instantiate(resource.Prefab, go.transform);
             resourceGo.SetActive(true);
+            resourceGo.transform.SetParent(go.transform, false);
 
             Items.Add(new Item
             {

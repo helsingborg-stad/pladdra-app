@@ -8,13 +8,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/ExampleScene.unity
     guid: 2dff912cebe394c7ba69ab50d0e76795
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SceneWithScreens.unity
     guid: a408f2c3c49d94201ac0702e16211237
+  - enabled: 1
+    path: Assets/Scenes/AR.unity
+    guid: e029fa8139cd847eaaa66cf54d909217
   m_configObjects:
-    AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: d4a3157bed67d4b62a27ccab4df216db,
+    AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,
       type: 2}
-    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 24d010f36dc4841d0bef65eafa99f28c,
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: f36e308b88a55414fbdc276aa6077726,
       type: 2}
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 15bfd088686cd4158a7e8453fe9b94ac,
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 9ccac4b8367534c798418955425b92c6,
       type: 2}
