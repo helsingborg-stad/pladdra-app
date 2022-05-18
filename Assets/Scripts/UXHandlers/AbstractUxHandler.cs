@@ -19,6 +19,7 @@ namespace UXHandlers
             {
                 obj.GetComponent<LeanDragTranslateAlong>().enabled = true;
                 obj.GetComponent<LeanTwistRotateAxis>().enabled = true;
+                obj.GetComponent<LeanPinchScale>().enabled = true;
                 obj.GetComponent<BoxCollider>().enabled = true;
                 obj.GetComponent<FlexibleBoxCollider>().SetBoxColliderSize();
 
@@ -35,6 +36,7 @@ namespace UXHandlers
             {
                 obj.GetComponent<LeanDragTranslateAlong>().enabled = false;
                 obj.GetComponent<LeanTwistRotateAxis>().enabled = false;
+                obj.GetComponent<LeanPinchScale>().enabled = false;
                 obj.GetComponent<BoxCollider>().enabled = false;
 
                 var selectable = obj.GetComponent<LeanSelectable>();
