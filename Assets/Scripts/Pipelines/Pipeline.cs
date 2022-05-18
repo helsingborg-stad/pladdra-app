@@ -38,6 +38,7 @@ namespace Pipelines
 
             OnTaskStarted += label => Debug.Log($"[pipline] {label}...");
             OnTaskDone += label => Debug.Log($"[pipline] done {label}");
+            OnTaskProgress += (label, step) => { };
             // OnTaskProgress += (label, step) => Debug.Log($"[pipline] {new String('.', step)}");
         }
 
@@ -92,24 +93,24 @@ namespace Pipelines
             var repo = Wrap("Nu kör vi!", () => CreateDialogProjectRepository());
 
             DialogProject project = null;
-            yield return WrapEnumerator("Nu hämtar vi definitioner från servern", () => new LoadExternalProject(repo, p => project = p));
+            yield return WrapEnumerator("Nu hämtar vi definitioner från servern!", () => new LoadExternalProject(repo, p => project = p));
 
             yield return new WaitForSeconds(4);
             
             var wrm = CreateWebResourceManager();
             Dictionary<string, string> url2path = null;
-            yield return WrapEnumerator("Vi tankar ner alla modeller för at det ska gå snabbare sen", () => new MapExternalResourceToLocalPaths(wrm, project, p => url2path = p));
+            yield return WrapEnumerator("Vi tankar ner alla modeller för att det ska gå snabbare sen!", () => new MapExternalResourceToLocalPaths(wrm, project, p => url2path = p));
 
             var path2model = new Dictionary<string, GameObject>();
             foreach (var path in url2path.Values)
             {
-                yield return WrapEnumerator($"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path)} i minnet", () => new Load3dModel(path, go =>
+                yield return WrapEnumerator($"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()} i minnet!", () => new Load3dModel(path, go =>
                 {
                     path2model[path] = go;
                 }));
             }
 
-            var modelItems = Wrap("Nu skapar vi modeller", () => project.Resources
+            var modelItems = Wrap("Nu skapar vi modeller!", () => project.Resources
                     .Where(resource => resource.Type == "model")
                     .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.Url)) })
                     .Where(o => o.gameObject != null)
@@ -128,7 +129,7 @@ namespace Pipelines
 
             var allResources = modelItems.Concat(markerItems);
             
-            var configuration = Wrap("Här skapas det en konfiguration minsann", () => new WorkspaceConfiguration
+            var configuration = Wrap("Här skapas det en konfiguration minsann!", () => new WorkspaceConfiguration
             {
                 Origin = new WorkspaceOrigin(),
                 Plane = new WorkspacePlane
