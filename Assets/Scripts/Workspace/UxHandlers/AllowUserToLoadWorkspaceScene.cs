@@ -38,7 +38,7 @@ namespace Workspace.UxHandlers
                         scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
                             new Vector3(1, 1, 1));
                         */
-                        workspace.UseScene(kv.Key, kv.Value);
+                        workspace.UseScene(kv.Value);
                         workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);

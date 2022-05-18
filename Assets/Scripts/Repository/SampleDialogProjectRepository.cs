@@ -33,10 +33,10 @@ namespace Repository
                 Resources = SampleModels.Select(url => new DialogResource{Url = url, Type = "model"}).ToList()
         });
 
-        public override Task<DialogScene> SaveScene(string name, DialogScene scene)
+        public override Task<DialogScene> SaveScene(DialogScene scene)
         {
-            var path = Path.Combine(TempPath, "scenes", $"{name}.scene.json");
-            Debug.Log($"Saving scene {name} to {path}");
+            var path = Path.Combine(TempPath, "scenes", $"{scene.Name}.scene.json");
+            Debug.Log($"Saving scene {scene.Name} to {path}");
 
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             
@@ -55,7 +55,7 @@ namespace Repository
                     scene = TryLoadScene(o.path)
                 })
                 .Where(o => o.scene != null)
-                .ToDictionary(o => o.name, o => o.scene);
+                .ToDictionary(o => o.name, o => PatchScene(o.name, o.scene));
             return Task.FromResult(result);
         }
 
@@ -63,6 +63,13 @@ namespace Repository
         {
             var text = File.ReadAllText(path, Encoding.UTF8);
             return JsonConvert.DeserializeObject<DialogScene>(text);
+        }
+
+        private DialogScene PatchScene(string name, DialogScene scene)
+        {
+            // We patch in nane in the scene since it wasn't previously persisted
+            scene.Name = string.IsNullOrEmpty(scene.Name) ? name : scene.Name;
+            return scene;
         }
 
         private string TrimSuffix(string value, string suffix) => value.EndsWith(suffix) ? value.Remove(value.Length - suffix.Length) : value;

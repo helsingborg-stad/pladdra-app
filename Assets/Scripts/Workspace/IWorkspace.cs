@@ -9,8 +9,9 @@ namespace Workspace
 {
     public interface IWorkspace
     {
+        string Name { get; }
         IDialogProjectRepository DialogProjectRepository { get;  }
-        void UseScene(string name, DialogScene scene);
+        void UseScene(DialogScene scene);
 
         void UseHud(string templatePath, Action<VisualElement> bindUi);
         void UseUxHandler(IUxHandler handler);

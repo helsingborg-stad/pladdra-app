@@ -33,7 +33,7 @@ namespace Workspace
             
             Workspace = new Workspace(this, Scene, objectsManager, wc.ResourceCollection, hudManager, dialogProjectRepository);
             
-            Workspace.UseScene("", wc.Scene);
+            Workspace.UseScene(wc.Scene);
             Workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
         }
     }

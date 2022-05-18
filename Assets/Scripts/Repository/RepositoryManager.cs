@@ -15,9 +15,9 @@ namespace Repository
             return repository.Load();
         }
 
-        public Task<DialogScene> SaveScene(string name, DialogScene scene)
+        public Task<DialogScene> SaveScene(DialogScene scene)
         {
-            return repository.SaveScene(name, scene);
+            return repository.SaveScene(scene);
         }
 
         public Task<Dictionary<string, DialogScene>> LoadScenes()

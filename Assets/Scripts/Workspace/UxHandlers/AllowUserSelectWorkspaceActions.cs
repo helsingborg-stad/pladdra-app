@@ -13,6 +13,7 @@ namespace Workspace.UxHandlers
             base.Activate(scene, workspace);
             workspace.UseHud("user-can-chose-workspace-action-hud", root =>
             {
+                root.Q<Label>("workspace-name").text = workspace.Name;
                 root.Q<Button>("edit-plane").clicked += () =>
                 {
                     workspace.UseUxHandler(new AllowUserToPositionPlane());

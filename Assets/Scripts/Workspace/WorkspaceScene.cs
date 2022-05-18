@@ -8,7 +8,7 @@ namespace Workspace
         public GameObject Plane { get; private set;  }
         public IWorkspaceObjectsManager ObjectsManager { get; private set;  }
         public IWorkspaceResourceCollection Resources { get; private set;  }
-        public DialogScene CreateWorkspaceSceneDescription() => DialogScene.Describe(this);
+        public DialogScene CreateWorkspaceSceneDescription(string name) => DialogScene.Describe(this, name);
 
         public WorkspaceScene(GameObject plane, IWorkspaceObjectsManager objectsManager, IWorkspaceResourceCollection resources)
         {

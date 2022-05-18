@@ -8,7 +8,7 @@ namespace Workspace
         GameObject Plane { get; }
         IWorkspaceObjectsManager ObjectsManager { get; }
         IWorkspaceResourceCollection Resources { get; }
-        DialogScene CreateWorkspaceSceneDescription();
+        DialogScene CreateWorkspaceSceneDescription(string name);
 /*
         void UseScene(string name, DialogScene scene);
 

@@ -7,10 +7,11 @@ namespace Data.Dialogs
 {
     public class DialogScene
     {
-        public static DialogScene Describe(IWorkspaceScene scene)
+        public static DialogScene Describe(IWorkspaceScene scene, string name)
         {
             return new DialogScene()
             {
+                Name = name,
                 Plane = CopyTransformTo(scene.Plane, new PlaneDescription()),
                 Items = scene.ObjectsManager.Objects.Select(o => CopyTransformTo(o.GameObject, new ItemDescription()
                     {
@@ -57,6 +58,7 @@ namespace Data.Dialogs
             public Quaternion ToQuaternion() => new(X, Y, Z, W);
         }
         
+        public string Name { get; set; }
         public PlaneDescription Plane { get; set; }
         public List<ItemDescription> Items { get; set; }
 

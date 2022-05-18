@@ -31,9 +31,10 @@ namespace Workspace
         private IWorkspaceResourceCollection ResourceCollection { get; set; }
         private IHudManager HudManager { get; set; }
 
+        public string Name { get; private set; }
         public IDialogProjectRepository DialogProjectRepository { get; }
 
-        public void UseScene(string name, DialogScene scene)
+        public void UseScene(DialogScene scene)
         {
             ObjectsManager.DestroyAll();
 
@@ -59,6 +60,8 @@ namespace Workspace
                 go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
                 go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
             }
+
+            Name = scene?.Name ?? "";
         }
 
         public void UseHud(string templatePath, Action<VisualElement> bindUi)

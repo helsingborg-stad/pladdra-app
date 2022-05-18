@@ -21,15 +21,15 @@ namespace Workspace.UxHandlers
                 var saveButton = root.Q<Button>("save");
                 var cancelButton = root.Q<Button>("cancel");
                 var nameInput = root.Q<TextField>("name");
+                nameInput.value = workspace.Name;
                 saveButton.clicked += () =>
                 {
                     // extract stuff in man thread
                     var repo = workspace.DialogProjectRepository;
-                    var sceneDescription = scene.CreateWorkspaceSceneDescription();
+                    var sceneDescription = scene.CreateWorkspaceSceneDescription(nameInput.value);
                     // ...and then save in worker
                     workspace.WaitForThen(
-                        () => repo.SaveScene(nameInput.value,
-                            sceneDescription),
+                        () => repo.SaveScene(sceneDescription),
                         (_) => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions())
                     );
                 };
