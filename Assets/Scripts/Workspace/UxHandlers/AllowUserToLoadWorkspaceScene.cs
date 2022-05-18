@@ -34,10 +34,6 @@ namespace Workspace.UxHandlers
                     itemInstance.Q<Label>("card-title").text = kv.Key;
                     itemInstance.Q<Button>("card").clicked += () =>
                     {
-                        /*
-                        scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
-                            new Vector3(1, 1, 1));
-                        */
                         workspace.UseScene(kv.Value);
                         workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
@@ -46,6 +42,5 @@ namespace Workspace.UxHandlers
                 root.Q<Button>("close").clicked += () => { workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
             });
         }
-
     }
 }

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement picking-mode="Ignore" name="container" class="container" style="justify-content: center; align-items: stretch;">
+        <ui:VisualElement class="card">
+            <ui:Label text="Häng kvar! Vi ska bara snacka lite med servern..." display-tooltip-when-elided="true" style="-unity-text-align: upper-center; font-size: 24px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

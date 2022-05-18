@@ -98,11 +98,15 @@ namespace Workspace
 
         public void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then)
         {
-            ClearHud();
+            UseHud("app-is-busy-hud", root => {});
             Owner.StartCoroutine(CR());
             IEnumerator CR()
             {
-                yield return new TaskYieldInstruction<T>(waitFor, then);
+                yield return new TaskYieldInstruction<T>(waitFor, result =>
+                {
+                    ClearHud();
+                    then(result);
+                });
             }
         }
 
