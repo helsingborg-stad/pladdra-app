@@ -59,7 +59,7 @@ namespace UXHandlers
             Object.FindObjectOfType<LeanSelect>().DeselectAll();
         }
 
-        private T TryConfigureComponent<T>(GameObject go, Action<T> configure) where T : class
+        protected T TryConfigureComponent<T>(GameObject go, Action<T> configure) where T : class
         {
             var component = default(T);
             if (go.TryGetComponent<T>(out component))

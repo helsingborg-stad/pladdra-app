@@ -10,8 +10,7 @@
         <ui:VisualElement style="flex-grow: 0; justify-content: flex-end;">
             <ui:VisualElement style="flex-direction: row; justify-content: space-between; align-items: flex-end; margin-left: -4px; margin-right: -4px;">
                 <ui:VisualElement style="flex-direction: column; justify-content: flex-start; align-items: stretch; flex-grow: 1; max-width: 120px;">
-                    <ui:Button text="Skala" display-tooltip-when-elided="true" name="scale" class="btn btn--light" style="flex-grow: 1; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; display: none;" />
-                    <ui:Button text="Rotera" display-tooltip-when-elided="true" name="rotate" class="btn btn--light" style="flex-grow: 2; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px;" />
+                    <ui:Button text="Rotera" display-tooltip-when-elided="true" name="gesture-behaviour-toggle" class="btn btn--light" style="flex-grow: 2; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px; display: flex;" />
                 </ui:VisualElement>
                 <ui:VisualElement style="flex-direction: row; justify-content: flex-start; align-items: stretch; flex-grow: 2; margin-left: 0; max-width: 400px; padding-left: 40px;">
                     <ui:Button text="Ta bort" display-tooltip-when-elided="true" name="remove" class="btn btn--light" style="flex-grow: 1; flex-shrink: 1; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px;" />
