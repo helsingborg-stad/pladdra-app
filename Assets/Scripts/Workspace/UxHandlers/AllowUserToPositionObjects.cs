@@ -13,6 +13,7 @@ namespace Workspace.UxHandlers
 {
     public class AllowUserToPositionObjects: AbstractUxHandler
     {
+        private bool PinchToScale = false;
         private IGameObjectPositionInspector GameObjectPositionInspector { get; set; }
 
         public AllowUserToPositionObjects()
@@ -23,10 +24,14 @@ namespace Workspace.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
+
+            foreach (var go in GetSelectableObjects(scene))
+            {
+                BindDraggablesToLeanPlaneInstance(go, scene.Plane.gameObject.GetComponentInChildren<LeanPlane>());
+                TryConfigureComponent<LeanPinchScale>(go, leanPinchScale => leanPinchScale.enabled = PinchToScale);
+            }
             
-            BindDraggablesToLeanPlaneInstance(
-                GetSelectableObjects(scene),
-                scene.Plane.gameObject.GetComponentInChildren<LeanPlane>());
+
             
             UserCanSelectObjectHud(workspace);
         }
@@ -57,6 +62,13 @@ namespace Workspace.UxHandlers
         {
             workspace.UseHud("user-has-selected-workspace-object-hud", root =>
             {
+                root.Q<Button>("gesture-behaviour-toggle").clicked += () =>
+                {
+                    PinchToScale = !PinchToScale;
+                    TryConfigureComponent<LeanPinchScale>(go, leanPinchScale => leanPinchScale.enabled = PinchToScale);
+                    TryConfigureComponent<LeanTwistRotateAxis>(go, leanPinchScale => leanPinchScale.enabled = !PinchToScale);
+                    root.Q<Button>("gesture-behaviour-toggle").text = PinchToScale ? "Skala" : "Rotera";
+                };
                 root.Q<Button>("remove").clicked += () =>
                 {
                     scene.ObjectsManager.DestroyItem(go);
@@ -72,10 +84,6 @@ namespace Workspace.UxHandlers
             });
         }
 
-        private void BindDraggablesToLeanPlaneInstance(IEnumerable<GameObject> selectableObjects, LeanPlane leanPlane) =>
-            selectableObjects.ToList().ForEach(go => go.GetComponent<LeanDragTranslateAlong>().ScreenDepth.Object = leanPlane);
-
-        
         private void UserCanSelectObjectHud(IWorkspace workspace)
         {
             workspace.UseHud("user-can-select-object-hud", root =>
@@ -84,5 +92,8 @@ namespace Workspace.UxHandlers
             });
 
         }
+        
+        private void BindDraggablesToLeanPlaneInstance(GameObject go, LeanPlane leanPlane) => TryConfigureComponent<LeanDragTranslateAlong>(go, leanDragTranslateAlong => leanDragTranslateAlong.ScreenDepth.Object = leanPlane);
+
     }
 }
