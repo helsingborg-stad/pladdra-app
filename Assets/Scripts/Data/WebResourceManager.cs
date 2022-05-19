@@ -131,12 +131,19 @@ namespace Data
             var etag = cacheIndex?.GetHeader(url, "ETag");
             var lastModified = cacheIndex?.GetHeader(url, "Last-Modified");
             var request = WebRequest.Create(url);
+            
             if (allowCaching) {
                 if (!string.IsNullOrEmpty(etag)) {
-                    request.Headers.Set("If-None-Match", etag);
+                    request.Headers.Add(HttpRequestHeader.IfNoneMatch, etag);
                 }
-                if (string.IsNullOrEmpty(lastModified)) {
-                    request.Headers.Set("If-Modified-Since", lastModified);
+                if (!string.IsNullOrEmpty(lastModified))
+                {
+                    var httpRequest = request as HttpWebRequest;
+                    if (httpRequest != null)
+                    {
+                        httpRequest.IfModifiedSince = DateTime.Parse(lastModified);
+                    }
+                    //request.Headers.Add(HttpRequestHeader.IfModifiedSince, lastModified);
                 }
             }
             return request;

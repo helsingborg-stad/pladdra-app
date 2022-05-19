@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Pipelines;
+using Abilities.ARRoomAbility;
 using Repository;
 using Screens;
 using UnityEngine.UIElements;
@@ -30,12 +29,7 @@ namespace ExampleScreens
             });
 
             
-            // configure pipeline
-            var pipeline = new Pipeline()
-            {
-                CreateDialogProjectRepository = FindObjectOfType<RepositoryManager> // () => new SampleDialogProjectRepository(Application.temporaryCachePath)
-
-            };
+            var pipeline = new ArRoomWorkspaceLoader(FindObjectOfType<RepositoryManager>());
             pipeline.OnTaskStarted += label =>
             {
                 actions.Add(label);

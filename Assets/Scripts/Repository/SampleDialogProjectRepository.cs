@@ -30,6 +30,7 @@ namespace Repository
         
         public override Task<DialogProject> Load() => Task.FromResult(new DialogProject() {
                 Id = "dialog-1",
+                Plane = new DialogPlane(){Width = 4, Height = 4},
                 Resources = SampleModels.Select(url => new DialogResource{Url = url, Type = "model"}).ToList()
         });
 
