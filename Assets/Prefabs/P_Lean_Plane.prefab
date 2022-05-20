@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 806352430195490059}
   - component: {fileID: 8231571904891062300}
   m_Layer: 0
-  m_Name: LeanPlanePrefab
+  m_Name: P_Lean_Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

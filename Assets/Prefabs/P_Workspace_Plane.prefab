@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 4841362716249799571}
   - component: {fileID: 7607293450709807658}
   m_Layer: 0
-  m_Name: PlanePrefab
+  m_Name: P_Workspace_Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -308,7 +308,7 @@ PrefabInstance:
     - target: {fileID: 8643848319552120087, guid: b92c3d80c6b3d40b994ab3519c413958,
         type: 3}
       propertyPath: m_Name
-      value: LeanPlanePrefab
+      value: P_Lean_Plane
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b92c3d80c6b3d40b994ab3519c413958, type: 3}

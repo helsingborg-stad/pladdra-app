@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 5466477533273893819}
   - component: {fileID: 6928433091645262470}
   m_Layer: 0
-  m_Name: WorkspaceObjectPrefab
+  m_Name: P_Workspace_Object
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
