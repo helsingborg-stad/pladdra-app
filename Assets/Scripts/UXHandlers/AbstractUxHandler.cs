@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Lean.Common;
 using Lean.Touch;
 using UnityEngine;
+using Utility;
 using Workspace;
 using Object = UnityEngine.Object;
 
@@ -23,12 +24,28 @@ namespace UXHandlers
                 TryConfigureComponent<LeanTwistRotateAxis>(obj, c => c.enabled = true);
                 TryConfigureComponent<LeanPinchScale>(obj, c => c.enabled = true);
                 TryConfigureComponent<BoxCollider>(obj, c => c.enabled = true);
-                TryConfigureComponent<FlexibleBoxCollider>(obj, c => c.SetBoxColliderSize());
                 TryConfigureComponent<LeanSelectable>(obj, selectable =>
                 {
                     selectable.enabled = true;
                     selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, obj));
                     selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, obj));
+                });
+                
+                TryConfigureComponent<FlexibleBounds>(obj, c =>
+                {
+                    c.CalculateBoundsFromChildrenAndThen(obj, bounds =>
+                    {
+                        TryConfigureComponent<BoxCollider>(obj, boxCollider =>
+                        {
+                            boxCollider.center = bounds.center;
+                            boxCollider.size = bounds.size;
+                        });
+                        
+                        TryConfigureComponent<MeshFilter>(obj, meshFilter =>
+                        {
+                            meshFilter.mesh = new CubeFactory(bounds.size, bounds.center).CreateMesh();
+                        });
+                    });
                 });
             }
         }
