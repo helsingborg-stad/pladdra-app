@@ -14,6 +14,8 @@ namespace Workspace.UxHandlers
 
         protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
+            base.OnSelected(scene, workspace, go);
+
             workspace.UseHud("user-has-selected-plane-hud", root =>
             {
                 root.Q<Button>("done").clicked += () =>

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lean.Common;
 using Lean.Touch;
 using UnityEngine;
+using Utility;
 using Workspace;
 using Object = UnityEngine.Object;
 
@@ -12,8 +14,35 @@ namespace UXHandlers
     {
         protected abstract IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene);
 
-        protected virtual void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go) {}
-        protected virtual void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go) {}
+        protected virtual void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        {
+            TryConfigureComponent<MeshRenderer>(go, c =>
+            {
+                c.materials
+                    .Where(material => material.shader.name == "Sprites/Outline")
+                    .ToList()
+                    .ForEach(material =>
+                    {
+                        material.SetColor("_Color", new Color(1f, 0f, 0f, 0.12f));
+                        material.SetColor("_SolidOutline", new Color(1f, 0f, 0f, 0.66f));
+                    });
+            });
+        }
+
+        protected virtual void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        {
+            TryConfigureComponent<MeshRenderer>(go, c =>
+            {
+                c.materials
+                    .Where(material => material.shader.name == "Sprites/Outline")
+                    .ToList()
+                    .ForEach(material =>
+                    {
+                        material.SetColor("_Color", new Color(1f, 1f, 1f, 0.16f));
+                        material.SetColor("_SolidOutline", new Color(1f, 1f, 1f, 0.66f));
+                    });
+            });
+        }
         
         public virtual void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
@@ -23,12 +52,41 @@ namespace UXHandlers
                 TryConfigureComponent<LeanTwistRotateAxis>(obj, c => c.enabled = true);
                 TryConfigureComponent<LeanPinchScale>(obj, c => c.enabled = true);
                 TryConfigureComponent<BoxCollider>(obj, c => c.enabled = true);
-                TryConfigureComponent<FlexibleBoxCollider>(obj, c => c.SetBoxColliderSize());
                 TryConfigureComponent<LeanSelectable>(obj, selectable =>
                 {
                     selectable.enabled = true;
                     selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, obj));
                     selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, obj));
+                });
+                
+                TryConfigureComponent<FlexibleBounds>(obj, c =>
+                {
+                    c.CalculateBoundsFromChildrenAndThen(obj, bounds =>
+                    {
+                        TryConfigureComponent<BoxCollider>(obj, boxCollider =>
+                        {
+                            boxCollider.center = bounds.center;
+                            boxCollider.size = bounds.size;
+                        });
+                        
+                        TryConfigureComponent<MeshFilter>(obj, meshFilter =>
+                        {
+                            meshFilter.mesh = new BoundingBoxFactory(bounds.size, bounds.center).CreateMesh();
+                        });
+                    });
+                });
+                
+                TryConfigureComponent<MeshRenderer>(obj, c =>
+                {
+                    c.enabled = true;
+                    c.materials
+                        .Where(material => material.shader.name == "Sprites/Outline")
+                        .ToList()
+                        .ForEach(material =>
+                        {
+                            material.SetColor("_Color", new Color(1f, 1f, 1f, 0.16f));
+                            material.SetColor("_SolidOutline", new Color(1f, 1f, 1f, 0.66f));
+                        });
                 });
             }
         }
@@ -46,6 +104,11 @@ namespace UXHandlers
                     selectable.enabled = false;
                     selectable.OnSelected.RemoveAllListeners();
                     selectable.OnDeselected.RemoveAllListeners();
+                });
+                
+                TryConfigureComponent<MeshRenderer>(obj, c =>
+                {
+                    c.enabled = false;
                 });
             }
         }

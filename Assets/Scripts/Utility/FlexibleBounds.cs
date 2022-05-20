@@ -1,9 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FlexibleBounds : MonoBehaviour
 {
+    public void CalculateBoundsFromChildrenAndThen(GameObject gameObject, Action<Bounds> then)
+    {
+        then(CalculateBoundsFromChildren(gameObject, false));
+    }    
     public Bounds CalculateBoundsFromChildren(GameObject gameObject)
     {
         return CalculateBoundsFromChildren(gameObject, false);
