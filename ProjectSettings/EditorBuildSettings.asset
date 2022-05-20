@@ -6,13 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Scenes/ExampleScene.unity
-    guid: 2dff912cebe394c7ba69ab50d0e76795
-  - enabled: 0
     path: Assets/Scenes/SceneWithScreens.unity
     guid: a408f2c3c49d94201ac0702e16211237
   - enabled: 1
-    path: Assets/Scenes/AR.unity
+    path: Assets/Scenes/SceneWithScreensWithAR.unity
     guid: e029fa8139cd847eaaa66cf54d909217
   m_configObjects:
     AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,

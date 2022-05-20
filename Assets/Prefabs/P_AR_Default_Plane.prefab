@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8300603983908066824}
   - component: {fileID: 6370974563365065406}
   m_Layer: 0
-  m_Name: AR Default Plane
+  m_Name: P_AR_Default_Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
