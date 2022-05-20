@@ -5,23 +5,27 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Abilities.ARRoomAbility.WP.Schema;
 using Data;
 using Data.Dialogs;
 using Newtonsoft.Json;
-using Repository.WP.Schema;
+using Repository;
 using UnityEngine;
 using Utility;
 
-namespace Repository.WP
+namespace Abilities.ARRoomAbility.WP
 {
     public class ArDialogueRoomProjectRepository : DialogProjectRepository
     {
+        
         private string Auth = "aGVsc2luZ2JvcmdzcnVtbWV0Ok96enMgSDBZVyBXOWtqIFMxd1cgcU12VCBLN2hZ";
-        private string Endpoint { get; } =
+
+        public string Endpoint { get; } =
             "https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/ar-dialogue-room/16?acf_format=standard";
 
 
         private string CachePath { get; set; }
+    
         private void Awake()
         {
             CachePath = Path.Join(Application.temporaryCachePath,"ar-dialogue-room");

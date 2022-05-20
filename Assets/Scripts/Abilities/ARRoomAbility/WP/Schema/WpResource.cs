@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Repository.WP.Schema
+namespace Abilities.ARRoomAbility.WP.Schema
 {
     public class WpResource 
     {

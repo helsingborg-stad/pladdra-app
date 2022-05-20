@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Repository.WP.Schema
+namespace Abilities.ARRoomAbility.WP.Schema
 {
     public class WpUpdateScenes
     {
