@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Data.Dialogs;
 
 namespace Workspace
@@ -8,6 +9,7 @@ namespace Workspace
         public IWorkspacePlane Plane { get; set; }
         public IWorkspaceResourceCollection ResourceCollection { get; set; }
         
-        public DialogScene Scene { get; set; } 
+        public DialogScene Scene { get; set; }
+        public List<DialogScene> FeaturedScenes { get; set; }
     }
 }

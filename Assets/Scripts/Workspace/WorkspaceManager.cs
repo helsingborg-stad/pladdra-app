@@ -1,5 +1,4 @@
 using Abilities;
-using Repository;
 using UnityEngine;
 using Workspace.EditHistory;
 using Workspace.Hud;
@@ -35,9 +34,10 @@ namespace Workspace
 
             Workspace = new Workspace(this, Scene, objectsManager, wc.ResourceCollection, hudManager,
                 dialogProjectRepository, History);
-            
-            Workspace.UseScene(wc.Scene);
-            Workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+
+            Ability.ConfigureWorkspace(wc, Workspace);
+            // Workspace.UseScene(wc.Scene);
+            // Workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
         }
     }
 }

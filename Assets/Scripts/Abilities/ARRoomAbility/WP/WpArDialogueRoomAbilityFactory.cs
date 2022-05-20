@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Abilities.ARRoomAbility.WP;
 using Newtonsoft.Json;
+using UnityEngine;
 
-namespace Abilities.ARRoomAbility
+namespace Abilities.ARRoomAbility.WP
 {
     public class WpArDialogueRoomAbilityFactory : IAbilityFactory
     {
         public class Config
         {
+            [JsonProperty("mode")] public string Mode { get; set; }
             [JsonProperty("endpoint")] public string Endpoint { get; set; }
             [JsonProperty("headers")] public Dictionary<string, string> Headers { get; set; }
         }
@@ -21,12 +22,16 @@ namespace Abilities.ARRoomAbility
         private IAbility TryCreateAbilityFromConfig(string configJson)
         {
             var config = TryParse<Config>(configJson);
+            
             return string.IsNullOrEmpty(config?.Endpoint) ? null : new ArDialogueRoomAbility(
                 new WpRepository()
                 {
                     Endpoint = config.Endpoint,
                     Headers = config.Headers ?? new Dictionary<string, string>()
-                });
+                })
+            {
+                IsEditMode = config.Mode == "edit"
+            };
         }
 
         T TryParse<T>(string json) where T : class

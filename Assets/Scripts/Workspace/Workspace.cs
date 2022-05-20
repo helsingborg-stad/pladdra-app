@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Abilities.ARRoomAbility;
 using Data.Dialogs;
 using Pipelines;
-using Repository;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -42,6 +43,7 @@ namespace Workspace
         private IHudManager HudManager { get; set; }
         private IWorkspaceEditHistory History { get;  set;  }
         public string Name { get; private set; }
+        public IEnumerable<DialogScene> FeaturedScenes { get; private set;  }
         public IWorkspaceEditHistoryActions HistoryActions { get; }
         public IDialogProjectRepository DialogProjectRepository { get; }
 

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,9 +7,9 @@ using Data.Dialogs;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Repository
+namespace Abilities.ARRoomAbility.Local
 {
-    public class SampleDialogProjectRepository: DialogProjectRepository {
+    public class LocalRepository: IDialogProjectRepository {
         
         static string[] SampleModels = new string[] {
             // "https://modul-test.helsingborg.io/wp-content/uploads/sites/30/2022/03/telefonare.glb",
@@ -21,20 +20,20 @@ namespace Repository
             "https://modul-test.helsingborg.io/wp-content/uploads/sites/30/2022/05/20-lekplats-1.glb",
         };
 
-        protected string TempPath { get; private set;  }
+        private string TempPath { get; set;  }
 
-        public void Awake()
+        public LocalRepository(string tempPath)
         {
-            TempPath = Application.temporaryCachePath;
+            TempPath = tempPath;
         }
-        
-        public override Task<DialogProject> Load() => Task.FromResult(new DialogProject() {
+
+        public virtual Task<DialogProject> Load() => Task.FromResult(new DialogProject() {
                 Id = "dialog-1",
                 Plane = new DialogPlane(){Width = 4, Height = 4},
                 Resources = SampleModels.Select(url => new DialogResource{Url = url, Type = "model"}).ToList()
         });
 
-        public override Task<DialogScene> SaveScene(DialogScene scene)
+        public virtual Task<DialogScene> SaveScene(DialogScene scene)
         {
             var path = Path.Combine(TempPath, "scenes", $"{scene.Name}.scene.json");
             Debug.Log($"Saving scene {scene.Name} to {path}");
@@ -45,7 +44,7 @@ namespace Repository
             return Task.FromResult(scene);
         }
 
-        public override Task<Dictionary<string, DialogScene>> LoadScenes()
+        public virtual Task<Dictionary<string, DialogScene>> LoadScenes()
         {
             var path = Path.Combine(TempPath, "scenes");
             try

@@ -9,7 +9,6 @@ using Abilities.ARRoomAbility.WP.Schema;
 using Data;
 using Data.Dialogs;
 using Newtonsoft.Json;
-using Repository;
 using UnityEngine;
 using Utility;
 
@@ -31,7 +30,6 @@ namespace Abilities.ARRoomAbility.WP
         public virtual async Task<DialogProject> Load()
         {
             var model = await FetchModel();
-            Debug.Log(JsonConvert.SerializeObject(model, Formatting.Indented));
             
             return new DialogProject()
             {
@@ -49,7 +47,13 @@ namespace Abilities.ARRoomAbility.WP
                                  })
                                  .Where(r => !string.IsNullOrEmpty(r.Id))
                                  .Where(r => !string.IsNullOrEmpty(r.Url))
-                             ?? Enumerable.Empty<DialogResource>()).ToList()
+                             ?? Enumerable.Empty<DialogResource>()).ToList(),
+                FeaturedScenes = model?.Acf?.Scenes?
+                    .Where(s => s != null)
+                    .Where(s => s.IsFeatured)
+                    .Select(s => TryParseJson<DialogScene>(s.Json))
+                    .Where(s => s != null)
+                    .ToList() ?? new List<DialogScene>()
             };
         }
 

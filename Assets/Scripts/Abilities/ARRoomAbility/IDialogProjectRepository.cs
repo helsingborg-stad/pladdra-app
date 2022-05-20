@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Data.Dialogs;
 
-namespace Repository
+namespace Abilities.ARRoomAbility
 {
     public interface IDialogProjectRepository {
         Task<DialogProject> Load ();

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Data.Dialogs;
 using Pipelines;
-using Repository;
 using UnityEngine;
 using Utility;
 using Workspace;
@@ -76,6 +75,7 @@ namespace Abilities.ARRoomAbility
                     Height = project.Plane?.Height ?? 4
                 },
                 ResourceCollection = CreateWorkspaceResourceCollection(project, allResources.ToList()),
+                FeaturedScenes = project.FeaturedScenes ?? new List<DialogScene>()
             });
 
             callback(configuration);

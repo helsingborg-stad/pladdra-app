@@ -9,5 +9,6 @@ namespace Data.Dialogs
         public DialogPlane Plane { get; set; }
 
         public List<DialogResource> Resources { get; set; }
+        public List<DialogScene> FeaturedScenes { get; set; }
     }
 }
