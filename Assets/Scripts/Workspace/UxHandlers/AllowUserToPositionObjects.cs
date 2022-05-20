@@ -31,13 +31,12 @@ namespace Workspace.UxHandlers
                 TryConfigureComponent<LeanPinchScale>(go, leanPinchScale => leanPinchScale.enabled = PinchToScale);
             }
             
-
-            
             UserCanSelectObjectHud(workspace);
         }
 
         protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
+            base.OnSelected(scene, workspace, go);
             // add component that listens for position changes
             var tc = go.GetOrAddComponent<TransformChangedHandler>();
             tc.enabled = true;
@@ -48,6 +47,7 @@ namespace Workspace.UxHandlers
         
         protected override void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
+            base.OnDeselected(scene, workspace, go);
             go.RemoveComponent<TransformChangedHandler>();
             //scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
             UserCanSelectObjectHud(workspace);

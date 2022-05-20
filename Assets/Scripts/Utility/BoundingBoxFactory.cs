@@ -2,11 +2,11 @@ using UnityEngine;
 
 namespace Utility
 {
-    public class CubeFactory : IMeshFactory
+    public class BoundingBoxFactory : IMeshFactory
     {
         private Vector3 Size;
         private Vector3 Center;
-        public CubeFactory(Vector3 size, Vector3 center)
+        public BoundingBoxFactory(Vector3 size, Vector3 center)
         {
             Size = size;
             Center = center;
