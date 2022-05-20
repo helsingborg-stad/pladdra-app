@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 
 namespace Abilities
 {
@@ -14,17 +15,28 @@ namespace Abilities
             }
 
             var abilityName = uri.Authority;
-            var abilityConfig = uri.AbsolutePath;
+            var abilityConfig = TryDecodePathToJson(uri.AbsolutePath);
 
             return factories
                 .Select(f => f.TryCreateAbility(abilityName, abilityConfig))
                 .FirstOrDefault(f => f != null);
         }
+
+        private string TryDecodePathToJson(string path)
+        {
+            try
+            {
+                return path
+                    .Split('/')
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Select(Convert.FromBase64String)
+                    .Select(Encoding.UTF8.GetString)
+                    .FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
-    public interface IAbilityFactory
-    {
-        IAbility TryCreateAbility(string abilityName, string abilityConfig);
-    }
-    public interface IAbility {}
-    
 }

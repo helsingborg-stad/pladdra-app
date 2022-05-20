@@ -1,3 +1,4 @@
+using Abilities;
 using Repository;
 using UnityEngine;
 using Workspace.EditHistory;
@@ -9,16 +10,18 @@ namespace Workspace
     public class WorkspaceManager : MonoBehaviour
     {
         private IWorkspaceEditHistory History => new WorkspaceEditHistory();
+        private IAbility Ability { get; set; }
         private IWorkspaceScene Scene { get; set; }
         private IWorkspace Workspace { get; set; }
         
         // public IUxHandler UxHandler { get; set; }
         public GameObject itemPrefab;
 
-        public void Activate(WorkspaceConfiguration wc)
+        public void Activate(IAbility ability, WorkspaceConfiguration wc)
         {
+            Ability = ability;
             var hudManager = FindObjectOfType<HudManager>();
-            var dialogProjectRepository = FindObjectOfType<RepositoryManager>();
+            var dialogProjectRepository = Ability.Repository;
             var objectsManager = new WorkspaceObjectsManager(itemPrefab);
             
             // TODO: Destroy/detach any existing children of workspaceOrigin

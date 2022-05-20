@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Abilities;
 using ARHandlers;
 using DefaultNamespace;
 using Screens;
@@ -14,14 +15,17 @@ namespace ExampleScreens
 {
     public class ARDetectionScreen : Screen
     {
-        public IARHandler ARHandler { get; set; }
-        public WorkspaceConfiguration configuration { get; private set; }
+        private IAbility Ability { get; set; }
 
-        public void SetWorkspaceConfiguration(WorkspaceConfiguration wc)
+        private IARHandler ARHandler { get; set; }
+        private WorkspaceConfiguration Configuration { get; set; }
+
+        public void Configure(IAbility ability, WorkspaceConfiguration wc)
         {
-            configuration = wc;
+            Ability = ability;
+            Configuration = wc;
         }
-
+        
         public ARDetectionScreen()
         {
             ARHandler = new NullARHandler();
@@ -34,9 +38,9 @@ namespace ExampleScreens
                 TrackImageOnFloorAndThen(go =>
                 {
                     go.name = "WorkspaceOrigin";
-                    configuration.Origin.go = go;
+                    Configuration.Origin.go = go;
                     GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
-                        beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
+                        beforeActivate: screen => screen.Configure(Ability, Configuration)
                     );
                 });
             });

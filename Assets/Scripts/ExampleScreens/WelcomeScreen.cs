@@ -40,7 +40,9 @@ namespace ExampleScreens
              );
              
              Debug.Log(uri); 
-             GetComponentInParent<ScreenManager>().SetActiveScreen<LoadProjectsScreen>();
+             Debug.Log(ability); 
+             GetComponentInParent<ScreenManager>().SetActiveScreen<LoadProjectsScreen>(
+                 beforeActivate: screen => screen.Ability = ability);
          }
 
          private Uri CreateAbilityUri(string ability, object abilityConfiguration)

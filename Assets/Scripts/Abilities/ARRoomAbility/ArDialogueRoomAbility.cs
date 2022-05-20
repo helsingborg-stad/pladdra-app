@@ -4,7 +4,7 @@ namespace Abilities.ARRoomAbility
 {
     public class ArDialogueRoomAbility : IAbility
     {
-        private IDialogProjectRepository Repository { get; }
+        public IDialogProjectRepository Repository { get; }
 
         public ArDialogueRoomAbility(IDialogProjectRepository repository)
         {

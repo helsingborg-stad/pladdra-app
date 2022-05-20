@@ -1,3 +1,4 @@
+using Abilities;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Workspace;
@@ -7,17 +8,18 @@ namespace ExampleScreens
 {
     public class WorkspaceScreen : Screen
     {
+        private IAbility Ability { get; set; }
+
+        private WorkspaceConfiguration Configuration { get; set; }
+
         public GameObject OriginPrefab;
-        public WorkspaceConfiguration configuration { get; private set; }
 
-        private void Start()
+        public void Configure(IAbility ability, WorkspaceConfiguration wc)
         {
+            Ability = ability;
+            Configuration = wc;
         }
 
-        public void SetWorkspaceConfiguration(WorkspaceConfiguration wc)
-        {
-            configuration = wc;
-        }
 
         protected override void BeforeActivateScreen()
         {
@@ -25,9 +27,9 @@ namespace ExampleScreens
 
         protected override void AfterActivateScreen()
         {
-            configuration.Origin.go = configuration.Origin.go ?? Instantiate(OriginPrefab);
+            Configuration.Origin.go = Configuration.Origin.go ?? Instantiate(OriginPrefab);
             FindObjectOfType<WorkspaceManager>()
-                .Activate(configuration);
+                .Activate(Ability, Configuration);
         }
     }
 }

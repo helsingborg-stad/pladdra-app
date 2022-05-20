@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Abilities;
 using Abilities.ARRoomAbility;
 using Repository;
 using Screens;
@@ -13,6 +14,8 @@ namespace ExampleScreens
     public class LoadProjectsScreen : Screen
     {
         public bool UseARSceneAfterLoad;
+        public IAbility Ability { get; set; }
+
         private void Start()
         {
             // this action is updated to map to a label in our HUD
@@ -29,7 +32,7 @@ namespace ExampleScreens
             });
 
             
-            var pipeline = new ArRoomWorkspaceLoader(FindObjectOfType<RepositoryManager>());
+            var pipeline = new ArRoomWorkspaceLoader(Ability.Repository);
             pipeline.OnTaskStarted += label =>
             {
                 actions.Add(label);
@@ -49,12 +52,12 @@ namespace ExampleScreens
                 {
                     {
                         "Default", () => GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
-                            beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
+                            beforeActivate: screen => screen.Configure(Ability, configuration)
                         )
                     },
                     {
                         "AR", () => GetComponentInParent<ScreenManager>().SetActiveScreen<ARDetectionScreen>(
-                            beforeActivate: screen => screen.SetWorkspaceConfiguration(configuration)
+                            beforeActivate: screen => screen.Configure(Ability, configuration)
                         )
                     }
                 };

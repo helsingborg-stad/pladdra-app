@@ -13,9 +13,9 @@ namespace Abilities.ARRoomAbility
             [JsonProperty("headers")] public Dictionary<string, string> Headers { get; set; }
         }
 
-        public IAbility TryCreateAbility(string abilityName, string abilityConfig)
+        public IAbility TryCreateAbility(string abilityName, string configJson)
         {
-            return abilityName == "ar-dialogue-room" ? TryCreateAbilityFromConfig(abilityConfig) : null;
+            return abilityName == "ar-dialogue-room" ? TryCreateAbilityFromConfig(configJson) : null;
         }
 
         private IAbility TryCreateAbilityFromConfig(string configJson)
