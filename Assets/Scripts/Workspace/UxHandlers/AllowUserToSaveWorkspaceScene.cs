@@ -30,8 +30,11 @@ namespace Workspace.UxHandlers
                     // ...and then save in worker
                     workspace.WaitForThen(
                         () => repo.SaveScene(sceneDescription),
-                        (_) => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions())
-                    );
+                        (_) =>
+                        {
+                            workspace.UseScene(sceneDescription);
+                            workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                        });
                 };
                 cancelButton.clicked += () =>
                 {
