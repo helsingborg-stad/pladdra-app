@@ -27,11 +27,8 @@ namespace Workspace
             UxHandler = new NullUxHandler();
             HistoryActions = new WorkspaceEditHistoryActions(History, scene =>
             {
-                var handler = UxHandler;
-                UseUxHandler(null);
-                this.UseScene(scene);
-                // we need to 
-                UseUxHandler(handler);
+                UseScene(scene);
+                UseUxHandler(UxHandler, false);
             });
         }
 
@@ -89,7 +86,11 @@ namespace Workspace
 
         public void UseUxHandler(IUxHandler handler)
         {
-            if (handler != null)
+            UseUxHandler(handler, true);
+        }
+        private void UseUxHandler(IUxHandler handler, bool updateHistory)
+        {
+            if (updateHistory)
             {
                 History.SaveSnapshot(this);
             }
