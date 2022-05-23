@@ -1,9 +1,6 @@
-using System;
-using System.Text;
 using Abilities;
 using Abilities.ARRoomAbility.Local;
 using Abilities.ARRoomAbility.WP;
-using Newtonsoft.Json;
 using Screens;
 using UnityEngine;
 using Screen = Screens.Screen;
@@ -14,9 +11,8 @@ namespace ExampleScreens
     {
          private void Start()
          {
-             var uri = AbilityUri.CreateAbilityUri("ar-dialogue-room", new 
+             var uri = AbilityUri.CreateAbilityUri("ar-dialogue-room-admin", new 
              {
-                 mode = "edit",
                  endpoint =
                      "https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/ar-dialogue-room/16?acf_format=standard",
                  headers = new 
@@ -26,12 +22,11 @@ namespace ExampleScreens
              });
 
              var ability = AbilityUri.TryCreateAbility(uri,
-                 new WpArDialogueRoomAbilityFactory(),
+                 new WpArDialogueRoomForAdminAbilityFactory(),
+                 new WpArDialogueRoomForVisitorAbilityFactory(),
                  new LocalArDialogueRoomAbilityFactory(Application.temporaryCachePath)
              );
              
-             Debug.Log(uri); 
-             Debug.Log(ability); 
              GetComponentInParent<ScreenManager>().SetActiveScreen<LoadProjectsScreen>(
                  beforeActivate: screen => screen.Ability = ability);
          }

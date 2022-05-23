@@ -8,16 +8,16 @@ namespace Workspace
 {
     public class WorkspaceManager : MonoBehaviour
     {
-        private IWorkspaceEditHistory History => new WorkspaceEditHistory();
+        private IWorkspaceEditHistory History { get; set; }
         private IAbility Ability { get; set; }
         private IWorkspaceScene Scene { get; set; }
         private IWorkspace Workspace { get; set; }
         
-        // public IUxHandler UxHandler { get; set; }
         public GameObject itemPrefab;
 
         public void Activate(IAbility ability, WorkspaceConfiguration wc)
         {
+            History = new WorkspaceEditHistory();
             Ability = ability;
             var hudManager = FindObjectOfType<HudManager>();
             var dialogProjectRepository = Ability.Repository;

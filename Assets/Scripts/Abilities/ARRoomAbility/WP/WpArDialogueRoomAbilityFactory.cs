@@ -5,18 +5,17 @@ using UnityEngine;
 
 namespace Abilities.ARRoomAbility.WP
 {
-    public class WpArDialogueRoomAbilityFactory : IAbilityFactory
+    public abstract class WpArDialogueRoomAbilityFactory : IAbilityFactory
     {
         public class Config
         {
-            [JsonProperty("mode")] public string Mode { get; set; }
             [JsonProperty("endpoint")] public string Endpoint { get; set; }
             [JsonProperty("headers")] public Dictionary<string, string> Headers { get; set; }
         }
 
         public IAbility TryCreateAbility(string abilityName, string configJson)
         {
-            return abilityName == "ar-dialogue-room" ? TryCreateAbilityFromConfig(configJson) : null;
+            return abilityName == GetAbilityName() ? TryCreateAbilityFromConfig(configJson) : null;
         }
 
         private IAbility TryCreateAbilityFromConfig(string configJson)
@@ -30,10 +29,13 @@ namespace Abilities.ARRoomAbility.WP
                     Headers = config.Headers ?? new Dictionary<string, string>()
                 })
             {
-                IsEditMode = config.Mode == "edit"
+                IsEditMode = GetEditMode()
             };
         }
 
+        protected abstract bool GetEditMode();
+        protected abstract string GetAbilityName();
+ 
         T TryParse<T>(string json) where T : class
         {
             try

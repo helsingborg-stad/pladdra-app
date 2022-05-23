@@ -37,7 +37,6 @@ namespace Abilities
 
         private static string TryDecodePathToJson(string path)
         {
-            Debug.Log(path);
             try
             {
                 return Encoding.UTF8.GetString(Convert.FromBase64String(path));
