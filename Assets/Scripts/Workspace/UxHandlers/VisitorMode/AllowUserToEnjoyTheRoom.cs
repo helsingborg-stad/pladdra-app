@@ -19,7 +19,7 @@ namespace Workspace.UxHandlers.VisitorMode
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
-            if (FeaturedScenes?.Count > 0)
+            if (FeaturedScenes?.Count > 1)
             {
                 workspace.UseHud("user-can-choose-between-featured-scenes-hud", root =>
                 {
