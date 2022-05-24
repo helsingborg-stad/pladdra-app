@@ -18,8 +18,8 @@ namespace Pipelines
             new WebResourceManager(Path.Combine(Application.temporaryCachePath, cacheSubFolder));
         protected virtual IWorkspaceResourceCollection CreateWorkspaceResourceCollection(DialogProject project, IEnumerable<IWorkspaceResource> resources) => new WorkspaceResourceCollection { Resources = resources.ToList() };
 
-        protected virtual IWorkspaceResource CreateWorkspaceResource(DialogResource resource, GameObject prefab) =>
-            new WorkspaceResource() { Prefab = prefab, ResourceID = resource.Id };
+        protected virtual IWorkspaceResource CreateWorkspaceResource(DialogResource resource, params GameObject[] prefabs) =>
+            new WorkspaceResource() { Prefabs = prefabs, ResourceID = resource.Id };
 
         protected virtual CustomYieldInstruction LogTask(string label, Func<CustomYieldInstruction> factory) => LogTask(CreateEvents(label), factory);
 

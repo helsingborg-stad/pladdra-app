@@ -7,7 +7,8 @@ namespace Workspace
     {
         IEnumerable<IWorkspaceObject> Objects { get; }
 
-        void SpawnItem(GameObject targetParent, IWorkspaceResource resource, Vector3 position, Quaternion rotation, Vector3 scale);
+        GameObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
+            Quaternion rotation, Vector3 scale);
         void DestroyItem(GameObject go);
         void DestroyAll();
     }

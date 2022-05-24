@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Workspace
@@ -6,6 +7,7 @@ namespace Workspace
     {
         public string ResourceID { get; set; }
         public GameObject Prefab { get; set; }
+        public IEnumerable<GameObject> Prefabs { get; set; }
     }
 }
 

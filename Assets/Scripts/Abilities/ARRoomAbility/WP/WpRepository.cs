@@ -43,10 +43,12 @@ namespace Abilities.ARRoomAbility.WP
                                  {
                                      Id = r.Name,
                                      Type = "model",
-                                     Url = r.Model
+                                     ModelUrl = r.Model,
+                                     MarkerModelUrl = r.MarkerModel
                                  })
                                  .Where(r => !string.IsNullOrEmpty(r.Id))
-                                 .Where(r => !string.IsNullOrEmpty(r.Url))
+                                 .Where(r => !string.IsNullOrEmpty(r.ModelUrl))
+                                 .Where(r => !string.IsNullOrEmpty(r.MarkerModelUrl))
                              ?? Enumerable.Empty<DialogResource>()).ToList(),
                 FeaturedScenes = model?.Acf?.Scenes?
                     .Where(s => s != null)

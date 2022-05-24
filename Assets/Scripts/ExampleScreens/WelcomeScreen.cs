@@ -11,7 +11,7 @@ namespace ExampleScreens
     {
          private void Start()
          {
-             var uri = AbilityUri.CreateAbilityUri("ar-dialogue-room-admin", new 
+             var uri = AbilityUri.CreateAbilityUri("ar-dialogue-room", new 
              {
                  endpoint =
                      "https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/ar-dialogue-room/16?acf_format=standard",

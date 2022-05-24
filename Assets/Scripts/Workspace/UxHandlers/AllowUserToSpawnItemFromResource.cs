@@ -20,16 +20,15 @@ namespace Workspace.UxHandlers
             workspace.UseHud("user-can-chose-resource-to-spawn-hud", root =>
             {
                 var container = root.Q<VisualElement>("content");
-                var items = scene.Resources.Resources.ToList();
+                var resources = scene.Resources.Resources.ToList();
                 var listItem = Resources.Load<VisualTreeAsset>("resource-item");
-                items.ForEach(item =>
+                resources.ForEach(item =>
                 {
                     var itemInstance = listItem.Instantiate();
                     itemInstance.Q<Label>().text = item.ResourceID;
                     itemInstance.Q<Button>().clicked += () =>
                     {
-                        scene.ObjectsManager.SpawnItem(scene.Plane, item, Vector3.zero, new Quaternion(),
-                            new Vector3(1, 1, 1));
+                        scene.ObjectsManager.SpawnItem(item, scene.Plane, Vector3.zero, new Quaternion(), new Vector3(1, 1, 1));
                         workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
                     };
                     container.Add(itemInstance);

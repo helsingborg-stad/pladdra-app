@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Abilities.ARRoomAbility;
 using Data.Dialogs;
 using Pipelines;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -60,13 +61,7 @@ namespace Workspace
             {
                 var resource = ResourceCollection.TryGetResource(item.ResourceId);
                 if (resource != null)
-                    ObjectsManager.SpawnItem(
-                        Scene.Plane,
-                        resource,
-                        item.Position?.ToVector3() ?? new Vector3(1, 1, 1),
-                        item.Rotation?.ToQuaternion() ?? new Quaternion(),
-                        item.Scale?.ToVector3() ?? new Vector3(1, 1, 1)
-                    );
+                    ObjectsManager.SpawnItem(resource, Scene.Plane, item.Position?.ToVector3() ?? new Vector3(1, 1, 1), item.Rotation?.ToQuaternion() ?? new Quaternion(), item.Scale?.ToVector3() ?? new Vector3(1, 1, 1));
             }
 
             void UpdateTransform(GameObject go, DialogScene.TransformDescription t)

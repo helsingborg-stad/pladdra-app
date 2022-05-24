@@ -30,7 +30,7 @@ namespace Abilities.ARRoomAbility.Local
         public virtual Task<DialogProject> Load() => Task.FromResult(new DialogProject() {
                 Id = "dialog-1",
                 Plane = new DialogPlane(){Width = 4, Height = 4},
-                Resources = SampleModels.Select(url => new DialogResource{Url = url, Type = "model"}).ToList()
+                Resources = SampleModels.Select(url => new DialogResource{ModelUrl = url, MarkerModelUrl = url, Type = "model"}).ToList()
         });
 
         public virtual Task<DialogScene> SaveScene(DialogScene scene)

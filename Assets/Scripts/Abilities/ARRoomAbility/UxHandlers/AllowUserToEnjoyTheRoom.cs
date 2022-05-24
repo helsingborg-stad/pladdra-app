@@ -4,16 +4,30 @@ using Data.Dialogs;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
+using Workspace;
 
-namespace Workspace.UxHandlers.VisitorMode
+namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheRoom: AbstractUxHandler
     {
         private List<DialogScene> FeaturedScenes { get; }
+        private GameObject HighlightedModel { get; set; }
 
         public AllowUserToEnjoyTheRoom(List<DialogScene> featuredScenes)
         {
             FeaturedScenes = featuredScenes;
+        }
+
+        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        {
+            base.OnSelected(scene, workspace, go);
+
+            var selected = scene.ObjectsManager.Objects.FirstOrDefault(obj => obj.GameObject == go);
+            if (selected != null)
+            {
+                var children = selected?.ChildGameObjects;
+                workspace.UseUxHandler(new AllowUserToEnjoyTheSelectedModel(selected));
+            }
         }
 
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
@@ -42,7 +56,7 @@ namespace Workspace.UxHandlers.VisitorMode
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
-            return Enumerable.Empty<GameObject>();
+            return scene.ObjectsManager.Objects.Select(o => o.GameObject);
         }
     }
 }

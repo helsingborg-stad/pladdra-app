@@ -46,37 +46,51 @@ namespace UXHandlers
         
         public virtual void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
-            foreach (var obj in GetSelectableObjects(scene))
+            foreach (var go in GetSelectableObjects(scene))
             {
-                TryConfigureComponent<LeanDragTranslateAlong>(obj, c => c.enabled = true);
-                TryConfigureComponent<LeanTwistRotateAxis>(obj, c => c.enabled = true);
-                TryConfigureComponent<LeanPinchScale>(obj, c => c.enabled = true);
-                TryConfigureComponent<BoxCollider>(obj, c => c.enabled = true);
-                TryConfigureComponent<LeanSelectable>(obj, selectable =>
+                ActivateObject(scene, workspace, go);
+            }
+        }
+
+        public virtual void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
+        {
+            foreach (var go in GetSelectableObjects(scene))
+            {
+                DeactivateObject(scene, workspace, go);
+            }
+        }
+
+        protected virtual void ActivateObject(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        {
+                TryConfigureComponent<LeanDragTranslateAlong>(go, c => c.enabled = true);
+                TryConfigureComponent<LeanTwistRotateAxis>(go, c => c.enabled = true);
+                TryConfigureComponent<LeanPinchScale>(go, c => c.enabled = true);
+                TryConfigureComponent<BoxCollider>(go, c => c.enabled = true);
+                TryConfigureComponent<LeanSelectable>(go, selectable =>
                 {
                     selectable.enabled = true;
-                    selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, obj));
-                    selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, obj));
+                    selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, go));
+                    selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, go));
                 });
                 
-                TryConfigureComponent<FlexibleBounds>(obj, c =>
+                TryConfigureComponent<FlexibleBounds>(go, c =>
                 {
-                    c.CalculateBoundsFromChildrenAndThen(obj, bounds =>
+                    c.CalculateBoundsFromChildrenAndThen(go, bounds =>
                     {
-                        TryConfigureComponent<BoxCollider>(obj, boxCollider =>
+                        TryConfigureComponent<BoxCollider>(go, boxCollider =>
                         {
                             boxCollider.center = bounds.center;
                             boxCollider.size = bounds.size;
                         });
                         
-                        TryConfigureComponent<MeshFilter>(obj, meshFilter =>
+                        TryConfigureComponent<MeshFilter>(go, meshFilter =>
                         {
                             meshFilter.mesh = new BoundingBoxFactory(bounds.size, bounds.center).CreateMesh();
                         });
                     });
                 });
                 
-                TryConfigureComponent<MeshRenderer>(obj, c =>
+                TryConfigureComponent<MeshRenderer>(go, c =>
                 {
                     c.enabled = true;
                     c.materials
@@ -88,31 +102,29 @@ namespace UXHandlers
                             material.SetColor("_SolidOutline", new Color(1f, 1f, 1f, 0.66f));
                         });
                 });
-            }
         }
 
-        public virtual void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
+        protected virtual void DeactivateObject(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-            foreach (var obj in GetSelectableObjects(scene))
+            TryConfigureComponent<LeanDragTranslateAlong>(go, c => c.enabled = false);
+            TryConfigureComponent<LeanTwistRotateAxis>(go, c => c.enabled = false);
+            TryConfigureComponent<LeanPinchScale>(go, c => c.enabled = false);
+            TryConfigureComponent<BoxCollider>(go, c => c.enabled = false);
+            TryConfigureComponent<LeanSelectable>(go, selectable =>
             {
-                TryConfigureComponent<LeanDragTranslateAlong>(obj, c => c.enabled = false);
-                TryConfigureComponent<LeanTwistRotateAxis>(obj, c => c.enabled = false);
-                TryConfigureComponent<LeanPinchScale>(obj, c => c.enabled = false);
-                TryConfigureComponent<BoxCollider>(obj, c => c.enabled = false);
-                TryConfigureComponent<LeanSelectable>(obj, selectable =>
-                {
-                    selectable.enabled = false;
-                    selectable.OnSelected.RemoveAllListeners();
-                    selectable.OnDeselected.RemoveAllListeners();
-                });
+                selectable.enabled = false;
+                selectable.OnSelected.RemoveAllListeners();
+                selectable.OnDeselected.RemoveAllListeners();
+            });
                 
-                TryConfigureComponent<MeshRenderer>(obj, c =>
-                {
-                    c.enabled = false;
-                });
-            }
+            TryConfigureComponent<MeshRenderer>(go, c =>
+            {
+                c.enabled = false;
+            });
+
         }
 
+        
         protected void SelectObject(GameObject go)
         {
             Object.FindObjectOfType<LeanSelect>().Select(go.GetComponent<LeanSelectable>());

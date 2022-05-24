@@ -25,7 +25,7 @@ namespace Abilities.ARRoomAbility
             OnTaskDone += label => Debug.Log($"[pipline] done {label}");
             OnTaskProgress += (label, step) => { };
         }
-
+        
         public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration> callback)
         {
 
@@ -37,7 +37,11 @@ namespace Abilities.ARRoomAbility
             var wrm = CreateWebResourceManager();
             Dictionary<string, string> url2path = null;
             yield return LogTask("Vi tankar ner alla modeller för att det ska gå snabbare sen!",
-                () => new MapExternalResourceToLocalPaths(wrm, project, p => url2path = p));
+                () => new MapExternalResourceToLocalPaths(
+                    wrm,
+                    project.Resources.Select(resource => resource.ModelUrl)
+                        .Concat(project.Resources.Select(resource => resource.MarkerModelUrl)),
+                    p => url2path = p));
 
             var path2model = new Dictionary<string, GameObject>();
             foreach (var path in url2path.Values)
@@ -49,15 +53,21 @@ namespace Abilities.ARRoomAbility
 
             var modelItems = LogAction("Nu skapar vi modeller!", () => project.Resources
                 .Where(resource => resource.Type == "model")
-                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.Url)) })
-                .Where(o => o.gameObject != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.gameObject))
+                .Select(resource => new
+                {
+                    resource,
+                    model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl))
+                })
+                .Where(o => o.model != null)
+                .Where(o => o.marker != null)
+                .Select(o => CreateWorkspaceResource(o.resource, o.marker, o.model))
                 .Where(item => item != null)
                 .ToList());
 
             var markerItems = LogAction("Nu skapar vi markörer", () => project.Resources
                 .Where(resource => resource.Type == "marker")
-                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.Url)) })
+                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.ModelUrl)) })
                 .Where(o => o.gameObject != null)
                 .Select(o => CreateWorkspaceResource(o.resource, o.gameObject))
                 .Where(item => item != null)
