@@ -1,8 +1,12 @@
+using System;
+using System.Linq;
 using Abilities;
 using Abilities.ARRoomAbility.Local;
 using Abilities.ARRoomAbility.WP;
 using Screens;
 using UnityEngine;
+using UnityEngine.Windows;
+using File = System.IO.File;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens
@@ -11,16 +15,13 @@ namespace ExampleScreens
     {
          private void Start()
          {
-             var uri = AbilityUri.CreateAbilityUri("ar-dialogue-room-admin", new 
+             if (Ability != null)
              {
-                 endpoint =
-                     "https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/ar-dialogue-room/16?acf_format=standard",
-                 headers = new 
-                 {
-                     Authorization = "aGVsc2luZ2JvcmdzcnVtbWV0Ok96enMgSDBZVyBXOWtqIFMxd1cgcU12VCBLN2hZ"
-                 }
-             });
-
+                 GetComponentInParent<ScreenManager>().SetActiveScreen<LoadProjectsScreen>(
+                     beforeActivate: screen => screen.Ability = Ability);
+             }
+             /*
+             var uri = TryReadDevelopmentDeeplink();
              var ability = AbilityUri.TryCreateAbility(uri,
                  new WpArDialogueRoomForAdminAbilityFactory(),
                  new WpArDialogueRoomForVisitorAbilityFactory(),
@@ -29,6 +30,29 @@ namespace ExampleScreens
              
              GetComponentInParent<ScreenManager>().SetActiveScreen<LoadProjectsScreen>(
                  beforeActivate: screen => screen.Ability = ability);
+            */
          }
-   }
+
+         private string TryReadDevelopmentDeeplink()
+         {
+             try
+             {
+                 return File
+                     .ReadAllLines("deeplink.dev")
+                     .Where(line => !string.IsNullOrEmpty(line))
+                     .FirstOrDefault(line => line.StartsWith("pladdra://"));
+             }
+             catch (Exception)
+             {
+                 return null;
+             }
+         }
+
+         public void Configure(IAbility ability)
+         {
+             Ability = ability;
+         }
+
+         private IAbility Ability { get; set; }
+    }
 }

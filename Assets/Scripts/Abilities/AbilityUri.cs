@@ -8,10 +8,15 @@ namespace Abilities
 {
     public static class AbilityUri
     {
+        public static IAbility TryCreateAbility(string uri, params IAbilityFactory[] factories)
+        {
+            var parsed = default(Uri);
+            return Uri.TryCreate(uri, UriKind.Absolute, out parsed) ? TryCreateAbility(parsed, factories) : null;
+        }
         public static IAbility TryCreateAbility(Uri uri, params IAbilityFactory[] factories)
         {
             // the uri should be like pladdra://<abilityName>/<abilityConfig>
-            if (uri.Scheme != "pladdra")
+            if (uri?.Scheme != "pladdra")
             {
                 return null;
             }

@@ -80,3 +80,6 @@ ios/
 
 com.kyrylokuzyk.arfoundationremote
 ARFoundationRemoteInstaller
+
+# Development files
+deeplink.dev

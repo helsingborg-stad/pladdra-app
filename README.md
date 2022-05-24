@@ -34,3 +34,10 @@ You will also need to install [mono](https://www.mono-project.com/download/stabl
 Using the [`Debugger for unity`](https://marketplace.visualstudio.com/items?itemName=Unity.unity-debug) extension, you can launch the debugger from the debug menu.
 
 In order for the debugger to attach, you have to start the project in Unity as well.
+
+## Testing abilities/deeplinks
+Create a file named `deeplink.dev` with contents like
+```sh
+# visitor mode
+pladdra://ar-dialogue-room/...
+```
