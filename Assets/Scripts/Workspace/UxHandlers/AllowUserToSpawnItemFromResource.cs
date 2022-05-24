@@ -29,13 +29,13 @@ namespace Workspace.UxHandlers
                     itemInstance.Q<Button>().clicked += () =>
                     {
                         scene.ObjectsManager.SpawnItem(item, scene.Plane, Vector3.zero, new Quaternion(), new Vector3(1, 1, 1));
-                        workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                        workspace.Actions.DispatchAction("default");
                     };
                     container.Add(itemInstance);
                 });
 
 
-                root.Q<Button>("close").clicked += () => { workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
+                root.Q<Button>("close").clicked += () => { workspace.Actions.DispatchAction("default"); };
             });
         }
     }

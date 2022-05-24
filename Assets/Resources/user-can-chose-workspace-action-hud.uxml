@@ -6,6 +6,7 @@
                 <ui:Label text="&lt;inget namn&gt;" display-tooltip-when-elided="true" name="workspace-name" />
             </ui:VisualElement>
             <ui:VisualElement style="flex-direction: row; justify-content: center; align-items: stretch; flex-wrap: nowrap;">
+                <ui:Button text="Förhandsgranska" display-tooltip-when-elided="true" name="preview" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
                 <ui:Button text="Justera yta" display-tooltip-when-elided="true" name="edit-plane" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
                 <ui:Button text="Justera objekt" display-tooltip-when-elided="true" name="edit-objects" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />
                 <ui:Button text="Ladda scen" display-tooltip-when-elided="true" name="load-scene" class="btn btn--small" style="margin-right: 4px; margin-left: 4px;" />

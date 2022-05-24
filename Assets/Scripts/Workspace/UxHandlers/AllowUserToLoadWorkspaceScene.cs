@@ -35,11 +35,11 @@ namespace Workspace.UxHandlers
                     itemInstance.Q<Button>("card").clicked += () =>
                     {
                         workspace.UseScene(kv.Value);
-                        workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                        workspace.Actions.DispatchAction("default");
                     };
                     container.Add(itemInstance);
                 }
-                root.Q<Button>("close").clicked += () => { workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()); };
+                root.Q<Button>("close").clicked += () => { workspace.Actions.DispatchAction("default"); };
             });
         }
     }

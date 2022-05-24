@@ -72,7 +72,6 @@ namespace Workspace.UxHandlers
                 root.Q<Button>("remove").clicked += () =>
                 {
                     scene.ObjectsManager.DestroyItem(go);
-                    // scene.UseUxHandler(new AllowUserSelectWorkspaceActions());
                 };
                 root.Q<Button>("done").clicked += () =>
                 {
@@ -88,7 +87,7 @@ namespace Workspace.UxHandlers
         {
             workspace.UseHud("user-can-select-object-hud", root =>
             {
-                root.Q<Button>("done").clicked += () => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                root.Q<Button>("done").clicked += () => workspace.Actions.DispatchAction("default");
             });
 
         }

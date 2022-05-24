@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Data.Dialogs;
@@ -39,6 +40,18 @@ namespace Abilities.ARRoomAbility.UxHandlers
             // render the scene before attaching events
             workspace.UseScene(FeaturedScene);
             base.Activate(scene, workspace);
+
+            workspace.ClearHud();
+            
+            if (workspace.Actions.HasAction("cancel-preview"))
+            {
+                workspace.UseHud("user-can-cancel-preview-mode-hud", root =>
+                {
+                    root.Q<Button>("done").clicked += () => workspace.Actions.DispatchAction("cancel-preview");
+                });
+                return;
+            }
+            
             if (FeaturedScenes?.Count > 1)
             {
                 workspace.UseHud("user-can-choose-between-featured-scenes-hud", root =>

@@ -14,6 +14,11 @@ namespace Workspace.UxHandlers
             workspace.UseHud("user-can-chose-workspace-action-hud", root =>
             {
                 root.Q<Label>("workspace-name").text = workspace.Name;
+
+                var previewButton = root.Q<Button>("preview");
+                previewButton.clicked += () => workspace.Actions.DispatchAction("preview");
+                previewButton.visible = workspace.Actions.HasAction("preview");
+
                 root.Q<Button>("edit-plane").clicked += () =>
                 {
                     workspace.UseUxHandler(new AllowUserToPositionPlane());

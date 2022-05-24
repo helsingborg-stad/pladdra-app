@@ -21,7 +21,7 @@ namespace Workspace.UxHandlers
                 root.Q<Button>("done").clicked += () =>
                 {
                     DeselectAll();
-                    workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                    workspace.Actions.DispatchAction("default");
                 };
             });
         }

@@ -33,12 +33,12 @@ namespace Workspace.UxHandlers
                         (_) =>
                         {
                             workspace.UseScene(sceneDescription);
-                            workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                            workspace.Actions.DispatchAction("default");
                         });
                 };
                 cancelButton.clicked += () =>
                 {
-                    workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                    workspace.Actions.DispatchAction("default");
                 };
 
                 nameInput.RegisterValueChangedCallback(e => ToggleSaveButton(e.newValue));

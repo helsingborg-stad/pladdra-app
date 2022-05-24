@@ -12,6 +12,7 @@ using UnityEngine.UIElements;
 using UXHandlers;
 using Workspace.EditHistory;
 using Workspace.Hud;
+using Workspace.UxHandlers;
 
 namespace Workspace
 {
@@ -31,6 +32,7 @@ namespace Workspace
                 UseScene(scene);
                 UseUxHandler(UxHandler, false);
             });
+            Actions = new WorkspaceActions(this, scene);
         }
 
         private MonoBehaviour Owner { get; set; }
@@ -44,6 +46,7 @@ namespace Workspace
         public IEnumerable<DialogScene> FeaturedScenes { get; private set;  }
         public IWorkspaceEditHistoryActions HistoryActions { get; }
         public IDialogProjectRepository DialogProjectRepository { get; }
+        public IWorkspaceActions Actions { get; }
 
         public DialogScene GetSceneDescription()
         {
@@ -111,6 +114,34 @@ namespace Workspace
         public void ClearHud()
         {
             HudManager.ClearHud();
+        }
+    }
+
+    public class WorkspaceActions : IWorkspaceActions
+    {
+        private Workspace Workspace { get; }
+        private IWorkspaceScene Scene { get; }
+        private Dictionary<string, Action<IWorkspaceScene, IWorkspace>> Actions { get; }
+        public WorkspaceActions(Workspace workspace, IWorkspaceScene scene)
+        {
+            Workspace = workspace;
+            Scene = scene;
+            Actions = new Dictionary<string, Action<IWorkspaceScene, IWorkspace>>();
+        }
+
+        public bool HasAction(string name)
+        {
+            return Actions.ContainsKey(name);
+        }
+
+        public void RegisterAction(string name, Action<IWorkspaceScene, IWorkspace> action)
+        {
+            Actions[name] = action;
+        }
+
+        public void DispatchAction(string name)
+        {
+            Actions[name](Scene, Workspace);
         }
     }
 }

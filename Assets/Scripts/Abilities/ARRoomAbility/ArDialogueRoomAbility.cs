@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using Abilities.ARRoomAbility.UxHandlers;
+using Data.Dialogs;
 using Workspace;
 using Workspace.UxHandlers;
 
@@ -14,12 +16,20 @@ namespace Abilities.ARRoomAbility
         {
             if (IsEditMode)
             {
-                workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                workspace.Actions.RegisterAction("default", (scene, workspace) => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()));
+                workspace.Actions.RegisterAction("cancel-preview", (scene, workspace) => workspace.Actions.DispatchAction("default"));
+                workspace.Actions.RegisterAction("preview", (scene, workspace) =>
+                {
+                    var s = workspace.GetSceneDescription();
+                    workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(
+                        s, new List<DialogScene>() { s }));
+                });
             }
             else
             {
-                workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.FeaturedScenes.FirstOrDefault(), configuration.FeaturedScenes));
+                workspace.Actions.RegisterAction("default", (scene, workspace) => workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.FeaturedScenes.FirstOrDefault(), configuration.FeaturedScenes)));
             }
+            workspace.Actions.DispatchAction("default");
         }
 
         public ArDialogueRoomAbility(IDialogProjectRepository repository)
