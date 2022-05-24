@@ -14,13 +14,11 @@ namespace Abilities.ARRoomAbility
         {
             if (IsEditMode)
             {
-                // Workspace.UseScene(wc.Scene);
                 workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
             }
             else
             {
-                workspace.UseScene(configuration.FeaturedScenes.FirstOrDefault());
-                workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.FeaturedScenes));
+                workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.FeaturedScenes.FirstOrDefault(), configuration.FeaturedScenes));
             }
         }
 

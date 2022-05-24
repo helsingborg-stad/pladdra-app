@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UXHandlers;
 using Workspace;
 
@@ -8,11 +10,13 @@ namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheSelectedModel : AbstractUxHandler
     {
-        public IWorkspaceObject WorkspaceObject { get; }
+        private IWorkspaceObject WorkspaceObject { get; }
+        private Action<IWorkspace> Done { get; }
 
-        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject)
+        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject, Action<IWorkspace> onDone)
         {
             WorkspaceObject = workspaceObject;
+            Done = onDone;
         }
 
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
@@ -23,6 +27,11 @@ namespace Abilities.ARRoomAbility.UxHandlers
                 go.SetActive(index == 1);
                 return 0;
             }).ToList();
+            // SelectObject(WorkspaceObject.GameObject);
+            workspace.UseHud("user-can-cancel-inspect-model-hud", root =>
+            {
+                root.Q<Button>("done").clicked += () => Done(workspace);
+            });
         }
 
         public override void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
@@ -37,7 +46,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
-            return WorkspaceObject.ChildGameObjects;
+            return new []{ WorkspaceObject.GameObject };
         }
     }
 }

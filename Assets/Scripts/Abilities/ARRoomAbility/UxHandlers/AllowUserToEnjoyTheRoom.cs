@@ -10,11 +10,12 @@ namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheRoom: AbstractUxHandler
     {
+        private DialogScene FeaturedScene { get; }
         private List<DialogScene> FeaturedScenes { get; }
-        private GameObject HighlightedModel { get; set; }
 
-        public AllowUserToEnjoyTheRoom(List<DialogScene> featuredScenes)
+        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes)
         {
+            FeaturedScene = featuredScene;
             FeaturedScenes = featuredScenes;
         }
 
@@ -26,12 +27,17 @@ namespace Abilities.ARRoomAbility.UxHandlers
             if (selected != null)
             {
                 var children = selected?.ChildGameObjects;
-                workspace.UseUxHandler(new AllowUserToEnjoyTheSelectedModel(selected));
+                workspace.UseUxHandler(new AllowUserToEnjoyTheSelectedModel(selected, ws =>
+                {
+                    ws.UseUxHandler(new AllowUserToEnjoyTheRoom(FeaturedScene, FeaturedScenes));
+                }));
             }
         }
 
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
+            // render the scene before attaching events
+            workspace.UseScene(FeaturedScene);
             base.Activate(scene, workspace);
             if (FeaturedScenes?.Count > 1)
             {
@@ -46,7 +52,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
                         };
                         button.clicked += () =>
                         {
-                            workspace.UseScene(scene);
+                            workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(scene, FeaturedScenes));
                         };
                         container.Add(button);
                     });
