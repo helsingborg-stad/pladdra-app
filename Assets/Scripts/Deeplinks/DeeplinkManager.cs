@@ -10,16 +10,24 @@ using UnityEngine;
 
 namespace Deeplinks
 {
-    public class DeeplinkManager: MonoBehaviour
+    public class DeeplinkManager : MonoBehaviour
     {
-        private void Start()
+        private void Awake()
         {
             Application.deepLinkActivated += url => TryNavigateDeeplink(url);
-            TryNavigateDeeplink(TryReadDevelopmentDeeplink());
+
+            var deeplinked =
+                new[]
+                    {
+                        Application.absoluteURL, TryReadDevelopmentDeeplink()
+                    }
+                    .Select(TryNavigateDeeplink)
+                    .FirstOrDefault();
         }
 
-        private void TryNavigateDeeplink(string url)
+        private bool TryNavigateDeeplink(string url)
         {
+            Debug.Log(url);
             Debug.Log(url);
             var ability = AbilityUri.TryCreateAbility(url,
                 new WpArDialogueRoomForAdminAbilityFactory(),
@@ -30,7 +38,10 @@ namespace Deeplinks
             {
                 FindObjectOfType<ScreenManager>().SetActiveScreen<WelcomeScreen>(
                     beforeActivate: screen => screen.Configure(ability));
+                return true;
             }
+
+            return false;
         }
 
         private string TryReadDevelopmentDeeplink()
