@@ -2,7 +2,6 @@ using Abilities;
 using UnityEngine;
 using Workspace.EditHistory;
 using Workspace.Hud;
-using Workspace.UxHandlers;
 
 namespace Workspace
 {
@@ -36,8 +35,16 @@ namespace Workspace
                 dialogProjectRepository, History);
 
             Ability.ConfigureWorkspace(wc, Workspace);
-            // Workspace.UseScene(wc.Scene);
-            // Workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+        }
+
+        public void Deactivate()
+        {
+            Workspace?.ClearHud();
+            Workspace?.UseScene(null);
+            Workspace?.UseUxHandler(null);
+            Destroy(Scene?.Plane);
+            Workspace = null;
+            Scene = null;
         }
     }
 }

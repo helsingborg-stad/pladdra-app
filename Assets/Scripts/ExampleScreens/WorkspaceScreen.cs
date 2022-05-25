@@ -1,6 +1,5 @@
 using Abilities;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Workspace;
 using Screen = Screens.Screen;
 
@@ -30,6 +29,11 @@ namespace ExampleScreens
             Configuration.Origin.go = Configuration.Origin.go ?? Instantiate(OriginPrefab);
             FindObjectOfType<WorkspaceManager>()
                 .Activate(Ability, Configuration);
+        }
+
+        protected override void AfterDeactivateScreen()
+        {
+            FindObjectOfType<WorkspaceManager>().Deactivate();
         }
     }
 }
