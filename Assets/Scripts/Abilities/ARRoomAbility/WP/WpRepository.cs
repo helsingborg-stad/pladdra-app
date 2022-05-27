@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Abilities.ARRoomAbility.WP.Schema;
 using Data;
@@ -16,7 +14,6 @@ namespace Abilities.ARRoomAbility.WP
 {
     public class WpRepository : IDialogProjectRepository
     {
-
         private string CachePath { get; set; }
     
         public string Endpoint { get; set; }
@@ -53,12 +50,12 @@ namespace Abilities.ARRoomAbility.WP
                 FeaturedScenes = model?.Acf?.Scenes?
                     .Where(s => s != null)
                     .Where(s => s.IsFeatured)
-                    .Select(s => TryParseJson<DialogScene>(s.Json))
+                    .Select(TryParseScene)
                     .Where(s => s != null)
                     .ToList() ?? new List<DialogScene>()
             };
         }
-
+        
         public virtual async Task<DialogScene> SaveScene(DialogScene scene)
         {
             // SaveScene
@@ -85,7 +82,7 @@ namespace Abilities.ARRoomAbility.WP
 
             await new WebRestManager().PutJson(Endpoint,
                 new WpUpdateScenes() { Acf = new WpUpdateScenes.AdvancedCustomFields() { Scenes = scenes } },
-                SetHeaders
+                headers: Headers
             );
             return scene;
         }
@@ -96,19 +93,26 @@ namespace Abilities.ARRoomAbility.WP
 
             return (model?.Acf?.Scenes ?? Enumerable.Empty<WpScene>())
                 .Where(scene => scene != null)
-                .Select(scene => new
-                {
-                    source = scene,
-                    parsed = TryParseJson<DialogScene>(scene.Json)
-                })
-                .Where(o => o.parsed != null)
-                .UniqueBy(o => o.source.Name)
-                .ToDictionary(o => o.source.Name, o => o.parsed);
+                .Select(TryParseScene)
+                .Where(scene => scene != null)
+                .UniqueBy(scene => scene.Name)
+                .ToDictionary(scene => scene.Name, scene => scene);
         }
 
         private async Task<WpArDialogueRoom> FetchModel()
         {
             return await new WebRestManager().GetJson<WpArDialogueRoom>(Endpoint);
+        }
+
+        private DialogScene TryParseScene(WpScene scene)
+        {
+            var parsed = TryParseJson<DialogScene>(scene.Json);
+            if (parsed != null)
+            {
+                parsed.Name = scene.Name;
+            }
+
+            return parsed;
         }
         private T TryParseJson<T>(string json) where T: class
         {
@@ -119,14 +123,6 @@ namespace Abilities.ARRoomAbility.WP
             catch (Exception)
             {
                 return null;
-            }
-        }
-
-        private void SetHeaders(HttpRequestMessage request)
-        {
-            foreach (var kv in Headers)
-            {
-                request.Headers.Add(kv.Key, kv.Value);
             }
         }
     }
