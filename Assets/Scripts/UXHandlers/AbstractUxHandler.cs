@@ -2,46 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Lean.Common;
-using Lean.Touch;
 using UnityEngine;
-using Utility;
 using Workspace;
 using Object = UnityEngine.Object;
 
 namespace UXHandlers
 {
-    public abstract class AbstractUxHandler : IUxHandler
+    public abstract class AbstractUxHandler : IUxHandler, IUxHandlerEvents
     {
-        protected abstract IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene);
-
-        protected virtual void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        protected AbstractUxHandler(): this(Traits.AllowTranslate, Traits.AllowRotate, Traits.AllowScale, Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect, Traits.AllowOutline){}
+        protected AbstractUxHandler(params IUxHandlerTrait[] traits)
         {
-            TryConfigureComponent<MeshRenderer>(go, c =>
-            {
-                c.materials
-                    .Where(material => material.shader.name == "Sprites/Outline")
-                    .ToList()
-                    .ForEach(material =>
-                    {
-                        material.SetColor("_Color", new Color(1f, 0f, 0f, 0.12f));
-                        material.SetColor("_SolidOutline", new Color(1f, 0f, 0f, 0.66f));
-                    });
-            });
+            UxHandlerTraits = traits.ToList();
         }
 
-        protected virtual void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        protected List<IUxHandlerTrait> UxHandlerTraits { get; set; }
+
+        protected abstract IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene);
+
+        public virtual void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-            TryConfigureComponent<MeshRenderer>(go, c =>
-            {
-                c.materials
-                    .Where(material => material.shader.name == "Sprites/Outline")
-                    .ToList()
-                    .ForEach(material =>
-                    {
-                        material.SetColor("_Color", new Color(1f, 1f, 1f, 0.16f));
-                        material.SetColor("_SolidOutline", new Color(1f, 1f, 1f, 0.66f));
-                    });
-            });
+            InvokeTraits(go, scene, workspace, (trait, ctx) => trait.Select(ctx));
+        }
+
+        public virtual void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        {
+            InvokeTraits(go, scene, workspace, (trait, ctx) => trait.Deselect(ctx));
         }
         
         public virtual void Activate(IWorkspaceScene scene, IWorkspace workspace)
@@ -62,66 +48,12 @@ namespace UXHandlers
 
         protected virtual void ActivateObject(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-                TryConfigureComponent<LeanDragTranslateAlong>(go, c => c.enabled = true);
-                TryConfigureComponent<LeanTwistRotateAxis>(go, c => c.enabled = true);
-                TryConfigureComponent<LeanPinchScale>(go, c => c.enabled = true);
-                TryConfigureComponent<BoxCollider>(go, c => c.enabled = true);
-                TryConfigureComponent<LeanSelectable>(go, selectable =>
-                {
-                    selectable.enabled = true;
-                    selectable.OnSelected.AddListener((leanSelect) => OnSelected(scene, workspace, go));
-                    selectable.OnDeselected.AddListener((leanSelect) => OnDeselected(scene, workspace, go));
-                });
-                
-                TryConfigureComponent<FlexibleBounds>(go, c =>
-                {
-                    c.CalculateBoundsFromChildrenAndThen(go, bounds =>
-                    {
-                        TryConfigureComponent<BoxCollider>(go, boxCollider =>
-                        {
-                            boxCollider.center = bounds.center;
-                            boxCollider.size = bounds.size;
-                        });
-                        
-                        TryConfigureComponent<MeshFilter>(go, meshFilter =>
-                        {
-                            meshFilter.mesh = new BoundingBoxFactory(bounds.size, bounds.center).CreateMesh();
-                        });
-                    });
-                });
-                
-                TryConfigureComponent<MeshRenderer>(go, c =>
-                {
-                    c.enabled = true;
-                    c.materials
-                        .Where(material => material.shader.name == "Sprites/Outline")
-                        .ToList()
-                        .ForEach(material =>
-                        {
-                            material.SetColor("_Color", new Color(1f, 1f, 1f, 0.16f));
-                            material.SetColor("_SolidOutline", new Color(1f, 1f, 1f, 0.66f));
-                        });
-                });
+            InvokeTraits(go, scene, workspace, (trait, ctx) => trait.Activate(ctx));
         }
 
         protected virtual void DeactivateObject(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
-            TryConfigureComponent<LeanDragTranslateAlong>(go, c => c.enabled = false);
-            TryConfigureComponent<LeanTwistRotateAxis>(go, c => c.enabled = false);
-            TryConfigureComponent<LeanPinchScale>(go, c => c.enabled = false);
-            TryConfigureComponent<BoxCollider>(go, c => c.enabled = false);
-            TryConfigureComponent<LeanSelectable>(go, selectable =>
-            {
-                selectable.enabled = false;
-                selectable.OnSelected.RemoveAllListeners();
-                selectable.OnDeselected.RemoveAllListeners();
-            });
-                
-            TryConfigureComponent<MeshRenderer>(go, c =>
-            {
-                c.enabled = false;
-            });
-
+            InvokeTraits(go, scene, workspace, (trait, ctx) => trait.Deactivate(ctx));
         }
 
         
@@ -144,5 +76,42 @@ namespace UXHandlers
 
             return component;
         }  
+        private IUxHandlerTraitContext CreateTraitContext(GameObject go, IWorkspaceScene scene, IWorkspace workspace)
+        {
+            return new TraitContext(this, go, scene, workspace);
+        }
+
+        private class TraitContext : IUxHandlerTraitContext
+        {
+            public TraitContext(IUxHandlerEvents events,  GameObject go, IWorkspaceScene scene, IWorkspace workspace)
+            {
+                Events = events;
+                GameObject = go;
+                Scene = scene;
+                Workspace = workspace;
+            }
+
+            public GameObject GameObject { get; }
+            public IWorkspace Workspace { get; }
+            public IWorkspaceScene Scene { get; }
+            public IUxHandlerEvents Events { get; }
+            public TComponent TryConfigureComponent<TComponent>(Action<TComponent> configure)
+            {
+                var component = default(TComponent);
+                if (GameObject.TryGetComponent<TComponent>(out component))
+                {
+                    configure(component);
+                }
+                return component;
+            }
+        }
+
+        protected virtual void InvokeTraits(GameObject go,
+            IWorkspaceScene scene, IWorkspace workspace,
+            Action<IUxHandlerTrait, IUxHandlerTraitContext> invoke)
+        {
+            var ctx = CreateTraitContext(go, scene, workspace);
+            UxHandlerTraits.ForEach(t => invoke(t, ctx));
+        }
     }
 }

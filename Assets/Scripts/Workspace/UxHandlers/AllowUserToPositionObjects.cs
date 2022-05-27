@@ -34,7 +34,7 @@ namespace Workspace.UxHandlers
             UserCanSelectObjectHud(workspace);
         }
 
-        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        public override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             base.OnSelected(scene, workspace, go);
             // add component that listens for position changes
@@ -44,8 +44,8 @@ namespace Workspace.UxHandlers
 
             UseUserHasSelectedWorkspaceObjectHud(scene, workspace, go);
         }
-        
-        protected override void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+
+        public override void OnDeselected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             base.OnDeselected(scene, workspace, go);
             go.RemoveComponent<TransformChangedHandler>();

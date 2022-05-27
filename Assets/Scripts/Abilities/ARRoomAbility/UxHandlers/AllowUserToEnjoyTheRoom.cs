@@ -14,13 +14,13 @@ namespace Abilities.ARRoomAbility.UxHandlers
         private DialogScene FeaturedScene { get; }
         private List<DialogScene> FeaturedScenes { get; }
 
-        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes)
+        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes) : base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect, Traits.AllowOutlineSelected)
         {
             FeaturedScene = featuredScene;
             FeaturedScenes = featuredScenes;
         }
 
-        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        public override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             base.OnSelected(scene, workspace, go);
 

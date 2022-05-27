@@ -12,7 +12,7 @@ namespace Workspace.UxHandlers
             return new[] { scene.Plane };
         }
 
-        protected override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
+        public override void OnSelected(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
         {
             base.OnSelected(scene, workspace, go);
 
