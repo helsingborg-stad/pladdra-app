@@ -16,18 +16,11 @@ namespace Deeplinks
         {
             Application.deepLinkActivated += url => TryNavigateDeeplink(url);
 
-            var deeplinked =
-                new[]
-                    {
-                        Application.absoluteURL, TryReadDevelopmentDeeplink()
-                    }
-                    .Select(TryNavigateDeeplink)
-                    .FirstOrDefault();
+            var didNavigate = TryNavigateDeeplink(Application.absoluteURL) || TryNavigateDeeplink(TryReadDevelopmentDeeplink());
         }
 
         private bool TryNavigateDeeplink(string url)
         {
-            Debug.Log(url);
             Debug.Log(url);
             var ability = AbilityUri.TryCreateAbility(url,
                 new WpArDialogueRoomForAdminAbilityFactory(),
