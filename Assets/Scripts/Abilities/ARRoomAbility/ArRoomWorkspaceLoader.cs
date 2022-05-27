@@ -28,11 +28,9 @@ namespace Abilities.ARRoomAbility
         
         public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration> callback)
         {
-
             DialogProject project = null;
             yield return LogTask("Nu hämtar vi definitioner från servern!",
                 () => new LoadExternalProject(Repository, p => project = p));
-
 
             var wrm = CreateWebResourceManager();
             Dictionary<string, string> url2path = null;

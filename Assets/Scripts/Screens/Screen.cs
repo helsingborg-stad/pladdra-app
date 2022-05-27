@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Workspace.Hud;
 
 namespace Screens
 {
@@ -12,6 +13,9 @@ namespace Screens
         protected virtual void BeforeDeactivateScreen() { }
         protected virtual void AfterDeactivateScreen() { }
 
+        protected ScreenManager ScreenManager => GetComponentInParent<ScreenManager>();
+
+        protected HudManager HudManager => FindObjectOfType<HudManager>();
 
         public void SetScreenActive(bool active)
         {

@@ -16,7 +16,6 @@ namespace Data.Dialogs
                 Items = scene.ObjectsManager.Objects.Select(o => CopyTransformTo(o.GameObject, new ItemDescription()
                     {
                         ResourceId = o.WorkspaceResource.ResourceID,
-                        Active = o.GameObject.activeSelf
                     }))
                     .ToList()
             };
@@ -75,13 +74,7 @@ namespace Data.Dialogs
         }
         public class ItemDescription:  TransformDescription 
         {
-            public ItemDescription()
-            {
-                Active = true;
-            }
-
             public string ResourceId { get; set; }
-            public bool Active { get; set; }
         }
     }
 }

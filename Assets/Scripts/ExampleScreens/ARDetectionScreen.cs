@@ -33,13 +33,13 @@ namespace ExampleScreens
 
         protected override void AfterActivateScreen()
         {
-            FindObjectOfType<HudManager>().UseHud("ar-is-detecting-tracked-image", root =>
+            HudManager.UseHud("ar-is-detecting-tracked-image", root =>
             {
                 TrackImageOnFloorAndThen(go =>
                 {
                     go.name = "WorkspaceOrigin";
                     Configuration.Origin.go = go;
-                    GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
+                    ScreenManager.SetActiveScreen<WorkspaceScreen>(
                         beforeActivate: screen => screen.Configure(Ability, Configuration)
                     );
                 });

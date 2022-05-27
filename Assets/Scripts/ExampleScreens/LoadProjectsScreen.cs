@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Abilities;
 using Abilities.ARRoomAbility;
 using Screens;
+using UnityEngine;
 using UnityEngine.UIElements;
+using Utility;
 using Workspace.Hud;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens
 {
-
     public class LoadProjectsScreen : Screen
     {
         public bool UseARSceneAfterLoad;
@@ -23,7 +24,7 @@ namespace ExampleScreens
             var actions = new List<string>();
             
             // show progress HUD
-            FindObjectOfType<HudManager>().UseHud("app-is-loading-project-hud", root =>
+            HudManager.UseHud("app-is-loading-project-hud", root =>
             {
                 var labelElement = root.Q<Label>("label");
                 setLabelText = s => labelElement.text = s;
@@ -45,23 +46,27 @@ namespace ExampleScreens
             {
                 updateUI = () => { };
                 setLabelText = s => { };
-                FindObjectOfType<HudManager>().ClearHud();
-                
+                HudManager.ClearHud();
+
                 var screenHandlers = new Dictionary<string, Action>()
                 {
                     {
-                        "Default", () => GetComponentInParent<ScreenManager>().SetActiveScreen<WorkspaceScreen>(
+                        "Default", () => ScreenManager.SetActiveScreen<WorkspaceScreen>(
                             beforeActivate: screen => screen.Configure(Ability, configuration)
                         )
                     },
                     {
-                        "AR", () => GetComponentInParent<ScreenManager>().SetActiveScreen<ARDetectionScreen>(
+                        "AR", () => ScreenManager.SetActiveScreen<ARDetectionScreen>(
                             beforeActivate: screen => screen.Configure(Ability, configuration)
                         )
                     }
                 };
 
                 screenHandlers[UseARSceneAfterLoad ? "AR" : "Default"]();
+            }).Catch(e =>
+            {
+                ScreenManager.SetActiveScreen<ErrorScreen>(
+                    beforeActivate: screen => screen.Configure(e));
             }));
         }
     }
