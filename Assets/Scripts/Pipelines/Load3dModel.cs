@@ -6,10 +6,11 @@ namespace Pipelines
     public class Load3dModel: CustomYieldInstruction {
         private Piglet.GltfImportTask Task { get; }
         private Tuple<GameObject, Exception> Result {get; set; }
-
         public Load3dModel(string path, Action<GameObject> callback) {
             Callback = callback;
             var options = new Piglet.GltfImportOptions(){
+                AutoScale = true,
+                AutoScaleSize = 1.0f,
                 ShowModelAfterImport = false
             };
             Task = Piglet.RuntimeGltfImporter.GetImportTask(path, options);
