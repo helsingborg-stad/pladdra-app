@@ -14,7 +14,9 @@ namespace Abilities.ARRoomAbility.WP.Schema
             [JsonProperty("resources"), JsonConverter(typeof(ConvertFalseToNull))]
             public List<WpResource> Resources { get; set; }
             [JsonProperty("scenes"), JsonConverter(typeof(ConvertFalseToNull))]
-            public List<WpScene> Scenes { get; set; }
+            public List<WpScene> Scenes { get; set; }            
+            [JsonProperty("marker")]
+            public WpMarker Marker { get; set; }
         }
         [JsonProperty("acf")]
         public AdvancedCustomFields Acf { get; set; }

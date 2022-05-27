@@ -16,10 +16,8 @@ namespace ExampleScreens
     public class ARDetectionScreen : Screen
     {
         private IAbility Ability { get; set; }
-
         private IARHandler ARHandler { get; set; }
         private WorkspaceConfiguration Configuration { get; set; }
-
         public void Configure(IAbility ability, WorkspaceConfiguration wc)
         {
             Ability = ability;
@@ -97,7 +95,7 @@ namespace ExampleScreens
 
                                 action(go);
                             });
-                    })
+                    }, Configuration.Marker.Image, Configuration.Marker.Width)
                 })
             );
         }

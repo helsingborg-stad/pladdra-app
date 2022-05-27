@@ -52,7 +52,13 @@ namespace Abilities.ARRoomAbility.WP
                     .Where(s => s.IsFeatured)
                     .Select(TryParseScene)
                     .Where(s => s != null)
-                    .ToList() ?? new List<DialogScene>()
+                    .ToList() ?? new List<DialogScene>(),
+                Marker = model?.Acf.Marker != null ? new DialogueMarker()
+                {
+                    Image = model.Acf.Marker.Image,
+                    Width = model.Acf.Marker.Width,
+                    Height = model.Acf.Marker.Height,
+                }: null
             };
         }
         

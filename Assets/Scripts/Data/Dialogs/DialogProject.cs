@@ -10,5 +10,6 @@ namespace Data.Dialogs
 
         public List<DialogResource> Resources { get; set; }
         public List<DialogScene> FeaturedScenes { get; set; }
+        public DialogueMarker Marker { get; set; }
     }
 }
