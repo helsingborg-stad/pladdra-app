@@ -42,7 +42,11 @@ namespace Workspace
             Workspace?.ClearHud();
             Workspace?.UseScene(null);
             Workspace?.UseUxHandler(null);
-            Destroy(Scene?.Plane);
+            if (Scene?.Plane != null)
+            {
+                Object.Destroy(Scene?.Plane);
+            }
+
             Workspace = null;
             Scene = null;
         }
