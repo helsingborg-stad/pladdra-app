@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -8,6 +10,19 @@ namespace Data
 {
     public class WebRestManager
     {
+        private static readonly Dictionary<string, Action<HttpRequestHeaders, string, string>> RequestHeaderSetters =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                {
+                    "<any>", (headers, name, value) => headers.Add(name, value)
+                },
+                {
+                    "Authorization",
+                    (headers, name, value) => headers.Authorization = AuthenticationHeaderValue.Parse(value)
+                }
+            };
+        
+        
         public async Task<T> GetJson<T>(string endpoint)
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
@@ -18,12 +33,20 @@ namespace Data
             return JsonConvert.DeserializeObject<T>(body);
         }
 
-        public async Task PutJson<T>(string endpoint, T payload, Action<HttpRequestMessage> configure)
+        public async Task PutJson<T>(
+            string endpoint, 
+            T payload,
+            Dictionary<string, string> headers = null)
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, endpoint);
             request.Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8,
                 "application/json");
-            configure(request);
+            
+            foreach (var kv in headers ?? new Dictionary<string, string>())
+            {
+                (RequestHeaderSetters[kv.Key] ?? RequestHeaderSetters["<any>"])(request.Headers, kv.Key, kv.Value);
+            }            
+            
 
             using var response = await new HttpClient().SendAsync(request);
             response.EnsureSuccessStatusCode();
