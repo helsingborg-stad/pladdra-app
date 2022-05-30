@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Data.Dialogs;
 using Pipelines;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utility;
 using Workspace;
@@ -48,7 +49,7 @@ namespace Abilities.ARRoomAbility
                     p => url2path = p));
 
             var path2model = new Dictionary<string, GameObject>();
-            foreach (var path in modelUrls.Select(url => url2path[url]))
+            foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
             {
                 yield return LogTask(
                     $"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()} i minnet!",
