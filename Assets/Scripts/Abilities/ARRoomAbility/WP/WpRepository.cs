@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Abilities.ARRoomAbility.WP.Schema;
 using Data;
 using Data.Dialogs;
@@ -68,9 +70,11 @@ namespace Abilities.ARRoomAbility.WP
             //  load existing room
             //  patch/add scene
             //  update existing room 
-            var model = await new WebRestManager().GetJson<WpArDialogueRoom>(Endpoint);
+            var model = await new WebRestManager().GetJson<WpArDialogueRoomUpdate>(Endpoint);
+            model.Acf ??= new WpArDialogueRoomUpdate.AdvancedCustomFields();
+            model.Acf.Scenes ??= new List<WpScene>();
 
-            var scenes = model?.Acf?.Scenes ?? new List<WpScene>();
+            var scenes = model.Acf.Scenes;
 
             var existingScene = scenes.Find(existing => existing.Name == scene.Name);
             if (existingScene != null)
@@ -86,8 +90,15 @@ namespace Abilities.ARRoomAbility.WP
                 });
             }
 
-            await new WebRestManager().PutJson(Endpoint,
-                new WpUpdateScenes() { Acf = new WpUpdateScenes.AdvancedCustomFields() { Scenes = scenes } },
+            var endpoint = UpdateQueryString(Endpoint, qs =>
+            {
+                // qs["_fields"] = "acf.scenes";
+            });
+            
+
+            await new WebRestManager().PutJson(
+                endpoint,
+                model,
                 headers: Headers
             );
             return scene;
@@ -130,6 +141,15 @@ namespace Abilities.ARRoomAbility.WP
             {
                 return null;
             }
+        }
+
+        private string UpdateQueryString(string url, Action<NameValueCollection> update)
+        {
+            var uri = new UriBuilder(url);
+            var qs = HttpUtility.ParseQueryString(uri.Query);
+            update(qs);
+            uri.Query = qs.ToString();
+            return uri.ToString();
         }
     }
 }

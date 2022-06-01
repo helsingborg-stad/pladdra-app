@@ -46,7 +46,7 @@ namespace Workspace.UxHandlers
 
                 void ToggleSaveButton(string name)
                 {
-                    saveButton.SetEnabled(name.Trim().Length > 0);
+                    saveButton.SetEnabled((name ?? "").Trim().Length > 0);
                 } 
             });
         }
