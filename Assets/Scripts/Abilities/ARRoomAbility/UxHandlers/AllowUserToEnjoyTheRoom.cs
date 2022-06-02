@@ -13,7 +13,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         private DialogScene FeaturedScene { get; }
         private List<DialogScene> FeaturedScenes { get; }
 
-        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes) : base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect, Traits.AllowOutlineSelected)
+        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes) : base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect)
         {
             FeaturedScene = featuredScene;
             FeaturedScenes = featuredScenes;
@@ -42,6 +42,9 @@ namespace Abilities.ARRoomAbility.UxHandlers
 
             workspace.ClearHud();
             
+            //TODO: Find solution for handling PlaneMesh 
+            UnityEngine.GameObject.Find("PlaneMesh").GetComponent<MeshRenderer>().enabled = false;
+
             if (workspace.Actions.HasAction("cancel-preview"))
             {
                 workspace.UseHud("user-can-cancel-preview-mode-hud", root =>

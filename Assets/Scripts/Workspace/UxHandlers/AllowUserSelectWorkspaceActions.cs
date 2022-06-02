@@ -11,6 +11,8 @@ namespace Workspace.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
+            //TODO: Find solution for handling PlaneMesh 
+            UnityEngine.GameObject.Find("PlaneMesh").GetComponent<MeshRenderer>().enabled = true;
             workspace.UseHud("user-can-chose-workspace-action-hud", root =>
             {
                 root.Q<Label>("workspace-name").text = workspace.Name;
