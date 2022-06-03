@@ -1,7 +1,7 @@
 ---
 author-meta: Awesomesauce Labs
 description: 'Manual: Piglet glTF Importer for Unity'
-title: 'Manual: Piglet glTF Importer 1.3.2'
+title: 'Manual: Piglet glTF Importer 1.3.6'
 codeBlockCaptions: true
 figPrefix: Figure
 lstPrefix: Listing
@@ -19,9 +19,8 @@ lstPrefix: Listing
 * [Features](#features)
 * [Caveats](#caveats)
 * [Installation](#installation)
-    * [Fixing `Newtonsoft.Json.dll` Errors](#json.net-errors)
 * [Editor Imports](#editor-imports)
-    * [Editor Imports by Drag-and-Drop](#editor-imports-by-drag-and-drop)
+    * [Importing glTF Models into your Unity Project](#importing-gltf-models-into-your-unity-project)
     * [Editor Animation Tutorial](#editor-animation-tutorial)
         * [Previewing Animations in the Editor](#previewing-animations-in-the-editor)
         * [Playing (Mecanim) Animations at Runtime](#playing-mecanim-animations-at-runtime)
@@ -50,11 +49,12 @@ lstPrefix: Listing
 
 # Introduction
 
-Piglet is a Unity asset that allows you to import 3D models from glTF
-files, both in the Editor and at runtime. This provides Unity developers
-with access to a large collection of free textures, materials, and models
-from sites like [Sketchfab](https://sketchfab.com/) and [Google
-Poly](https://poly.google.com)[^poly].
+Piglet is a Unity asset that allows you to load 3D models from [glTF
+](https://www.threekit.com/blog/gltf-everything-you-need-to-know)
+files, both in the Editor and at runtime. This gives you the ability
+to import 3D models while your game is running, and also gives you
+access to a huge collection of free/paid glTF models from
+[Sketchfab](https://sketchfab.com/).
 
 Visit the [Web
 Demo](https://awesomesaucelabs.github.io/piglet-webgl-demo/)[^web-demo]
@@ -69,9 +69,8 @@ to try Piglet before you buy it.
 * import glTF textures and materials, for use with your own models
 * supports supercompressed textures via [KtxUnity](https://github.com/atteneder/KtxUnity) (Unity 2019.3+)
 * supports Draco mesh compression via [DracoUnity](https://github.com/atteneder/DracoUnity) (Unity 2019.3+)
-* tested with glTF models from [Sketchfab](https://sketchfab.com/),
-  [Google Poly](https://poly.google.com), and
-  [Blender](https://www.blender.org/)
+* tested with glTF models from [Sketchfab](https://sketchfab.com/)
+  and [Blender](https://www.blender.org/)
 * supported render pipelines: built-in (Unity 2018.4+), URP (Unity 2019.3+)
 * supported platforms: Windows, Android, WebGL
 * full source code provided
@@ -84,13 +83,14 @@ to try Piglet before you buy it.
     yet. Unity requires certain operations (e.g. texture uploads to the GPU,
     mesh creation) to be performed on the main Unity thread, so it is possible for
     runtime imports to cause "hiccups" during game execution.
--   **"Linear" color space mode is not yet supported**. Currently,
-    Piglet does not import linear textures correctly (e.g. normal maps)
-    when the color space mode is set to `Linear` under
-    `Edit -> Project Settings... -> Player -> PC, Mac & Linux Standalone -> Other Settings -> Color Space`.
-    The textures will appear too dark/shiny. Until this issue is
-    fixed, you will get better results by setting the color space
-    mode to `Gamma` instead.
+
+-   **Animation imports in Unity 2021.x produce (harmless) warnings**.
+    Currently, Editor imports of animated glTF files in Unity 2021.x
+    produce the following warning: `warning: [Worker0] The Animator Controller (controller) you have used is not valid. Animations will not play`. This warning
+    is harmless and the imported animations will play 100% correctly,
+    in spite of what the message indicates. Nonetheless, these warnings
+    are very disconcerting and I will try to get rid of them in a future
+    release.
 
 # Installation
 
@@ -100,85 +100,59 @@ page](https://assetstore.unity.com/packages/slug/173425). Piglet works
 with Unity 2018.4 or later, and does not require installation of any
 third-party assets/dependencies.
 
-If you see compile errors related to `Newtonsoft.Json.dll` ([Json.NET
-library](https://www.newtonsoft.com/json)) after installing Piglet,
-please follow the instructions in [Fixing `Newtonsoft.Json.dll`
-Errors](#json.net-errors) to resolve these errors.
+Piglet bundles the following libraries:
 
-## Fixing `Newtonsoft.Json.dll` Errors (Json.NET) {#json.net-errors}
-
-The most common issue that users experience when installing Piglet are
-compile errors related to `Newtonsoft.Json.dll` (the [Json.NET
-library](https://www.newtonsoft.com/json)).
-
-Depending on your version of Unity[^unity-json.net], Piglet may (or
-may not) install an `Assets/Piglet/Dependencies/Json.NET` folder
-containing `Newtonsoft.Json.dll`. In the case that Piglet and
-another Unity asset/package both include a copy of `Newtonsoft.Json.dll`,
-you will see errors in the Unity console like the following:
-
-```
-Multiple precompiled assemblies with the same name Newtonsoft.Json.dll included or the current platform. Only one assembly with the same name is allowed per platform. (D:/tmp/unity/piglet-1.3.2-test-unity-2020.3.12f1/Library/PackageCache/com.unity.nuget.newtonsoft-json@2.0.0/Runtime/Newtonsoft.Json.dll)
-```
-
-This type of error can be fixed by deleting the entire
-`Assets/Piglet/Dependencies/Json.NET` folder. (You may have to
-click the "Clear" button in the top left corner of the Unity
-console before all of the errors and warnings go away.) Since Piglet works well
-with almost any version of `Newtonsoft.Json.dll`, it is better to
-delete Piglet's copy of `Newtonsoft.Json.dll` rather than the
-`Newtonsoft.Json.dll` provided by another Unity asset/package.
-
-In the case that `Newtonsoft.Json.dll` is entirely missing from your Unity project,
-you will see many errors in the Unity console like the following:
-
-```
-Assets\Piglet\Dependencies\UnityGLTF\GLTFSerialization\Extensions\ExtTextureTransformExtension.cs(4,7): error CS0246: The type or namespace name 'Newtonsoft' could not be found (are you missing a using directive or an assembly reference?)
-```
-
-These errors can be fixed by unpacking (double-clicking)
-the provided `Assets/Piglet/Extras/Json.NET-10.0.3.unitypackage` file.
-This will add the missing `Assets/Piglet/Dependencies/Json.NET` folder
-with `Newtonsoft.Json.dll` to your project.
+  Library                                                                                                 Author                                                                                                          License       Path
+  -----------------------------------------------------------                                             ------------------------------------------------------------------------                                        ------------- ------------------------------------------
+  [Newtonsoft.Json-for-Unity](https://github.com/AwesomesauceLabs/Newtonsoft.Json-for-Unity/tree/piglet)  [Newtonsoft](https://www.newtonsoft.com)/[jilleJr@github](https://github.com/jilleJr/Newtonsoft.Json-for-Unity) MIT License   `Assets/Piglet/Dependencies/Json.NET`[^json.net]
+  [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)                                               [icsharpcode@github](https://github.com/icsharpcode)                                                            MIT License   `Assets/Piglet/Dependencies/SharpZipLib`
+  [UnityGLTF](https://github.com/sketchfab/UnityGLTF)                                                     [Khronos](https://www.khronos.org/)/[Sketchfab](https://sketchfab.com)                                          MIT License   `Assets/Piglet/Dependencies/UnityGLTF`[^unity-gltf]
 
 # Editor Imports
 
-## Editor Imports by Drag-and-Drop
+## Importing glTF Models into your Unity Project
 
-This section demonstrates how to import glTF models in the Editor.  For
-a video version of this section, see the [Editor Import Demo
-video](https://youtu.be/wf26w0gcVcA).
+Once you have installed Piglet from the Unity Asset Store, you 
+can import glTF models into your Unity project by either:
 
-Once you have installed Piglet from the Unity Asset Store, you can
-import glTF models into your Unity project by dragging-and-dropping
-`.gltf`/`.glb`/`.zip` files from a file browser window (e.g. Windows
-File Explorer) to a folder inside the Unity Project Browser (@fig:editor-import).
-Any folder under `Assets` can be used as the drop target, including the
-`Assets` directory itself.
+1. Dragging-and-dropping a `.gltf`/`.glb`/`.zip` file from
+a file browser application (e.g. Windows File Explorer) into
+the Unity Project Browser (@fig:editor-import), **OR**
+2. Saving a `.gltf`/`.glb`/`.zip` file directly into your Assets
+folder from an external program (e.g. Blender).
 
-Importing a glTF file in the Editor produces a Unity prefab for the
-model, which can then be dragged into your Unity scenes as desired.
-Piglet places the generated prefab and any dependent asset files (e.g.
-textures, materials, meshes) under a newly-created subfolder named after
-the input `.gltf`/`.glb`/`.zip` file.
+For a video demonstration of the drag-and-drop method, see the [Editor
+Import Demo video](https://youtu.be/wf26w0gcVcA).
 
-![Importing a glTF model in the Editor. (A) The user
+In general, saving glTF files directly into your Assets folder
+is a more efficient workflow, especially if you are working on a model
+in Blender and frequently re-exporting it to glTF. However, one important
+caveat is that the updated glTF file will not be reimported until you
+switch focus back to Unity (e.g. Alt-Tab). Unfortunately, Unity does
+not respond to project file changes while it is in the background.
+
+After an Editor glTF import completes, an output folder is created in
+your project with the same name as the input `.gltf`/`.glb`/`.zip`
+file, minus the file extension. This folder contains a Unity prefab
+for the imported model, as well as Unity assets for the individual
+textures, materials, meshes, and animation clips
+(@fig:editor-import). To use the imported model in your game, you can
+simply drag-and-drop the prefab into your Unity scene(s).
+
+![Importing a glTF file via drag-and-drop. (A) The user
 drags-and-drops a .gltf/.glb/.zip file from Windows File Explorer to the
 Unity Project Browser window. (B) Piglet creates a Unity prefab for the
-model and opens it in the Prefab View.](images/editor-import-figure.png){#fig:editor-import width="100%"}
+model and opens it in the Scene View.](images/editor-import-figure.png){#fig:editor-import width="100%"}
 
 There may be circumstances where you want copy a `.gltf`/`.glb`/`.zip`
 file into your project without automatically converting it to a Unity
-prefab. You can bypass/disable Piglet's default drag-and-drop behaviour
-by any of the following methods:
+prefab. You can bypass/disable Piglet's automatic glTF imports
+by either:
 
--   Hold down the `Control` or `Command` key while dragging-and-dropping
-    the `.gltf`/`.glb`/`.zip` into the Unity Project Browser.
--   Uncheck `Enable drag-and-drop glTF import` in the Piglet Options
+-   Holding down the `Control` or `Command` key while dragging-and-dropping
+    the `.gltf`/`.glb`/`.zip` into the Unity Project Browser, **OR**
+-   Unchecking `Enable glTF imports in Editor` in the Piglet Options
     window, located under `Window => Piglet Options` in the Unity menu.
--   Copy the `.gltf`/`.glb`/`.zip` file into the Unity project directory
-    from a file browser window or on the command line. (In other words,
-    copy the file "behind Unity's back".)
 
 ## Editor Animation Tutorial
 
@@ -328,9 +302,10 @@ menu.
 
 ![](images/piglet-options-window.png)
 
-  Option                                 Description
-  -------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  `Enable drag-and-drop glTF import`     Enable/disable automatic glTF imports when dragging .gltf/.glb/.zip files onto the Project Browser window
+  Option                           Description
+  -------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  `Enable glTF imports in Editor`  Enable/disable automatic glTF imports when adding new .gltf/.glb/.zip files to the project
+  `Log import progress in Console` Log progress messages to Unity Console window during glTF imports (useful for debugging)
   
   : Global Options
 
@@ -346,13 +321,16 @@ menu.
   Option                                 Description
   -------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   `Prompt before overwriting files`      Show confirmation prompt if glTF import directory already exists
-  `Print progress messages in Console`   Log progress messages to Unity Console window during glTF imports (useful for debugging)
-  `Select prefab in Project Browser`     After a glTF import has completed, select/highlight the generated prefab in the Project Browser window
-  `Add prefab instance to scene`         After a glTF import has completed, add the generated prefab to the current Unity scene, as a child of the currently selected game object. If no game object is selected in the scene, add the prefab at the root of the scene instead.
-  `Select prefab instance in scene`      Select/highlight the prefab in the scene hierarchy after adding it to the scene
-  `Open prefab in Prefab View`           After a glTF import has completed, open the generated prefab in the Prefab View. (This is equivalent to double-clicking the prefab in the Project Browser.)
+  `Copy source glTF files into project`  Copy dragged-and-dropped glTF file/folder into project before performing glTF import. By default, only the Piglet-generated import directory is added to the project.
   
-  : Editor Options
+  : Drag-and-Drop Options
+
+  Option                                 Description
+  -------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  `Select prefab in Project Browser`     After a glTF import has completed, select/highlight the generated prefab in the Project Browser window
+  `Open prefab in Scene View`            After a glTF import has completed, open the generated prefab in the Scene View tab. (This is equivalent to double-clicking the prefab in the Project Browser.)
+
+  : Post-import Options
 
 # Runtime Imports
 
@@ -491,7 +469,7 @@ public class RuntimeImportBehaviour : MonoBehaviour
     /// The total number of glTF entities (e.g. textures, materials) that will
     /// be imported for the current import step.
     /// </param>
-    private void OnProgress(ImportStep step, int completed, int total)
+    private void OnProgress(GltfImportStep step, int completed, int total)
     {
         Debug.LogFormat("{0}: {1}/{2}", step, completed, total);
     }
@@ -846,20 +824,31 @@ Textures](#supercompressing-your-gltf-textures).
 
 ### Installing KtxUnity
 
-To load glTF files with supercompressed textures, Piglet requires [KtxUnity](https://github.com/atteneder/KtxUnity) 0.9.1 or newer.
-I recommend using KtxUnity 1.0.0, which is the latest official release
-at the time of writing (May 2021).
+To load glTF files with supercompressed textures, you will need to
+install [KtxUnity](https://github.com/atteneder/KtxUnity) via the
+Unity Package Manager. Please use the following table to determine the
+KtxUnity versions that are compatible/recommended for your version of
+Unity, before proceeding with the installation instructions
+below. (Note: This table was last updated in November 2021.)
+
+Unity Version          Compatible KtxUnity Versions  Recommended KtxUnity Version
+-------------          ----------------------------  ----------------------------
+2019.2 or older        *not supported*               *not supported*
+2019.3 through 2021.1  0.9.1 through 1.1.2           1.1.2
+2021.2 or newer        2.0.0 or newer                2.0.1 
 
 Since KtxUnity is hosted by a third-party package registry
 ([OpenUPM](https://openupm.com/)), you will need to tell Unity where
 to download the package by adding a [scoped
 registry](https://docs.unity3d.com/Manual/upm-scoped.html) to the
-`Packages/manifest.json` file under your Unity project directory. You can
-do that by making the edits shown in @lst:manifest-json-ktxunity and
-then restarting Unity. If you want to perform the same edits in an
-automated fashion, you can instead install the [OpenUPM CLI
+`Packages/manifest.json` file under your Unity project directory. You
+can do that by making the edits shown in @lst:manifest-json-ktxunity
+and then restarting Unity. In addition, remember to change the KtxUnity
+version in @lst:manifest-json-ktxunity to your required KtxUnity
+version. If you want to perform the same edits in an automated
+fashion, you can instead install the [OpenUPM CLI
 tool](https://github.com/openupm/openupm-cli) and run `openupm add
-com.atteneder.ktx@1.0.0`.
+com.atteneder.ktx@1.1.2` (or similar).
 
 _Note!:_ I don't recommend using the "Installer Package" link from the
 [KtxUnity
@@ -871,9 +860,8 @@ really going on under the hood. Another advantage of manually editing
 `manifest.json` is that you can pin KtxUnity to a specific version (if
 desired).
 
-In addition, please note the following "gotchas" when installing KtxUnity:
+In addition, please note the following "gotcha" when installing KtxUnity:
 
-* KtxUnity requires Unity 2019.3+. If you attempt to use a Unity version older than 2019.3, you will get errors about invalid `.meta` file format.
 * When building for the PC/Standalone platform, remember to change `Architecture` from `x86` to `x86_64`. Otherwise, the native DLL for KtxUnity (`ktx_unity.dll`) will not be included in the build, and you may get a `DllNotFoundException` when you run your application.
 
 ```{#lst:manifest-json-ktxunity .json}
@@ -917,7 +905,7 @@ In addition, please note the following "gotchas" when installing KtxUnity:
     "com.unity.modules.vr" : "1.0.0",
     "com.unity.modules.wind" : "1.0.0",
     "com.unity.modules.xr" : "1.0.0",
-    "com.atteneder.ktx" : "1.0.0"
+    "com.atteneder.ktx" : "1.1.2"
   },
   "scopedRegistries" : [
     {
@@ -931,7 +919,7 @@ In addition, please note the following "gotchas" when installing KtxUnity:
 }
 ```
 : Example edits to `Packages/manifest.json` in order to install
-KtxUnity 1.0.0. After adding the highlighted text, restart Unity to
+KtxUnity. After adding the highlighted text, restart Unity to
 install the package.
 
 ### Supercompressing Your glTF Textures
@@ -1002,9 +990,20 @@ Meshes](#draco-compressing-your-gltf-meshes).
 
 ### Installing DracoUnity
 
-To load glTF files that use Draco mesh compression, Piglet requires
-[DracoUnity](https://github.com/atteneder/DracoUnityhttps://github.com/atteneder/DracoUnity) 1.4.0 or newer. I recommend using DracoUnity 3.0.3, which is the
-latest release at the time of writing (June 2021).
+To load glTF files that use Draco mesh compression, you will need to
+install
+[DracoUnity](https://github.com/atteneder/DracoUnity)
+via the Unity Package Manager. Please use the following table to
+determine the DracoUnity versions that are compatible/recommended for
+your version of Unity, before proceeding with the installation
+instructions below. (Note: This table was last updated in November
+2021.)
+
+Unity Version          Compatible DracoUnity Versions  Recommended DracoUnity Version
+-------------          ------------------------------  ------------------------------
+2019.2 or older        *not supported*                 *not supported*
+2019.3 through 2021.1  1.1.0 through 3.3.2             3.3.2
+2021.2 or newer        4.0.0 or newer                  4.0.2
 
 Since DracoUnity is hosted by a third-party package registry
 ([OpenUPM](https://openupm.com/)), you will need to tell Unity where
@@ -1012,10 +1011,12 @@ to download the package by adding a [scoped
 registry](https://docs.unity3d.com/Manual/upm-scoped.html) to the
 `Packages/manifest.json` under your Unity project directory. You can
 do that by making the edits shown in @lst:manifest-json-dracounity and
-then restarting Unity. If you want to perform the same edits in an
+then restarting Unity. In addition, remember to change the DracoUnity
+version in @lst:manifest-json-dracounity to your required DracoUnity
+version. If you want to perform the same edits in an
 automated fashion, you can instead install the [OpenUPM CLI
 tool](https://github.com/openupm/openupm-cli) and run `openupm add
-com.atteneder.draco@3.0.3`.
+com.atteneder.draco@3.3.2` (or similar).
 
 _Note!:_ I don't recommend using the "Installer Package" link from the
 [DracoUnity
@@ -1027,9 +1028,8 @@ is really going on under the hood. Another advantage of manually
 editing `manifest.json` is that you can pin DracoUnity to a
 specific version (if desired).
 
-In addition, please note the following "gotchas" when installing DracoUnity:
+In addition, please note the following "gotcha" when installing DracoUnity:
 
-* DracoUnity requires Unity 2019.3+. If you attempt to use a Unity version older than 2019.3, you will get errors about invalid `.meta` file format.
 * When building for the PC/Standalone platform, remember to change `Architecture` from `x86` to `x86_64`. Otherwise, the native DLL for DracoUnity (`draco_unity.dll`) will not be included in the build, and you may get a `DllNotFoundException` when you run your application.
 
 ```{#lst:manifest-json-dracounity .json}
@@ -1073,7 +1073,7 @@ In addition, please note the following "gotchas" when installing DracoUnity:
     "com.unity.modules.vr" : "1.0.0",
     "com.unity.modules.wind" : "1.0.0",
     "com.unity.modules.xr" : "1.0.0",
-    "com.atteneder.draco" : "3.0.3"
+    "com.atteneder.draco" : "3.3.2"
   },
   "scopedRegistries" : [
     {
@@ -1087,7 +1087,7 @@ In addition, please note the following "gotchas" when installing DracoUnity:
 }
 ```
 : Example edits to `Packages/manifest.json` in order to install
-DracoUnity 3.0.3. After adding the highlighted text, restart Unity to
+DracoUnity. After adding the highlighted text, restart Unity to
 install the package.
 
 ### Draco-compressing Your glTF Meshes
@@ -1126,13 +1126,6 @@ The shader files will be unpacked into
 shaders before performing an Editor or runtime glTF import, Piglet
 will fail with an error reminding you to install the shaders.
 
-_Note!:_ The default color space mode for new URP projects is
-`Linear`, but Piglet does not correctly support this mode yet. The
-textures on your imported models will appear too dark/shiny. Until
-this issue is fixed, I advise that you set the color space mode to
-`Gamma` instead, under `Edit -> Project Settings...  -> Player -> PC, Mac &
-Linux (tab) -> Other Settings -> Color Space`.
-
 # Sample Application: PigletViewer {#piglet-viewer}
 
 ![A screenshot of PigletViewer, a sample application which uses
@@ -1153,6 +1146,55 @@ PigletViewer code, as the tutorial provides a much more succinct
 introduction to the Piglet API.
 
 # Changelog
+
+## Release 1.3.6 (2022-02-16)
+
+Fixed:
+
+* A permanent fix for conflicts between Piglet's `Newtonsoft.Json.dll` and Unity's "Newtonsoft Json" package (hurray!). To address this issue, I forked the `Newtonsoft.Json-for-Unity` project, moved all of the C# classes from namespace `Newtonsoft.Json` -> `Piglet.Newtonsoft.Json`, and renamed the output DLL file from `Newtonsoft.Json.dll` -> `Piglet.Newtonsoft.Json.dll`. You can see the exact changes I made at: https://github.com/AwesomesauceLabs/Newtonsoft.Json-for-Unity/commits/piglet
+* IL2CPP builds work out-of-the-box now, for all supported platforms and Unity versions. Previously, IL2CPP builds in Unity versions older than Unity 2020.3.10f1 would throw exceptions on startup, due to Json.NET's use of C# reflection. Switching from the stock Json.NET DLL to a custom build of the Newtonsoft.Json-for-Unity "AOT" DLL (as described above) fixed this issue. For further info about using Json.NET with IL2CPP, see the `Newtonsoft.Json-for-Unity` wiki: https://github.com/jilleJr/Newtonsoft.Json-for-Unity/wiki/What-even-is-AOT
+* Fixed animation of multi-material meshes. Previously, only one part of the mesh corresponding to the first material would be animated, while the other parts would remain stationary.
+* Fixed morph targets on multi-material meshes. Previously, morph targets on multi-material meshes would cause an IndexOutOfRangeException.
+* Fixed "missing URP shader" error when loading models that use the default material. (This bug was introduced in Piglet 1.3.5.)
+* Fixed missing (pink) material when importing models in the Editor that use the default material. (This bug was probably introduced in Piglet 1.3.3.)
+
+## Release 1.3.5 (2022-01-06)
+
+Fixed:
+
+* Piglet now imports models correctly in linear rendering mode, in all possible scenarios: Editor imports or runtime imports, built-in rendering pipeline or URP. Hurray! (Previously, normal maps were too shiny and texture colors were too dark.)
+* Fixed transparent materials in URP, which were previously showing as pink due to a missing "zwrite.mat" asset. (This bug was introduced in Piglet 1.3.3.)
+
+## Release 1.3.4 (2021-12-10)
+
+Hotfix release for Piglet 1.3.3.
+
+Fixed:
+
+* Scrambled meshes in multi-mesh models during Editor glTF imports. I introduced a silly indexing error in Piglet 1.3.3 that was sometimes causing meshes to be assigned to the wrong GameObjects. Two models affected by this bug were the "2CylinderEngine" and "Buggy" models from https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
+* Incorrect resolution of relative paths by the --import option in the new PigletViewer command line interface. (See https://github.com/AwesomesauceLabs/piglet-viewer#command-line-options for general info
+about the new command line interface.)
+
+## Release 1.3.3 (2021-11-26)
+
+Added:
+
+* Automatic importing of glTF files (.gltf/.glb/.zip) that have been saved under `Assets` from an external program (e.g. Blender)! Please note that you need to switch application focus back to Unity (e.g. Alt-Tab) before the new/changed glTF file gets imported.
+
+Changed:
+
+* Major performance improvements for both runtime and Editor glTF imports!
+  * Both runtime and Editor glTF imports now use `GltfImportTask.MillisecondsPerYield` to maximize the work done per frame.
+  * Editor imports now do batch creation of Unity assets using `AssetDatabase.StartAssetEditing` / `AssetDatabase.StopAssetEditing`. For glTF files with a large number textures/materials/meshes/animations, the speedup is dramatic (e.g. 10X).
+* Rearranged options in Piglet Options window (located under Window => Piglet Options in Unity menu). With the new ability to save glTF files directly under `Assets`, some of the old options no longer made sense.
+* Moved code under `Assets/Piglet/Dependencies/UnityGLTF` from `UnityGLTF` namespace -> `Piglet.UnityGLTF` namespace, so that Piglet and Khronos UnityGLTF importers can be used in the same project.
+* Refactored texture loading code, towards the goal of properly supporting linear color mode during runtime glTF imports (work in progress). 
+
+Fixed:
+
+* `NullReferenceException` when a mesh does not specify a material in URP projects.
+* Failure to recognize `.zip` files generated by some compression programs.
+* Incorrect `sRGB` flag setting on texture assets after Editor glTF imports. Editor glTF imports now work correctly in linear color mode.
 
 ## Release 1.3.2 (2021-06-21)
 
@@ -1321,12 +1363,6 @@ First release!
 
 # Footnotes
 
-[^poly]: As of June 2020, Google Poly only provides glTF download links for
-      models made with [Google Blocks](https://arvr.google.com/blocks/) (as
-      opposed to [Tilt Brush](https://www.tiltbrush.com/)). To see only
-      Blocks-generated models on Google Poly, visit
-      <https://poly.google.com/blocks>.
-
 [^web-demo]: I have tested the [Piglet Web
       Demo](https://awesomesaucelabs.github.io/piglet-webgl-demo/) with
       Firefox and Google Chrome on Windows 10 64-bit. If you are using Google
@@ -1335,14 +1371,36 @@ First release!
       (i.e. GPU acceleration) in the browser settings. Currently this option
       is disabled in Chrome by default.
 
-[^unity-json.net]: In recent versions of Unity (2020.3.10+ and
-      2021.1.9+), the "Newtonsoft Json" package
-      (i.e. `com.unity.nuget.newtonsoft-json`) is automatically
-      installed when creating new Unity project. (This package gets
-      pulled in as a dependency of Unity's "Version Control" package,
-      i.e.  `com.unity.collab-proxy`.) For this reason, Piglet does
-      not include the `Assets/Piglet/Dependencies/Json.NET` folder if
-      it is installed in Unity 2020.3.10+ or Unity 2021.1.9+.
+[^json.net]: To prevent DLL conflicts with Unity's "Newtonsoft Json"
+      package, which is automatically installed in new Unity projects
+      since Unity 2020.3.10f1, I have
+      [forked](https://github.com/AwesomesauceLabs/Newtonsoft.Json-for-Unity)
+      the
+      [Newtonsoft.Json-for-Unity](https://github.com/jilleJr/Newtonsoft.Json-for-Unity)
+      project and compiled my own DLL
+      (`Assets/Piglet/Dependencies/Json.NET/Piglet.Newtonsoft.Json.dll`). In
+      addition to renaming the DLL from `Newtonsoft.Json.dll` ->
+      `Piglet.Newtonsoft.Json.dll`, I changed the namespace of all C#
+      classes from `Newtonsoft.Json` -> `Piglet.Newtonsoft.Json` and
+      disabled some optional Json.NET features to reduce the file size
+      of the DLL. You can see the changes I've made by looking at the
+      [commits on the `piglet`
+      branch](https://github.com/AwesomesauceLabs/Newtonsoft.Json-for-Unity/commits/piglet)
+      of [my Newtonsoft.Json-for-Unity
+      fork](https://github.com/AwesomesauceLabs/Newtonsoft.Json-for-Unity).
+
+[^unity-gltf]: The `Assets/Piglet/Dependencies/UnityGLTF` folder does
+      not include the full set of source files from the
+      [Sketchfab/UnityGLTF](https://github.com/sketchfab/UnityGLTF)
+      project. Piglet is actually a (heavily modified) fork of
+      [Sketchfab/UnityGLTF](https://github.com/sketchfab/UnityGLTF)
+      starting at commit c54fd45, and the
+      `Assets/Piglet/Dependencies/UnityGLTF` folder only contains the
+      subset of the source files that have remained (mostly) unchanged
+      since the fork. I've changed the namespace of all C# classes
+      from `GLTF` -> `Piglet.GLTF` to prevent code conflicts in Unity
+      projects that want to use both Piglet and UnityGLTF at the same
+      time.
 
 [^mecanim-vs-legacy]: As of December 2020, Unity has two animation systems: Mecanim
       and Legacy.  While Unity recommends that new projects use

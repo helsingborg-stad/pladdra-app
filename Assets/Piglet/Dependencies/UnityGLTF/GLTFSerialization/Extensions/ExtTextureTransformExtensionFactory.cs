@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-using GLTF.Extensions;
-using GLTF.Math;
+﻿using Piglet.Newtonsoft.Json.Linq;
+using Piglet.GLTF.Extensions;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	public class ExtTextureTransformExtensionFactory : ExtensionFactory
 	{

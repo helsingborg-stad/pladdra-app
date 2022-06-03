@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using GLTF.Extensions;
-using Newtonsoft.Json.Linq;
+using Piglet.GLTF.Extensions;
+using Piglet.Newtonsoft.Json.Linq;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// Parses JSON data for the KHR_draco_mesh_compression glTF extension

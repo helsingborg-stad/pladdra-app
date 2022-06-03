@@ -12,8 +12,8 @@
 // project for the Sketchfab/UnityGLTF LICENSE file and all other source
 // files originating from the Sketchfab/UnityGLTF project.
 
-using GLTF;
-using GLTF.Schema;
+using Piglet.GLTF;
+using Piglet.GLTF.Schema;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityGLTF.Extensions;
+using Piglet.UnityGLTF.Extensions;
 using Debug = UnityEngine.Debug;
 
 // Note: In DracoUnity 2.0.0, all classes were moved into the
@@ -47,6 +47,12 @@ namespace Piglet
 		/// Raw byte content of the input .gltf/.glb/.zip file.
 		/// </summary>
 		protected byte[] _data;
+		/// <summary>
+		/// Zip interface to `_data`. If the input file was not a zip file,
+		/// then this will be null.
+		/// </summary>
+		protected ZipFile _zip;
+
 		/// <summary>
 		/// Options controlling glTF importer behaviour (e.g. should
 		/// the imported model be automatically scaled to a certain size?).
@@ -92,13 +98,13 @@ namespace Piglet
 		/// </summary>
 		public GltfImporter(Uri uri, byte[] data,
 			GltfImportOptions importOptions,
-			GltfImportCache imported,
 			ProgressCallback progressCallback)
 		{
 			_uri = uri;
 			_data = data;
+			_zip = null;
 			_importOptions = importOptions;
-			_imported = imported;
+			_imported = new GltfImportCache();
 			_progressCallback = progressCallback;
 		}
 
@@ -116,7 +122,7 @@ namespace Piglet
 		/// into `_data`. The input URI may be a local or remote file
 		/// (e.g. HTTP URL).
 		/// </summary>
-		protected IEnumerator ReadUri()
+		protected IEnumerator<YieldType> ReadUri()
 		{
 			// Skip download step if input .gltf/.glb/.zip was passed
 			// in as raw byte array (i.e. _data != null)
@@ -132,10 +138,10 @@ namespace Piglet
 				_progressCallback?.Invoke(importStep, (int)bytesRead, (int)size);
 			}
 
-			foreach (var data in UriUtil.ReadAllBytesEnum(_uri, onProgress))
+			foreach (var (yieldType, data) in UriUtil.ReadAllBytesEnum(_uri, onProgress))
 			{
 				_data = data;
-				yield return null;
+				yield return yieldType;
 			}
 		}
 
@@ -145,7 +151,9 @@ namespace Piglet
 		/// </summary>
 		protected IEnumerable<byte[]> GetGltfBytes()
 		{
-			if (!ZipUtil.IsZipData(_data))
+			// If the input glTF file is not a zip file, all we need to do is
+			// return the raw byte content of the file (`_data`).
+			if (_zip == null)
 			{
 				yield return _data;
 				yield break;
@@ -154,7 +162,7 @@ namespace Piglet
 			Regex regex = new Regex("\\.(gltf|glb)$");
 			byte[] data = null;
 
-			foreach (var result in ZipUtil.GetEntryBytes(_data, regex))
+			foreach (var result in ZipUtil.GetEntryBytes(_zip, regex))
 			{
 				data = result;
 				yield return null;
@@ -174,6 +182,19 @@ namespace Piglet
 		protected IEnumerator ParseFile()
 		{
 			_progressCallback?.Invoke(GltfImportStep.Parse, 0, 1);
+
+			// Determine if the main file we are importing (`_data`) is a .zip
+			// file or a .gltf/.glb file. Downstream code determines if
+			// `_data` is zip-compressed by testing if _zip != null.
+
+			try
+			{
+				_zip = new ZipFile(new MemoryStream(_data));
+			}
+			catch (ZipException)
+			{
+				// `_data` is not a .zip, so it must be a .gltf/.glb.
+			}
 
 			byte[] gltf = null;
 			foreach (var result in GetGltfBytes())
@@ -263,7 +284,7 @@ namespace Piglet
 		protected void FixSpecularGlossinessDefaults()
 		{
 			var assembly = Assembly.GetAssembly(typeof(KHR_materials_pbrSpecularGlossinessExtension));
-			var specularGlossiness = assembly.GetType("GLTF.Schema.KHR_materials_pbrSpecularGlossinessExtension");
+			var specularGlossiness = assembly.GetType("Piglet.GLTF.Schema.KHR_materials_pbrSpecularGlossinessExtension");
 
 			var specularFactor = specularGlossiness.GetField("SPEC_FACTOR_DEFAULT",
 				BindingFlags.Static | BindingFlags.Public);
@@ -281,7 +302,7 @@ namespace Piglet
 		/// into the buffers that interpret the binary data as specific datatypes,
 		/// e.g. Vector3's with floating point components.
 		/// </summary>
-		protected IEnumerator LoadBuffers()
+		protected IEnumerator<YieldType> LoadBuffers()
 		{
 			if (_root.Buffers == null || _root.Buffers.Count == 0)
 				yield break;
@@ -292,16 +313,16 @@ namespace Piglet
 				GLTF.Schema.Buffer buffer = _root.Buffers[i];
 
 				byte[] data = null;
-				foreach (var result in LoadBuffer(buffer, i))
+				foreach (var (yieldType, result) in LoadBuffer(buffer, i))
 				{
 					data = result;
-					yield return null;
+					yield return yieldType;
 				}
 
 				_imported.Buffers.Add(data);
 				_progressCallback?.Invoke(GltfImportStep.Buffer, (i + 1), _root.Buffers.Count);
 
-				yield return null;
+				yield return YieldType.Continue;
 			}
 		}
 
@@ -316,11 +337,33 @@ namespace Piglet
 		/// </summary>
 		protected IEnumerable<string> ResolveUri(string uriStr)
 		{
+			// Special case: Check if the input URI is a data
+			// URI (i.e. base64-encoded data). It's necessary
+			// that we check for this up front because the
+			// `Uri` constructor below can not handle super-long
+			// URIs and will fail with a UriFormatException
+			// ("The Uri string is too long.").
+			//
+			// This fixes piglet-viewer issue #3:
+			// https://github.com/AwesomesauceLabs/piglet-viewer/issues/3
+
+			if (UriUtil.IsDataUri(uriStr))
+			{
+				yield return uriStr;
+				yield break;
+			}
+
 			// If the given URI is absolute, we don't need to resolve it.
 
 			Uri uri = new Uri(uriStr, UriKind.RelativeOrAbsolute);
 			if (uri.IsAbsoluteUri)
 			{
+				if (uri.IsFile && !File.Exists(uri.LocalPath))
+				{
+					throw new ExternalFileNotFoundException(
+						string.Format("File referenced by .gltf/.glb not found: {0}",
+							uri.LocalPath));
+				}
 				yield return uriStr;
 				yield break;
 			}
@@ -329,11 +372,11 @@ namespace Piglet
 			// to directory path containing the .gltf/.glb file
 			// inside the zip.
 
-			if (ZipUtil.IsZipData(_data))
+			if (_zip != null)
 			{
 				Regex regex = new Regex("\\.(gltf|glb)$");
 				ZipEntry entry = null;
-				foreach (var value in ZipUtil.GetEntry(_data, regex))
+				foreach (var value in ZipUtil.GetEntry(_zip, regex))
 				{
 					entry = value;
 					yield return null;
@@ -419,6 +462,14 @@ namespace Piglet
 			// for .zip file paths above.
 
 			var resolvedUri = new Uri(_uri, uriStr);
+
+			if (resolvedUri.IsFile && !File.Exists(resolvedUri.LocalPath))
+			{
+				throw new ExternalFileNotFoundException(
+					string.Format("File referenced by .gltf/.glb not found: {0}",
+						resolvedUri.LocalPath));
+			}
+
 			yield return resolvedUri.ToString();
 		}
 
@@ -441,7 +492,7 @@ namespace Piglet
 		/// <summary>
 		/// Get the byte content of a glTF buffer.
 		/// </summary>
-		protected IEnumerable<byte[]> LoadBuffer(GLTF.Schema.Buffer buffer, int bufferIndex)
+		protected IEnumerable<(YieldType, byte[])> LoadBuffer(GLTF.Schema.Buffer buffer, int bufferIndex)
 		{
 			byte[] data = null;
 
@@ -452,10 +503,10 @@ namespace Piglet
 				foreach (var result in ExtractBinaryChunk(bufferIndex))
 				{
 					data = result;
-					yield return null;
+					yield return (YieldType.Continue, null);
 				}
 
-				yield return data;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -463,7 +514,7 @@ namespace Piglet
 
 			if (UriUtil.TryParseDataUri(buffer.Uri, out data))
 			{
-				yield return data;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -474,20 +525,20 @@ namespace Piglet
 			foreach (var result in ResolveUri(buffer.Uri))
 			{
 				uri = result;
-				yield return null;
+				yield return (YieldType.Continue, null);
 			}
 
 			// case 3: extract buffer file from .zip
 
-			if (ZipUtil.IsZipData(_data))
+			if (_zip != null)
 			{
-				foreach (var result in ZipUtil.GetEntryBytes(_data, uri))
+				foreach (var result in ZipUtil.GetEntryBytes(_zip, uri))
 				{
 					data = result;
-					yield return null;
+					yield return (YieldType.Continue, null);
 				}
 
-				yield return data;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -512,34 +563,28 @@ namespace Piglet
 		}
 
 		/// <summary>
-		/// Create a Unity Texture2D from a glTF image.
+		/// Get the binary data for a glTF image (as a byte[]). Typically
+		/// this is the raw byte content of a PNG, JPEG, or KTX2 file.
 		/// </summary>
-		/// <returns>
-		/// A two-item tuple consisting of: (1) a Texture2D,
-		/// and (2) a bool that is true if the texture
-		/// was loaded upside-down. The bool is needed because
-		/// `UnityWebRequestTexture` loads PNG/JPG images into textures
-		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
-		/// right-side-up.
-		/// </returns>
-		protected IEnumerable<(Texture2D, bool)> LoadImage(Image image)
+		/// <param name="image">
+		/// C# object containing glTF image definition.
+		/// </param>
+		protected IEnumerable<(YieldType, byte[])> LoadImageData(Image image)
 		{
-			(Texture2D, bool) result = (null, false);
 			byte[] data = null;
 
 			// case 1: no URI -> load image data from glTF buffer view
 
 			if (image.Uri == null)
 			{
-				data = GetBufferViewData(image.BufferView.Value);
+				var bufferView = image.BufferView.Value;
+				data = new byte[bufferView.ByteLength];
 
-				foreach (var item in TextureUtil.LoadTexture(data))
-				{
-					result = item;
-					yield return (null, false);
-				}
+				var bufferContents = _imported.Buffers[bufferView.Buffer.Id];
+				System.Buffer.BlockCopy(bufferContents,
+					bufferView.ByteOffset, data, 0, data.Length);
 
-				yield return result;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -547,13 +592,7 @@ namespace Piglet
 
 			if (UriUtil.TryParseDataUri(image.Uri, out data))
 			{
-				foreach (var item in TextureUtil.LoadTexture(data))
-				{
-					result = item;
-					yield return (null, false);
-				}
-
-				yield return result;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -564,78 +603,266 @@ namespace Piglet
 			foreach (var item in ResolveUri(image.Uri))
 			{
 				uri = item;
-				yield return (null, false);
+				yield return (YieldType.Continue, null);
 			}
 
 			// case 3: extract image bytes from input .zip
 
-			if (ZipUtil.IsZipData(_data))
+			if (_zip != null)
 			{
-				foreach (var item in ZipUtil.GetEntryBytes(_data, uri))
+				foreach (var item in ZipUtil.GetEntryBytes(_zip, uri))
 				{
 					data = item;
-					yield return (null, false);
+					yield return (YieldType.Continue, null);
 				}
 
-				foreach (var item in TextureUtil.LoadTexture(data))
-				{
-					result = item;
-					yield return (null, false);
-				}
-
-				yield return result;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
 			// case 4: load texture from an absolute URI
 			// (file path or URL)
 
-			foreach (var item in TextureUtil.LoadTexture(uri))
-				yield return item;
+			foreach (var result in UriUtil.ReadAllBytesEnum(uri))
+				yield return result;
+		}
+
+		/// <summary>
+		/// Create a Unity Texture2D from in-memory image data (PNG/JPG/KTX2).
+		/// </summary>
+		/// <returns>
+		/// A two-item tuple consisting of: (1) a Texture2D,
+		/// and (2) a bool that is true if the texture
+		/// was loaded upside-down. The bool is needed because
+		/// `UnityWebRequestTexture` loads PNG/JPG images into textures
+		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
+		/// right-side-up.
+		/// </returns>
+		virtual protected IEnumerable<(YieldType, Texture2D, bool)> LoadTexture(
+			byte[] data, string textureName, TextureLoadingFlags textureLoadingFlags)
+		{
+			(YieldType yieldType, Texture2D texture, bool isFlipped)
+				result = (YieldType.Continue, null, false);
+
+			foreach (var item in
+				TextureUtil.LoadTexture(data, textureLoadingFlags))
+			{
+				result = item;
+				yield return result;
+			}
+
+			if (result.texture != null)
+				result.texture.name = textureName;
+
+			yield return result;
+		}
+
+		/// <summary>
+		/// Create a Unity Texture2D from a glTF image.
+		/// </summary>
+		/// <returns>
+		/// A two-item tuple consisting of: (1) a Texture2D,
+		/// and (2) a bool that is true if the texture
+		/// was loaded upside-down. The bool is needed because
+		/// `UnityWebRequestTexture` loads PNG/JPG images into textures
+		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
+		/// right-side-up.
+		/// </returns>
+		/// <param name="image">
+		/// C# object containing parsed glTF image definition (JSON object).
+		/// </param>
+		/// <param name="textureName">
+		/// Name to assign to the `.name` field of the resulting Texture2D.
+		/// During Editor glTF imports, this name is used as the basename
+		/// of the corresponding Unity asset file on disk.
+		/// </param>
+		/// <param name="textureLoadingFlags">
+		/// Flags containing metadata needed to correctly load the texture,
+		/// such as the color space of the underlying image data.
+		/// </param>
+		protected IEnumerable<(YieldType, Texture2D, bool)> LoadImage(
+			Image image, string textureName,
+			TextureLoadingFlags textureLoadingFlags)
+		{
+			// Case 1 (optimization): This is a runtime glTF import
+			// and the image source is an absolute URI (i.e. an absolute
+			// file path or an HTTP(S) URL). Load the image texture directly
+			// from the URI using UnityWebRequestTexture.
+			//
+			// We don't strictly need to handle this as a special case,
+			// but it avoids unnecessarily writing the image data
+			// to a temp file on disk and then reading it back in again,
+			// like we do for other cases.
+			//
+			// Other cases require writing the image data out to a temp
+			// file first because UnityWebRequestTexture can only read data
+			// from a URI.
+			//
+			// Note 1: We must first resolve the image URI relative to URI of
+			// the base .gltf/.glb file, in order to determine if it is
+			// (effectively) an absolute URI.
+			//
+			// Note 2: If the input file was a .zip, the URI will be resolved
+			// relative to the path of the .gltf/.glb inside the .zip, and
+			// the output will always be a relative URI.
+
+			var uri = image.Uri;
+			if (Application.isPlaying && uri != null)
+			{
+				foreach (var result in ResolveUri(uri))
+				{
+					uri = result;
+					yield return (YieldType.Continue, null, false);
+				}
+
+				if (UriUtil.IsAbsoluteUri(uri) && !UriUtil.IsDataUri(uri))
+				{
+					(YieldType yieldType, Texture2D texture, bool isFlipped)
+						result = (YieldType.Continue, null, false);
+					foreach (var item in TextureUtil.LoadTexture(uri, textureLoadingFlags))
+					{
+						result = item;
+						yield return result;
+					}
+
+					if (result.texture != null)
+						result.texture.name = textureName;
+
+					yield return result;
+					yield break;
+				}
+			}
+
+			// Case 2: image data source is *not* from an absolute URI
+			// (e.g. data inside .glb, data inside .zip, base64-encoded data URI).
+			//
+			// Read the data into a byte[] first, then load the Texture2D
+			// from that.
+
+			byte[] data = null;
+			foreach (var (yieldType, result) in LoadImageData(image))
+			{
+				data = result;
+				yield return (yieldType, null, false);
+			}
+
+			foreach (var result in
+				LoadTexture(data, textureName, textureLoadingFlags))
+			{
+				yield return result;
+			}
+		}
+
+		/// <summary>
+		/// Compute the *texture loading flags* for each glTF texture, which
+		/// indicates the color space (linear or sRGB) of the underlying image data,
+		/// and possibly other metadata that is needed to load the texture correctly.
+		/// Note that the color space of a texture is not indicated by the texture
+		/// definition in the glTF file, nor in the underlying image data (e.g. PNG, JPEG).
+		/// The color space is implicit and must be deduced from the material slots (e.g.
+		/// baseColorTexture, normalTexture) where the texture is used. See the
+		/// glTF spec for details on which material slots are expected to
+		/// contained linear (or sRGB) textures:
+		/// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
+		/// </summary>
+		/// <returns>
+		/// An ordered list of TextureLoadingFlags (one per glTF texture).
+		/// </returns>
+		protected List<TextureLoadingFlags> ComputeTextureFlagsFromMaterials()
+		{
+			var textureFlags = new List<TextureLoadingFlags>();
+
+			for (var i = 0; i < _root.Textures.Count; ++i)
+				textureFlags.Add(TextureLoadingFlags.None);
+
+			foreach (var material in _root.Materials)
+			{
+				if (material.NormalTexture != null)
+					textureFlags[material.NormalTexture.Index.Id]
+						|= TextureLoadingFlags.Linear | TextureLoadingFlags.NormalMap;
+
+				if (material.OcclusionTexture != null)
+					textureFlags[material.OcclusionTexture.Index.Id]
+						|= TextureLoadingFlags.Linear;
+
+				var mr = material.PbrMetallicRoughness;
+				if (mr != null)
+				{
+					if (mr.MetallicRoughnessTexture != null)
+						textureFlags[mr.MetallicRoughnessTexture.Index.Id]
+							|= TextureLoadingFlags.Linear;
+				}
+			}
+
+			return textureFlags;
 		}
 
 		/// <summary>
 		/// Create Unity Texture2D objects from glTF texture descriptions.
 		/// </summary>
-		protected IEnumerator LoadTextures()
+		virtual protected IEnumerator<YieldType> LoadTextures()
 		{
+			// We need to use a different default normal texture during
+			// runtime glTF imports because normal textures are
+			// encoded differently during runtime and Editor glTF imports.
+			// See Assets/Piglet/Resources/Textures/README.txt for
+			// further explanation.
+
+			if (Application.isPlaying)
+			{
+				_imported.RuntimeDefaultNormalTexture =
+					Resources.Load<Texture2D>("Textures/RuntimeDefaultNormalTexture");
+			}
+
 			if (_root.Textures == null || _root.Textures.Count == 0)
 				yield break;
 
 			_progressCallback?.Invoke(GltfImportStep.Texture, 0, _root.Textures.Count);
 
-			// Names to be assigned to Texture2D.name fields, once
-			// the corresponding texture finishes loading. We generate these
-			// names up front so that any duplicate names are resolved
-			// in a deterministic fashion, regardless of the order
-			// that the parallel texture-loading tasks complete.
+			// The texture flags indicate the color space of each texture
+			// (linear or sRGB). This is determined by looking at which material properties
+			// use the texture (e.g. "material.baseColorTexture", "material.normalTexture").
 
-			var textureNames = new List<string>();
+			var textureLoadingFlags = ComputeTextureFlagsFromMaterials();
 
-			// Tracks previously used texture names, in order to ensure that
-			// each texture name is unique.
+			// Generates asset names that are: (1) unique, (2) safe to use as filenames,
+			// and (3) similar to the original entity name from the glTF file (if any).
 
-			var textureNamesSet = new HashSet<string>();
+			var assetNameGenerator = new NameGenerator(
+				"texture", AssetPathUtil.GetLegalAssetName);
 
-			// Interleave texture loading tasks, since loading
-			// large textures can be slow.
+			// Build a list of texture loading tasks (IEnumerators), so that we can load
+			// the textures in parallel. This is much faster than loading the textures
+			// one-at-a-time because the Piglet's texture loading methods block on
+			// `UnityWebRequestTexture` tasks. `UnityWebRequestTexture` is executed
+			// by Unity's own code and doesn't make progress until we return control to
+			// Unity via `yield return`.
+			//
+			// Some explanation about the complicated datatype below
+			// (`List<(int, IEnumerator<(YieldType, Texture2D, bool)>)>`):
+			//
+			// * The `int` holds the glTF texture index corresponding to the task.
+			// Originally the glTF texture corresponds to the task's position in
+			// the `tasks` list. However, this correspondence is lost once tasks
+			// start to complete and are removed from the list.
+			//
+			// * `YieldType` indicates if the IEnumerator is currently blocked
+			// on a UnityWebRequestTexture task.
+			//
+			// * `Texture2D` is the output texture, which will be `null` until the
+			// task completes.
+			//
+			// * `bool` indicates whether the image data was loaded upside-down
+			// into the Texture2D. This is a quirk of the builtin Unity texture
+			// loading methods (LoadImage and UnityWebRequestTexture) that we
+			// need to keep track of, so that we can correct for it downstream.
+			// Textures are not always loaded upside-down because in the case
+			// of KTX2 textures, we use KtxUnity to load the textures instead.
 
-			var tasks = new InterleavedTaskSet<(Texture2D, bool)>();
+			var tasks = new List<(int, IEnumerator<(YieldType, Texture2D, bool)>)>();
+
 			for (var i = 0; i < _root.Textures.Count; ++i)
 			{
-				// Generate a name for each texture that:
-				//
-				// (1) is unique (i.e. unused)
-				// (2) resembles the name from the glTF file (if any)
-				// (3) is safe to use as a Unity asset filename
-
-				var textureName = string.IsNullOrEmpty(_root.Textures[i].Name)
-					? string.Format("texture_{0}", i)
-					: UnityPathUtil.GetLegalAssetName(_root.Textures[i].Name);
-				textureName = StringUtil.GetUniqueName(textureName, textureNamesSet);
-				textureNames.Add(textureName);
-				textureNamesSet.Add(textureName);
-
 				// placeholder until Texture2D is loaded
 				_imported.Textures.Add(null);
 
@@ -645,27 +872,86 @@ namespace Piglet
 				// KtxUnity loads KTX2/BasisU images right-side-up.
 				_imported.TextureIsUpsideDown.Add(false);
 
-				tasks.Add(LoadTexture(i).GetEnumerator());
+				var textureName = assetNameGenerator.GenerateName(_root.Textures[i].Name);
+
+				var task = LoadTexture(i, textureName, textureLoadingFlags[i]).GetEnumerator();
+				tasks.Add((i, task));
 			}
 
-			tasks.OnCompleted =
-				(textureIndex, result) =>
+			// Run the texture-loading tasks in an interleaved fashion.
+			//
+			// The main idea here is to run each texture-loading task
+			// until it becomes blocked on a UnityWebRequestTexture,
+			// then advance to the next task in round-robin order.
+			//
+			// If the case where all tasks are blocked, we
+			// avoid useless "busy-waiting" by immediately returning
+			// `yield return YieldType.Blocked`.
+
+			var taskIndex = 0;
+			var blockedTasks = new HashSet<int>();
+
+			while (tasks.Count > 0)
+			{
+				var (textureIndex, task) = tasks[taskIndex];
+				var moveNext = task.MoveNext();
+				var (yieldType, texture, isFlipped) = task.Current;
+
+				// if texture-loading task completed
+				if (!moveNext)
 				{
-					var (texture, isFlipped) = result;
-
-					if (texture != null)
-						texture.name = textureNames[textureIndex];
-
 					_imported.TextureIsUpsideDown[textureIndex] = isFlipped;
 					_imported.Textures[textureIndex] = texture;
 
-					_progressCallback?.Invoke(GltfImportStep.Texture, tasks.NumCompleted, _root.Textures.Count);
-				};
+					blockedTasks.Remove(textureIndex);
+					tasks.RemoveAt(taskIndex);
 
-			// Pump tasks until all are complete.
+					// make sure taskIndex is still valid
+					if (taskIndex >= tasks.Count)
+						taskIndex = 0;
 
-			while (tasks.MoveNext())
-				yield return null;
+					_progressCallback?.Invoke(GltfImportStep.Texture,
+						_root.Textures.Count - tasks.Count, _root.Textures.Count);
+
+					continue;
+				}
+
+				switch (yieldType)
+				{
+					case YieldType.Continue:
+
+						// make sure task is removed from `blockedTasks` when
+						// it is no longer blocked
+						blockedTasks.Remove(textureIndex);
+
+						yield return YieldType.Continue;
+
+						break;
+
+					case YieldType.Blocked:
+
+						blockedTasks.Add(textureIndex);
+
+						// if all tasks are blocked
+						if (blockedTasks.Count >= tasks.Count)
+						{
+							blockedTasks.Clear();
+							taskIndex = 0;
+
+							yield return YieldType.Blocked;
+							continue;
+						}
+
+						// move to next texture loading task
+						taskIndex = (taskIndex + 1) % tasks.Count;
+
+						break;
+
+					default:
+
+						throw new Exception("unhandled switch case!");
+				}
+			}
 		}
 
 		/// <summary>
@@ -735,6 +1021,49 @@ namespace Piglet
 		}
 
 		/// <summary>
+		/// Apply glTF texture sampler settings to a Unity Texture2D.
+		/// </summary>
+		/// <param name="texture">
+		/// A Unity Texture2D.
+		/// </param>
+		/// <param name="sampler">
+		/// A glTF Texture Sampler definition.
+		/// </param>
+		protected static void LoadTextureSamplerSettings(
+			Texture2D texture, Sampler sampler)
+		{
+			if (texture == null)
+				return;
+
+			// defaults
+			texture.filterMode = FilterMode.Bilinear;
+			texture.wrapMode = TextureWrapMode.Repeat;
+
+			if (sampler == null)
+				return;
+
+			switch (sampler.MinFilter)
+			{
+				case MinFilterMode.Nearest:
+					texture.filterMode = FilterMode.Point;
+					break;
+				case MinFilterMode.Linear:
+					texture.filterMode = FilterMode.Bilinear;
+					break;
+			}
+
+			switch (sampler.WrapS)
+			{
+				case GLTF.Schema.WrapMode.ClampToEdge:
+					texture.wrapMode = TextureWrapMode.Clamp;
+					break;
+				case GLTF.Schema.WrapMode.Repeat:
+					texture.wrapMode = TextureWrapMode.Repeat;
+					break;
+			}
+		}
+
+		/// <summary>
 		/// Create a Unity Texture2D from a glTF texture definition.
 		/// </summary>
 		/// <param name="textureIndex">
@@ -748,60 +1077,45 @@ namespace Piglet
 		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
 		/// right-side-up.
 		/// </returns>
-		protected IEnumerable<(Texture2D, bool)> LoadTexture(int textureIndex)
+		/// <param name="textureIndex">
+		/// The index of texture in the glTF file (a.k.a. glTF texture ID).
+		/// </param>
+		/// <param name="textureName">
+		/// Name to assign to the `.name` field of the resulting Texture2D.
+		/// During Editor glTF imports, this name is used as the basename
+		/// of the corresponding Unity asset file on disk.
+		/// </param>
+		/// <param name="textureLoadingFlags">
+		/// Flags containing metadata needed to correctly load the texture,
+		/// such as the color space of the underlying image data.
+		/// </param>
+		protected IEnumerable<(YieldType, Texture2D, bool)> LoadTexture(
+			int textureIndex, string textureName,
+			TextureLoadingFlags textureLoadingFlags)
 		{
+			// Step 1: load image data into Texture2D
+
 			var imageId = GetImageIndex(textureIndex);
 
-			(Texture2D texture, bool isFlipped) result = (null, false);
+			(YieldType yieldType, Texture2D texture, bool isFlipped)
+				result = (YieldType.Continue, null, false);
 
 			if (imageId >= 0 && imageId < _root.Images.Count)
 			{
 				var image = _root.Images[imageId];
 
-				foreach (var item in LoadImage(image))
+				foreach (var item in
+					LoadImage(image, textureName, textureLoadingFlags))
 				{
 					result = item;
-					yield return (null, false);
+					yield return result;
 				}
 			}
 
-			// Default values
-			var desiredFilterMode = FilterMode.Bilinear;
-			var desiredWrapMode = UnityEngine.TextureWrapMode.Repeat;
+			// Step 2: load texture sampling parameters
 
-			var def = _root.Textures[textureIndex];
-
-			if (def.Sampler != null)
-			{
-				var sampler = def.Sampler.Value;
-				switch (sampler.MinFilter)
-				{
-					case MinFilterMode.Nearest:
-						desiredFilterMode = FilterMode.Point;
-						break;
-					case MinFilterMode.Linear:
-					default:
-						desiredFilterMode = FilterMode.Bilinear;
-						break;
-				}
-
-				switch (sampler.WrapS)
-				{
-					case GLTF.Schema.WrapMode.ClampToEdge:
-						desiredWrapMode = UnityEngine.TextureWrapMode.Clamp;
-						break;
-					case GLTF.Schema.WrapMode.Repeat:
-					default:
-						desiredWrapMode = UnityEngine.TextureWrapMode.Repeat;
-						break;
-				}
-			}
-
-			if (result.texture != null)
-			{
-				result.texture.filterMode = desiredFilterMode;
-				result.texture.wrapMode = desiredWrapMode;
-			}
+			var sampler = _root.Textures[textureIndex].Sampler?.Value;
+			LoadTextureSamplerSettings(result.texture, sampler);
 
 			yield return result;
 		}
@@ -816,36 +1130,153 @@ namespace Piglet
 			yield return GetSceneObject();
 		}
 
-		protected IEnumerator LoadMaterials()
+        /// <summary>
+        /// Create a default (plain white) material to be used whenever
+        /// a glTF mesh primitive does not explicitly specify a material.
+        /// </summary>
+		protected void LoadDefaultMaterial()
+		{
+			string shaderName;
+
+			var pipeline = RenderPipelineUtil.GetRenderPipeline(true);
+			switch (pipeline)
+			{
+				case RenderPipelineType.BuiltIn:
+					shaderName = "Piglet/MetallicRoughnessOpaque";
+					break;
+				case RenderPipelineType.URP:
+					shaderName = "Shader Graphs/URPMetallicRoughnessOpaqueOrMask";
+					break;
+				default:
+					throw new Exception("current render pipeline unsupported, " +
+						" GetRenderPipeline should have thrown exception");
+			}
+
+			Shader shader = Shader.Find(shaderName);
+			if (shader == null)
+			{
+				if (pipeline == RenderPipelineType.URP)
+					throw new Exception(String.Format(
+						"Piglet failed to load URP shader \"{0}\". Please ensure that " +
+						"you have installed the URP shaders from the appropriate .unitypackage " +
+						"in Assets/Piglet/Extras, and that the shaders are being included " +
+						"your build.",
+						shaderName));
+
+				throw new Exception(String.Format(
+					"Piglet failed to load shader \"{0}\". Please ensure that " +
+					"this shader is being included your build.",
+					shaderName));
+			}
+
+			_imported.DefaultMaterialIndex = _imported.Materials.Count;
+			var material = new UnityEngine.Material(shader) {name = "default"};
+			_imported.Materials.Add(material);
+		}
+
+		/// <summary>
+		/// Create Unity materials from glTF material definitions.
+		/// </summary>
+		virtual protected IEnumerable LoadMaterials()
 		{
 			if (_root.Materials == null || _root.Materials.Count == 0)
+			{
+				// If the model defines meshes but not materials,
+				// we need to create a default material.
+				if (_root.Meshes != null && _root.Meshes.Count > 0)
+					LoadDefaultMaterial();
 				yield break;
+			}
 
 			_progressCallback?.Invoke(GltfImportStep.Material, 0, _root.Materials.Count);
 
-			// Tracks values assigned to Material.name fields, to ensure
-			// that each material gets a unique name.
-			var materialNames = new HashSet<string>();
+			// Generates asset names that are: (1) unique, (2) safe to use as filenames,
+			// and (3) similar to the original entity name from the glTF file (if any).
+
+			var assetNameGenerator = new NameGenerator(
+				"material", AssetPathUtil.GetLegalAssetName);
+
+			// Set to true if the model uses one or more transparent materials.
+
+			var hasBlendMaterial = false;
 
 			for(int i = 0; i < _root.Materials.Count; ++i)
 			{
+				if (_root.Materials[i].AlphaMode == AlphaMode.BLEND)
+					hasBlendMaterial = true;
+
 				UnityEngine.Material material = LoadMaterial(_root.Materials[i], i);
 
-				// Generate a name for each material that:
-				//
-				// (1) is unique (i.e. unused)
-				// (2) resembles the name from the glTF file (if any)
-				// (3) is safe to use as a Unity asset filename
-
-				material.name = string.IsNullOrEmpty(_root.Materials[i].Name)
-					? string.Format("material_{0}", i)
-					: UnityPathUtil.GetLegalAssetName(_root.Materials[i].Name);
-				material.name = StringUtil.GetUniqueName(material.name, materialNames);
-				materialNames.Add(material.name);
+				material.name = assetNameGenerator.GenerateName(_root.Materials[i].Name);
 
 				_imported.Materials.Add(material);
+
 				_progressCallback?.Invoke(GltfImportStep.Material, (i + 1), _root.Materials.Count);
+
 				yield return null;
+			}
+
+			// Create a default material if there are any mesh primitives
+			// that don't explicitly specify a material.
+			//
+			// Note!: This material must be created after populating
+			// the `Materials` array with all of the materials
+			// from the glTF file. Otherwise, the indices in the
+			// `Materials` array will not match the material indices
+			// from the glTF file, and the importer will assign the wrong
+			// materials to the meshes.
+
+			var needsDefaultMaterial = false;
+
+			if (_root.Meshes != null)
+			{
+				foreach (var mesh in _root.Meshes)
+				{
+					if (mesh.Primitives == null)
+						continue;
+
+					foreach (var primitive in mesh.Primitives)
+					{
+						if (primitive.Material == null)
+							needsDefaultMaterial = true;
+					}
+				}
+			}
+
+			if (needsDefaultMaterial)
+				LoadDefaultMaterial();
+
+			// Transparency workaround for URP.
+			//
+			// Create a special ZWrite material to address the Order
+			// Independent Transparency (OIT) problem when using URP
+			// (Universal Render Pipeline). For background about the OIT
+			// problem, see:
+			// https://forum.unity.com/threads/render-mode-transparent-doesnt-work-see-video.357853/#post-2315934.
+			//
+			// The ZWrite material writes only to the Z-buffer
+			// (a.k.a. depth buffer) and not to the RGBA framebuffer like
+			// a normal shader would. With the built-in render pipeline,
+			// we can do the Z-write-only pass by adding a (preliminary)
+			// pass to the shader that renders the mesh. However, since URP
+			// only supports single-pass shaders, we must instead
+			// emulate two shader passes by assigning two materials to
+			// the mesh.
+			//
+			// Note!: This material must be created after populating
+			// the `Materials` array with all of the materials
+			// from the glTF file. Otherwise, the indices in the
+			// `Materials` array will not match the material indices
+			// from the glTF file, and the importer will assign the wrong
+			// materials to the meshes.
+
+			if (RenderPipelineUtil.GetRenderPipeline(true) == RenderPipelineType.URP
+			    && hasBlendMaterial)
+			{
+				_imported.ZWriteMaterialIndex = _imported.Materials.Count;
+				var shader = Shader.Find("Piglet/URPZWrite");
+				var zwrite = new UnityEngine.Material(shader) {name = "zwrite"};
+				_imported.Materials.Add(zwrite);
 			}
 		}
 
@@ -955,10 +1386,8 @@ namespace Piglet
 				switch(material.AlphaMode)
 				{
 				case AlphaMode.OPAQUE:
-					shaderName = "Shader Graphs/URPSpecularGlossinessOpaque";
-					break;
 				case AlphaMode.MASK:
-					shaderName = "Shader Graphs/URPSpecularGlossinessMask";
+					shaderName = "Shader Graphs/URPSpecularGlossinessOpaqueOrMask";
 					break;
 				case AlphaMode.BLEND:
 					shaderName = "Shader Graphs/URPSpecularGlossinessBlend";
@@ -968,10 +1397,8 @@ namespace Piglet
 				switch(material.AlphaMode)
 				{
 				case AlphaMode.OPAQUE:
-					shaderName = "Shader Graphs/URPMetallicRoughnessOpaque";
-					break;
 				case AlphaMode.MASK:
-					shaderName = "Shader Graphs/URPMetallicRoughnessMask";
+					shaderName = "Shader Graphs/URPMetallicRoughnessOpaqueOrMask";
 					break;
 				case AlphaMode.BLEND:
 					shaderName = "Shader Graphs/URPMetallicRoughnessBlend";
@@ -1068,8 +1495,52 @@ namespace Piglet
 			// disable automatic deletion of unused material
 			material.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
+			// Boolean shader properties.
+			//
+			// _runtime: "Is this a runtime glTF import?"
+			// _linear: "Is the Unity Editor/Player in linear rendering mode?"
+			//
+			// In the case where both `_runtime` and `_linear`
+			// are true (i.e. equal to 1), the shaders need to undo the
+			// Linear -> sRGB color conversions that UnityWebRequestTexture
+			// incorrectly performed on linear textures (e.g. the normal texture).
+			// (`UnityWebRequestTexture` assumes that all input
+			// textures are sRGB-encoded and does not have a `linear` parameter like
+			// `Texture2D.LoadImage`.)
+			//
+			// Piglet uses `UnityWebRequestTexture` to load textures during
+			// runtime glTF imports because it does not stall the main Unity
+			// thread during PNG/JPG decompression like `Texture2D.LoadImage`
+			// does. In the case of Editor glTF imports, the shaders do not need to
+			// make any color corrections because Piglet uses `Texture2D.LoadImage`
+			// to load the textures instead.
+
+			if (Application.isPlaying)
+				material.SetInt("_runtime", 1);
+
+			if (QualitySettings.activeColorSpace == ColorSpace.Linear)
+				material.SetInt("_linear", 1);
+
 			if (def.AlphaMode == AlphaMode.MASK)
 				material.SetFloat("_alphaCutoff", (float)def.AlphaCutoff);
+
+			if (Application.isPlaying && def.NormalTexture == null)
+			{
+				SetMaterialTexture(material, "_normalTexture",
+					_imported.RuntimeDefaultNormalTexture, false);
+			}
+
+			// We need to use a different default normal texture during
+			// runtime glTF imports because normal textures are
+			// encoded differently during runtime and Editor glTF imports.
+			// See Assets/Piglet/Resources/Textures/README.txt for
+			// further explanation.
+
+			if (Application.isPlaying)
+			{
+				_imported.RuntimeDefaultNormalTexture =
+					Resources.Load<Texture2D>("Textures/RuntimeDefaultNormalTexture");
+			}
 
 			if (def.NormalTexture != null)
 			{
@@ -1156,35 +1627,24 @@ namespace Piglet
 		}
 
 		/// <summary>
-		/// Create Unity meshes from glTF meshes.
+		/// Create Unity meshes from glTF mesh definitions.
 		/// </summary>
-		protected IEnumerator LoadMeshes()
+		virtual protected IEnumerable LoadMeshes()
 		{
 			if (_root.Meshes == null || _root.Meshes.Count == 0)
 				yield break;
 
-			YieldTimer.Instance.Restart();
-
 			_progressCallback?.Invoke(GltfImportStep.Mesh, 0, _root.Meshes.Count);
 
-			// Tracks previously used mesh names, to ensure that each
-			// mesh name is unique.
+			// Generates asset names that are: (1) unique, (2) safe to use as filenames,
+			// and (3) similar to the original entity name from the glTF file (if any).
 
-			var meshNames = new HashSet<string>();
+			var assetNameGenerator = new NameGenerator(
+				"mesh", AssetPathUtil.GetLegalAssetName);
 
 			for(int i = 0; i < _root.Meshes.Count; ++i)
 			{
-				// Generate a name for each mesh that:
-				//
-				// (1) is unique (i.e. unused)
-				// (2) resembles the name from the glTF file (if any)
-				// (3) is safe to use as a Unity asset filename
-
-				var meshName = string.IsNullOrEmpty(_root.Meshes[i].Name)
-					? string.Format("mesh_{0}", i)
-					: UnityPathUtil.GetLegalAssetName(_root.Meshes[i].Name);
-				meshName = StringUtil.GetUniqueName(meshName, meshNames);
-				meshNames.Add(meshName);
+				var meshName = assetNameGenerator.GenerateName(_root.Meshes[i].Name);
 
 				List<KeyValuePair<UnityEngine.Mesh, UnityEngine.Material>> mesh = null;
 
@@ -1262,22 +1722,12 @@ namespace Piglet
 				// Calculate bounding volume for mesh.
 
 				meshPrimitive.RecalculateBounds();
-
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 
 				// Calculate tangents for mesh.
 
 				meshPrimitive.RecalculateTangents();
-
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 
 				// Assign a name to the mesh primitive.
 				//
@@ -1291,7 +1741,8 @@ namespace Piglet
 				// Get Unity material for mesh primitive.
 
 				var material = primitive.Material != null && primitive.Material.Id >= 0
-					? _imported.Materials[primitive.Material.Id] : _imported.GetDefaultMaterial(true);
+					? _imported.Materials[primitive.Material.Id]
+					: _imported.Materials[_imported.DefaultMaterialIndex];
 
 				mesh.Add(new KeyValuePair<UnityEngine.Mesh, UnityEngine.Material>(
 					meshPrimitive, material));
@@ -1436,11 +1887,7 @@ namespace Piglet
 				weightsId = weightsAccessor.Id;
 			}
 
-			if (YieldTimer.Instance.Expired)
-			{
-				yield return null;
-				YieldTimer.Instance.Restart();
-			}
+			yield return null;
 
 			// Decode the Draco mesh data and load it into a Unity Mesh.
 
@@ -1448,12 +1895,7 @@ namespace Piglet
 				dracoData, weightsId, jointsId))
 			{
 				mesh = result;
-
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 			}
 
 			yield return mesh;
@@ -1466,12 +1908,7 @@ namespace Piglet
 		protected IEnumerable<UnityEngine.Mesh> LoadMeshPrimitiveStandard(MeshPrimitive primitive)
 		{
 			var meshAttributes = LoadMeshAttributes(primitive);
-
-			if (YieldTimer.Instance.Expired)
-			{
-				yield return null;
-				YieldTimer.Instance.Restart();
-			}
+			yield return null;
 
 			// Determine whether to use 16-bit unsigned integers or 32-bit unsigned
 			// integers for the triangle vertices array.
@@ -1691,6 +2128,15 @@ namespace Piglet
 					break;
 				case RenderPipelineType.URP:
 					var primitive = _root.Meshes[meshIndex].Primitives[primitiveIndex];
+					// Note: primitive.Material will be null if the mesh primitive
+					// has not been explicitly assigned a material in the glTF file.
+					// In this case, `material` will be Piglet's default material,
+					// which is plain white and opaque.
+					if (primitive.Material == null)
+					{
+						meshRenderer.material = material;
+						break;
+					}
 					var alphaMode = primitive.Material.Value.AlphaMode;
 					if (alphaMode == AlphaMode.BLEND)
 					{
@@ -1710,7 +2156,7 @@ namespace Piglet
 						// mesh: one for the Z-buffer pre-pass and one for actually
 						// rendering the object.
 
-						var zwrite = _imported.GetZWriteMaterial(true);
+						var zwrite = _imported.Materials[_imported.ZWriteMaterialIndex];
 						meshRenderer.materials =
 							new UnityEngine.Material[] { zwrite, material };
 					}
@@ -1726,19 +2172,26 @@ namespace Piglet
 		}
 
 		/// <summary>
+		/// <para>
 		/// Set up mesh nodes in the scene hierarchy by
 		/// attaching MeshFilter/MeshRenderer components
 		/// and linking them to the appropriate
-		/// meshes/materials.
-		///
-		/// If a glTF mesh has more than one primitive,
-		/// we must create a seperate GameObject for each additional
-		/// primitive with its own MeshFilter/MeshRenderer,
-		/// which are added as siblings of the GameObject for
-		/// mesh primitive 0. See documentation of
-		/// GltfImportCache.NodeToMeshPrimitives for further discussion.
+		/// mesh and material.
+		/// </para>
+		/// <para>
+		/// In the case where a glTF mesh has multiple primitives,
+		/// we must add a separate GameObject to the scene hierarchy
+		/// for each primitive, because Unity only allows one mesh/material
+		/// per GameObject. The additional GameObjects for
+		/// primitive 1..n are added as siblings of the GameObject for
+		/// primitive 0.
+		/// </para>
 		/// </summary>
-		protected void SetupMeshNodes()
+		/// <param name="nameGenerator">
+		/// Generates unique names for any additional GameObjects we create
+		/// for multi-primitive meshes.
+		/// </param>
+		protected void SetupMeshNodes(NameGenerator nameGenerator)
 		{
 			foreach (var kvp in _imported.Nodes)
 			{
@@ -1764,8 +2217,23 @@ namespace Piglet
 					}
 					else
 					{
-						primitiveNode = createGameObject(
-							node.Name ?? "GLTFNode_" + nodeIndex);
+						// In the case where a glTF mesh has multiple primitives,
+						// `nameGenerator` is used to generate a unique name
+						// for the GameObject corresponding to each primitive.
+						//
+						// This is important in order for multi-primitive meshes
+						// to be animated correctly. If all of the GameObjects for
+						// the primitives were given the same name, then only the first
+						// primitive would be animated while the other primitives would
+						// remain stationary. This happens because Unity AnimationClip's
+						// use a "node path" to identify the location of the target GameObject
+						// in the scene hierarchy (e.g. "Torso/LeftLeg/LeftFoot"), and Unity
+						// assumes that such paths are unique.
+
+						var name = nameGenerator.GenerateName(gameObject.name);
+
+						primitiveNode = new GameObject(name);
+
 						primitiveNode.transform.localPosition
 							= gameObject.transform.localPosition;
 						primitiveNode.transform.localRotation
@@ -1792,15 +2260,25 @@ namespace Piglet
 			}
 		}
 
-		virtual protected GameObject createGameObject(string name)
+		/// <summary>
+		/// <para>
+		/// Given a suggested name for a GameObject, return a "clean" version
+		/// of the name where all occurrences of "/" or "." have been replaced
+		/// with "_".
+		/// </para>
+		/// <para>
+		/// The "/" and "." characters must be masked out because they
+		/// cause problems with Unity's animation APIs. The "/" character causes problems
+		/// because AnimationClip's use "/"-separated node paths (e.g. "Torso/LeftLeg/LeftFoot")
+		/// to identify the target GameObjects to be animated. Similarly,
+		/// "." causes problems because it is used as the separator character
+		/// between layer name and state name when identifying AnimatorController
+		/// states (e.g. "Base Layer.Idle State").
+		/// </para>
+		/// </summary>
+		static string GetLegalGameObjectName(string suggestedName)
 		{
-			// Replace '\', '/', and '.' in GameObject names, since these
-			// characters can cause problems when the GameObject names
-			// are used in an animation path. For example, see:
-			// https://issuetracker.unity3d.com/issues/animator-component-isnt-created-and-no-exception-is-thrown-when-creating-an-animation-for-gameobject-with-certain-invalid-names
-			name = name.Replace('\\', '_').Replace('/', '_').Replace('.', '_');
-
-			return new GameObject(name);
+			return suggestedName.Replace('/', '_').Replace('.', '_');
 		}
 
 		/// <summary>
@@ -1817,14 +2295,21 @@ namespace Piglet
 			// model (i.e. the scene object). Note that
 			// we use `_uri.LocalPath` here instead of
 			// `_uri.AbsolutePath` because the latter
-			// will URL-encode special characters (e.g.
-			// " " -> "%20").
+			// is URL-encoded (e.g. " " -> "%20").
+			//
+			// `nameGenerator` is used to: (1) ensure that
+			// the name of each GameObject in the hierarchy
+			// is unique, and (2) ensure there are no illegal
+			// characters (i.e. "/", ".") in GameObject names.
 
 			string importName = "model";
 			if (_uri != null)
 				importName = Path.GetFileNameWithoutExtension(_uri.LocalPath);
 
-			_imported.Scene = createGameObject(importName);
+			var nameGenerator = new NameGenerator("node", GetLegalGameObjectName);
+			importName = nameGenerator.GenerateName(importName);
+
+			_imported.Scene = new GameObject(importName);
 
 			// Hide the model until it has finished importing, so that
 			// the user never sees the model in a partially reconstructed
@@ -1834,18 +2319,50 @@ namespace Piglet
 
 			foreach (var node in scene.Nodes)
 			{
-				var nodeObj = CreateNode(node.Value, node.Id);
+				var nodeObj = CreateNode(node.Value, node.Id, nameGenerator);
 				nodeObj.transform.SetParent(_imported.Scene.transform, false);
 			}
 
-			SetupMeshNodes();
+			SetupMeshNodes(nameGenerator);
 
 			yield return null;
 		}
 
-		protected GameObject CreateNode(Node node, int index)
+		/// <summary>
+		/// Create a hierarchy of GameObjects that corresponds to the given node
+		/// from the glTF file.
+		/// </summary>
+		/// <param name="node">
+		/// The definition of the node from the glTF file.
+		/// </param>
+		/// <param name="index">
+		/// The index of the node in the glTF file.
+		/// </param>
+		/// <param name="nameGenerator">
+		/// Used to generate unique and safe names for the created GameObjects.
+		/// </param>
+		/// <returns>
+		/// The root GameObject of the created hierarchy of GameObjects.
+		/// </returns>
+		protected GameObject CreateNode(Node node, int index,
+			NameGenerator nameGenerator)
 		{
-			var nodeObj = createGameObject(node.Name != null && node.Name.Length > 0 ? node.Name : "GLTFNode_" + index);
+			// `nameGenerator` helps us choose a name for each
+			// GameObject that satisfies the following criteria:
+			//
+			// (1) Unique.
+			// (2) Does not contain illegal chars ("/", ".").
+			// (3) Similar (or identical) to the name of the
+			// corresponding node from the glTF file.
+
+			var name = node.Name;
+
+			if (string.IsNullOrEmpty(name))
+				name = string.Format("node_{0}", index);
+
+			name = nameGenerator.GenerateName(name);
+
+			var nodeObj = new GameObject(name);
 
 			Vector3 position;
 			Quaternion rotation;
@@ -1886,7 +2403,7 @@ namespace Piglet
 			{
 				foreach (var child in node.Children)
 				{
-					var childObj = CreateNode(child.Value, child.Id);
+					var childObj = CreateNode(child.Value, child.Id, nameGenerator);
 					childObj.transform.SetParent(nodeObj.transform, false);
 				}
 			}
@@ -1965,8 +2482,6 @@ namespace Piglet
 			// for each scene node that has the mesh attached
 			foreach (int nodeIndex in nodeIndices)
 			{
-				var weightIndex = 0;
-
 				// for each game object corresponding to a mesh primitive
 				var gameObjects = _imported.NodeToMeshPrimitives[nodeIndex];
 				for (int i = 0; i < gameObjects.Count; ++i)
@@ -1998,7 +2513,7 @@ namespace Piglet
 
 					// set default morph target weights for "static pose"
 					for (var j = 0; j < mesh.blendShapeCount; ++j)
-						renderer.SetBlendShapeWeight(j, (float) weights[weightIndex++]);
+						renderer.SetBlendShapeWeight(j, (float) weights[j]);
 				}
 			}
 
@@ -2247,7 +2762,7 @@ namespace Piglet
 		/// <summary>
 		/// Load glTF animations into Unity AnimationClips.
 		/// </summary>
-		protected IEnumerable LoadAnimations()
+		virtual protected IEnumerable LoadAnimations()
 		{
 			if (_root.Animations == null
 			    || _root.Animations.Count == 0
@@ -2266,9 +2781,11 @@ namespace Piglet
 
 			var legacy = _importOptions.AnimationClipType == AnimationClipType.Legacy;
 
-			// Tracks values assigned to AnimationClip.name fields, to ensure
-			// that each clip gets a unique name.
-			var clipNames = new HashSet<string>();
+			// Generates asset names that are: (1) unique, (2) safe to use as filenames,
+			// and (3) similar to the original entity name from the glTF file (if any).
+
+			var assetNameGenerator = new NameGenerator(
+				"animation", AssetPathUtil.GetLegalAssetName);
 
 			for (int i = 0; i < _root.Animations.Count; ++i)
 			{
@@ -2304,21 +2821,8 @@ namespace Piglet
 					yield return null;
 				}
 
-				// Assign a name to clip.name that:
-				//
-				// (1) is unique (i.e. unused)
-				// (2) resembles the name from the glTF file (if any)
-				// (3) is safe to use as part of a Unity asset filename
-				// (4) is safe to use as an AnimatorController state name
-
 				if (clip != null)
-				{
-					clip.name = string.IsNullOrEmpty(_root.Animations[i].Name)
-						? string.Format("animation_{0}", i)
-						: UnityPathUtil.GetLegalAssetName(_root.Animations[i].Name);
-					clip.name = StringUtil.GetUniqueName(clip.name, clipNames);
-					clipNames.Add(clip.name);
-				}
+					clip.name = assetNameGenerator.GenerateName(_root.Animations[i].Name);
 
 				_imported.Animations.Add(clip);
 
@@ -2355,11 +2859,6 @@ namespace Piglet
 			_imported.StaticPoseAnimationIndex = _imported.Animations.Count;
 			_imported.AnimationNames.Add("Static Pose");
 			_imported.Animations.Add(staticPoseClip);
-
-			// Add Animation-related components to the root scene object,
-			// for playing back animation clips at runtime.
-
-			AddAnimationComponentsToSceneObject();
 		}
 
 		/// <summary>
@@ -2368,6 +2867,9 @@ namespace Piglet
 		/// </summary>
 		virtual protected void AddAnimationComponentsToSceneObject()
 		{
+			if (_root.Animations == null || _root.Animations.Count == 0)
+				return;
+
 			AddAnimationComponentToSceneObject();
 			AddAnimationListToSceneObject();
 		}
@@ -2475,8 +2977,6 @@ namespace Piglet
 
 			var clip = CreateAnimationClip();
 
-			YieldTimer.Instance.Restart();
-
 			foreach (var channel in animation.Channels)
 			{
 				foreach (var unused in LoadAnimationChannel(channel, clip))
@@ -2504,9 +3004,30 @@ namespace Piglet
 				throw new Exception(string.Format(
 					"animation targets non-existent node {0}", nodeIndex));
 
-			var node = _imported.Nodes[nodeIndex];
-			var nodePath = _imported.Scene.GetPathToDescendant(node);
-			Debug.Assert(nodePath != null);
+			// Construct node paths (e.g. "Torso/LeftLeg/LeftFoot") that
+			// identify the GameObjects targeted by the glTF animation channel.
+			//
+			// An animation channel can only target a single glTF node.
+			// However, a glTF node maps to multiple GameObjects
+			// if it has a mesh with multiple primitives.
+
+			var nodePaths = new List<string>();
+			if (_imported.NodeToMeshPrimitives.ContainsKey(nodeIndex))
+			{
+				// Case 1: Target glTF node is a mesh node, and therefore
+				// may correspond to multiple GameObjects.
+
+				foreach (var node in _imported.NodeToMeshPrimitives[nodeIndex])
+					nodePaths.Add(_imported.Scene.GetPathToDescendant(node));
+			}
+			else
+			{
+				// Case 2: Target glTF is not a mesh node, and therefore it
+				// corresponds to exactly one GameObject.
+
+				var node = _imported.Nodes[nodeIndex];
+				nodePaths.Add(_imported.Scene.GetPathToDescendant(node));
+			}
 
 			var sampler = channel.Sampler.Value;
 
@@ -2517,6 +3038,17 @@ namespace Piglet
 			var valueAccessor = sampler.Output.Value;
 			var valueBuffer = _imported.Buffers[valueAccessor.BufferView.Value.Buffer.Id];
 
+			// Ad-hoc variables to adjust the number of iterations per `yield return`.
+			//
+			// This method and its helpers were yielding much too frequently (e.g. every 0.1 ms),
+			// and this was actually hurting the overall import time. For example,
+			// GltfImport.MoveNext() was spending just as much time executing
+			// the Stopwatch Restart()/Stop() methods to measure MoveNext() calls as
+			// actually executing the MoveNext() calls!
+
+			const int stepsPerYield = 50;
+			var steps = 0;
+
 			switch (channel.Target.Path)
 			{
 				case GLTFAnimationChannelPath.translation:
@@ -2525,11 +3057,7 @@ namespace Piglet
 						.ParseVector3Keyframes(valueAccessor, valueBuffer)
 						.ToUnityVector3();
 
-					if (YieldTimer.Instance.Expired)
-					{
-						yield return null;
-						YieldTimer.Instance.Restart();
-					}
+					yield return null;
 
 					// Note: We pass in a function to negate the z-coord in order
 					// to transform from glTF coords (right-handed coords where
@@ -2538,11 +3066,12 @@ namespace Piglet
 
 					foreach (var unused in
 						clip.SetCurvesFromVector3Array(
-							nodePath, typeof(Transform), "m_LocalPosition",
+							nodePaths, typeof(Transform), "m_LocalPosition",
 							times, translations, v => new Vector3(v.x, v.y, -v.z),
 							sampler.Interpolation))
 					{
-						yield return null;
+						if (++steps % stepsPerYield == 0)
+							yield return null;
 					}
 
 					break;
@@ -2553,18 +3082,15 @@ namespace Piglet
 						.ParseVector3Keyframes(valueAccessor, valueBuffer)
 						.ToUnityVector3();
 
-					if (YieldTimer.Instance.Expired)
-					{
-						yield return null;
-						YieldTimer.Instance.Restart();
-					}
+					yield return null;
 
 					foreach (var unused in
 						clip.SetCurvesFromVector3Array(
-							nodePath, typeof(Transform), "m_LocalScale",
+							nodePaths, typeof(Transform), "m_LocalScale",
 							times, scales, null, sampler.Interpolation))
 					{
-						yield return null;
+						if (++steps % stepsPerYield == 0)
+							yield return null;
 					}
 
 					break;
@@ -2575,11 +3101,7 @@ namespace Piglet
 						.ParseRotationKeyframes(valueAccessor, valueBuffer)
 						.ToUnityVector4();
 
-					if (YieldTimer.Instance.Expired)
-					{
-						yield return null;
-						YieldTimer.Instance.Restart();
-					}
+					yield return null;
 
 					// Note: We pass in a function to negate the z and w coords
 					// in order to transform from glTF coords (right-handed coords
@@ -2588,12 +3110,13 @@ namespace Piglet
 
 					foreach (var unused in
 						clip.SetCurvesFromVector4Array(
-							nodePath, typeof(Transform), "m_LocalRotation",
+							nodePaths, typeof(Transform), "m_LocalRotation",
 							times, rotations,
 							v => new Vector4(v.x, v.y, -v.z, -v.w),
 							sampler.Interpolation))
 					{
-						yield return null;
+						if (++steps % stepsPerYield == 0)
+							yield return null;
 					}
 
 					break;
@@ -2603,11 +3126,7 @@ namespace Piglet
 					var weights = GLTFHelpers.ParseKeyframeTimes(
 						valueAccessor, valueBuffer);
 
-					if (YieldTimer.Instance.Expired)
-					{
-						yield return null;
-						YieldTimer.Instance.Restart();
-					}
+					yield return null;
 
 					var meshIndex = _root.Nodes[nodeIndex].Mesh.Id;
 					var numTargets = _root.Meshes[meshIndex].Primitives[0].Targets.Count;
@@ -2619,11 +3138,12 @@ namespace Piglet
 
 						foreach (var unused in
 							clip.SetCurveFromFloatArray(
-								nodePath, typeof(SkinnedMeshRenderer), property,
+								nodePaths, typeof(SkinnedMeshRenderer), property,
 								times, weights, index => index * numTargets + i,
 								sampler.Interpolation))
 						{
-							yield return null;
+							if (++steps % stepsPerYield == 0)
+								yield return null;
 						}
 					}
 

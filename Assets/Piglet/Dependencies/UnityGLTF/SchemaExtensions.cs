@@ -1,7 +1,7 @@
-﻿using GLTF.Schema;
+﻿using Piglet.GLTF.Schema;
 using UnityEngine;
 
-namespace UnityGLTF.Extensions
+namespace Piglet.UnityGLTF.Extensions
 {
 	public static class SchemaExtensions
 	{

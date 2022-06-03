@@ -1,10 +1,10 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
-using GLTF.Math;
-using Newtonsoft.Json;
-using GLTF.Extensions;
+using Piglet.Newtonsoft.Json.Linq;
+using Piglet.Newtonsoft.Json;
+using Piglet.GLTF.Extensions;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	public class KHR_materials_pbrSpecularGlossinessExtensionFactory : ExtensionFactory
 	{

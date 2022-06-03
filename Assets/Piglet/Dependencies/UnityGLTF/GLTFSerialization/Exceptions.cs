@@ -1,6 +1,6 @@
 using System;
 
-namespace GLTF
+namespace Piglet.GLTF
 {
 	[Serializable()]
 	public class GLTFHeaderInvalidException : Exception

@@ -5,14 +5,17 @@ using UnityEngine;
 namespace Piglet
 {
     /// <summary>
-    /// Editor window for setting import options regarding
-    /// drag-and-drop import of .gltf/.glb/.zip files in
-    /// the Project Browser.
+    /// Editor window for controlling options during
+    /// Editor glTF imports (e.g. dragging-and-dropping
+    /// a .glb file into the Project Browser window).
     /// </summary>
     public class PigletOptionsWindow : EditorWindow
     {
-        private PigletOptions _pigletOptions;
-
+        /// <summary>
+        /// Struct that contains the style settings for
+        /// the various IMGUI controls (e.g. GUILayout.Button)
+        /// used by the Piglet Options winodw.
+        /// </summary>
         private class Styles
         {
             public GUIStyle Button;
@@ -24,8 +27,17 @@ namespace Piglet
             public GUIStyle ToggleLevel3;
         }
 
+        /// <summary>
+        /// Struct that contains the style settings for
+        /// the various IMGUI controls (e.g. GUILayout.Button)
+        /// used by the Piglet Options winodw.
+        /// </summary>
         private Styles _styles;
 
+        /// <summary>
+        /// Initialize the style settings for the various IMGUI
+        /// controls used by the Piglet Options window.
+        /// </summary>
         private void InitStyles()
         {
             if (_styles != null)
@@ -33,10 +45,10 @@ namespace Piglet
 
 #if UNITY_2019_3_OR_NEWER
             const int fontSize = 14;
-            const int titleFontSize = 20;
+            const int titleFontSize = 16;
 #else
             const int fontSize = 12;
-            const int titleFontSize = 18;
+            const int titleFontSize = 16;
 #endif
 
             _styles = new Styles();
@@ -58,6 +70,7 @@ namespace Piglet
             _styles.Title.padding.left = 0;
             _styles.Title.margin = new RectOffset(0, 0, 15, 15);
             _styles.Title.fontSize = titleFontSize;
+            _styles.Title.fontStyle = FontStyle.Bold;
 
             // Note: For toggle controls, `padding.left` sets
             // the distance from the left edge of the control
@@ -78,21 +91,35 @@ namespace Piglet
             _styles.ToggleLevel3.margin.left += 20;
         }
 
-        private void OnEnable()
-        {
-            _pigletOptions = Resources.Load<PigletOptions>("PigletOptions");
-        }
-
+        /// <summary>
+        /// Method to open the Piglet Options window. This
+        /// method is triggered by the Window -> Piglet Options
+        /// item in the Unity menu.
+        /// </summary>
         [MenuItem("Window/Piglet Options")]
         public static void ShowWindow()
         {
             EditorWindow window = GetWindow(typeof(PigletOptionsWindow),
                 false, "Piglet Options");
 
-            window.minSize = new Vector2(310f, 430f);
+#if UNITY_EDITOR_LINUX && !UNITY_2019_3_OR_NEWER
+            // Workaround for a strange bug in Unity 2018.4.16f1 on Linux:
+            // If `window.minSize` and `window.maxSize` are set to the same value,
+            // the created window is smaller than the target dimensions and can't be resized.
+            // Another issue is that `window.minSize` and `window.maxSize` do not seem
+            // to be enforced on Linux.
+            window.minSize = new Vector2(285f, 460f);
+            window.maxSize = new Vector2(286f, 461f);
+#else
+            window.minSize = new Vector2(285f, 460f);
             window.maxSize = window.minSize;
+#endif
         }
 
+        /// <summary>
+        /// Draws the UI for the Piglet Options window by calling various
+        /// IMGUI methods.
+        /// </summary>
         void OnGUI()
         {
             InitStyles();
@@ -104,171 +131,171 @@ namespace Piglet
                 position.width - 2 * MARGIN,
                 position.height - 2 * MARGIN);
 
+            EditorGUI.BeginChangeCheck();
+
             GUILayout.BeginArea(contentRect);
 
-                GUILayout.Label("Global Options", _styles.Title);
+            var pigletOptions = PigletOptions.Instance;
 
-                    _pigletOptions.EnableDragAndDropImport
-                        = GUILayout.Toggle(_pigletOptions.EnableDragAndDropImport,
-                        new GUIContent("Enable drag-and-drop glTF imports",
-                            "Enable automatic glTF imports when dragging " +
-                            ".gltf/.glb/.zip files onto the Project Browser window"),
-                        _styles.ToggleLevel2);
+            GUILayout.Label("Global Options", _styles.Title);
 
-                GUI.enabled = _pigletOptions.EnableDragAndDropImport;
+            pigletOptions.EnableEditorGltfImports
+                = GUILayout.Toggle(
+                    pigletOptions.EnableEditorGltfImports,
+                    new GUIContent("Enable glTF imports in Editor",
+                       "Enable/disable automatic glTF imports in the Editor"),
+                    _styles.ToggleLevel1);
 
-                GUILayout.Label("Import Options", _styles.Title);
+                GUI.enabled = pigletOptions.EnableEditorGltfImports;
 
-                     _pigletOptions.ImportOptions.AutoScale
-                         = GUILayout.Toggle(
-                             _pigletOptions.ImportOptions.AutoScale,
-                             new GUIContent("Scale model to standard size",
-                                "Automatically scale the imported glTF model so that " +
-                                "its longest dimension is equal to the given size"),
-                             _styles.ToggleLevel2);
+                pigletOptions.LogProgress
+                   = GUILayout.Toggle(
+                       pigletOptions.LogProgress,
+                       new GUIContent("Log import progress in Console",
+                          "Log progress messages to Unity Console window during " +
+                          "Editor glTF imports (useful for debugging)"),
+                       _styles.ToggleLevel2);
 
-                         GUI.enabled = _pigletOptions.EnableDragAndDropImport
-                             && _pigletOptions.ImportOptions.AutoScale;
+            GUILayout.Label("Import Options", _styles.Title);
 
-                         GUILayout.BeginHorizontal(GUILayout.Height(20));
-                            GUILayout.Space(40);
+            pigletOptions.ImportOptions.AutoScale
+                = GUILayout.Toggle(
+                    pigletOptions.ImportOptions.AutoScale,
+                    new GUIContent("Scale model to standard size",
+                       "Automatically scale the imported glTF model so that " +
+                       "its longest dimension is equal to the given size"),
+                    _styles.ToggleLevel1);
 
-                            GUILayout.BeginVertical();
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Size", _styles.Label);
-                                GUILayout.FlexibleSpace();
-                            GUILayout.EndVertical();
+                GUI.enabled = pigletOptions.EnableEditorGltfImports
+                    && pigletOptions.ImportOptions.AutoScale;
 
-                            GUILayout.BeginVertical();
-                                GUILayout.FlexibleSpace();
-                                _pigletOptions.ImportOptions.AutoScaleSize =
-                                    EditorGUILayout.FloatField(
-                                        _pigletOptions.ImportOptions.AutoScaleSize,
-                                        _styles.TextField,  GUILayout.Width(50));
-                                GUILayout.FlexibleSpace();
-                            GUILayout.EndVertical();
+                GUILayout.BeginHorizontal(GUILayout.Height(20));
+                   GUILayout.Space(20);
 
+                   GUILayout.BeginVertical();
+                       GUILayout.FlexibleSpace();
+                       GUILayout.Label("Size", _styles.Label);
+                       GUILayout.FlexibleSpace();
+                   GUILayout.EndVertical();
+
+                   GUILayout.BeginVertical();
+                       GUILayout.FlexibleSpace();
+                       pigletOptions.ImportOptions.AutoScaleSize =
+                           EditorGUILayout.FloatField(
+                               pigletOptions.ImportOptions.AutoScaleSize,
+                               _styles.TextField,  GUILayout.Width(50));
+                       GUILayout.FlexibleSpace();
+                   GUILayout.EndVertical();
+
+                   GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
+                GUI.enabled = pigletOptions.EnableEditorGltfImports;
+
+            pigletOptions.ImportOptions.ImportAnimations
+                = GUILayout.Toggle(
+                    pigletOptions.ImportOptions.ImportAnimations,
+                     new GUIContent("Import animations",
+                        "Import animations from glTF file as Unity AnimationClips"),
+                     _styles.ToggleLevel1);
+
+                    GUI.enabled = pigletOptions.EnableEditorGltfImports
+                        && pigletOptions.ImportOptions.ImportAnimations;
+
+                    GUILayout.BeginHorizontal(GUILayout.Height(20));
+                        GUILayout.Space(20);
+
+                        GUILayout.BeginVertical();
                             GUILayout.FlexibleSpace();
-                         GUILayout.EndHorizontal();
-
-                         GUI.enabled = _pigletOptions.EnableDragAndDropImport;
-
-                    _pigletOptions.ImportOptions.ImportAnimations
-                        = GUILayout.Toggle(
-                            _pigletOptions.ImportOptions.ImportAnimations,
-                             new GUIContent("Import animations",
-                                "Import animations from glTF file as Unity AnimationClips"),
-                             _styles.ToggleLevel2);
-
-                        GUI.enabled = _pigletOptions.EnableDragAndDropImport
-                            && _pigletOptions.ImportOptions.ImportAnimations;
-
-                        GUILayout.BeginHorizontal(GUILayout.Height(20));
-                            GUILayout.Space(40);
-
-                            GUILayout.BeginVertical();
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Animation clip type", _styles.Label);
-                                GUILayout.FlexibleSpace();
-                            GUILayout.EndVertical();
-
-                            GUILayout.BeginVertical();
-                                GUILayout.FlexibleSpace();
-                                _pigletOptions.ImportOptions.AnimationClipType
-                                    = (AnimationClipType) EditorGUILayout.Popup(
-                                        (int) _pigletOptions.ImportOptions.AnimationClipType,
-                                        Enum.GetNames(typeof(AnimationClipType)),
-                                        GUILayout.Width(100));
-                                GUILayout.FlexibleSpace();
-                            GUILayout.EndVertical();
-
+                            GUILayout.Label("Animation clip type", _styles.Label);
                             GUILayout.FlexibleSpace();
-                        GUILayout.EndHorizontal();
+                        GUILayout.EndVertical();
 
-                        GUI.enabled = _pigletOptions.EnableDragAndDropImport;
+                        GUILayout.BeginVertical();
+                            GUILayout.FlexibleSpace();
+                            pigletOptions.ImportOptions.AnimationClipType
+                                = (AnimationClipType) EditorGUILayout.Popup(
+                                    (int) pigletOptions.ImportOptions.AnimationClipType,
+                                    Enum.GetNames(typeof(AnimationClipType)),
+                                    GUILayout.Width(100));
+                            GUILayout.FlexibleSpace();
+                        GUILayout.EndVertical();
 
-                GUILayout.Label("Editor Options", _styles.Title);
+                        GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
 
-                     _pigletOptions.PromptBeforeOverwritingFiles
-                        = GUILayout.Toggle(
-                            _pigletOptions.PromptBeforeOverwritingFiles,
-                            new GUIContent("Prompt before overwriting files",
-                                "Show confirmation prompt if glTF import directory " +
-                                "already exists"),
-                            _styles.ToggleLevel2);
+                    GUI.enabled = pigletOptions.EnableEditorGltfImports;
 
-                     _pigletOptions.LogProgress
-                        = GUILayout.Toggle(
-                            _pigletOptions.LogProgress,
-                            new GUIContent("Print progress messages in Console",
-                               "Log progress messages to Unity Console window during " +
-                               "glTF imports (useful for debugging)"),
-                            _styles.ToggleLevel2);
+            GUILayout.Label("Drag-and-Drop Options", _styles.Title);
 
-                     _pigletOptions.SelectPrefabAfterImport
-                        = GUILayout.Toggle(
-                            _pigletOptions.SelectPrefabAfterImport,
-                            new GUIContent("Select prefab in Project Browser",
-                                "After a glTF import has completed, select/highlight " +
-                                "the generated prefab in the Project Browser window"),
-                            _styles.ToggleLevel2);
+            pigletOptions.DragAndDropOptions.PromptBeforeOverwritingFiles
+               = GUILayout.Toggle(
+                   pigletOptions.DragAndDropOptions.PromptBeforeOverwritingFiles,
+                   new GUIContent("Prompt before overwriting files",
+                       "Show confirmation prompt if glTF import directory " +
+                       "already exists"),
+                   _styles.ToggleLevel1);
 
-                     _pigletOptions.AddPrefabToScene
-                        = GUILayout.Toggle(
-                            _pigletOptions.AddPrefabToScene,
-                            new GUIContent("Add prefab instance to scene",
-                                "After a glTF import has completed, add the generated prefab to " +
-                                "the current Unity scene, as a child of the currently selected " +
-                                "game object. If no game object is selected in the scene, add " +
-                                "the prefab at the root of the scene instead."),
-                            _styles.ToggleLevel2);
+            pigletOptions.DragAndDropOptions.CopyGltfFilesIntoProject
+               = GUILayout.Toggle(
+                   pigletOptions.DragAndDropOptions.CopyGltfFilesIntoProject,
+                   new GUIContent("Copy source glTF files into project",
+                       "Copy the dragged-and-dropped glTF file/folder into the project " +
+                       "before doing the glTF import. By default only the " +
+                       "results of the glTF import (i.e. Unity prefab and associated assets) " +
+                       "are added to the project."),
+                   _styles.ToggleLevel1);
 
-                     GUI.enabled = _pigletOptions.EnableDragAndDropImport
-                         && _pigletOptions.AddPrefabToScene;
+            GUILayout.Label("Post-import Options", _styles.Title);
 
-                         _pigletOptions.SelectPrefabInScene
-                            = GUILayout.Toggle(
-                                _pigletOptions.SelectPrefabInScene,
-                                new GUIContent("Select prefab instance in scene",
-                                    "Select/highlight the prefab in the scene hierarchy " +
-                                    "after adding it to the scene"),
-                                _styles.ToggleLevel3);
+            pigletOptions.PostImportOptions.SelectPrefabInProject
+               = GUILayout.Toggle(
+                   pigletOptions.PostImportOptions.SelectPrefabInProject,
+                   new GUIContent("Select prefab in Project Browser",
+                       "After a glTF import has completed, select/highlight " +
+                       "the generated prefab in the Project Browser window"),
+                   _styles.ToggleLevel1);
 
-                     GUI.enabled = _pigletOptions.EnableDragAndDropImport;
+            pigletOptions.PostImportOptions.OpenPrefabInSceneView
+               = GUILayout.Toggle(
+                   pigletOptions.PostImportOptions.OpenPrefabInSceneView,
+                   new GUIContent("Open prefab in Scene View",
+                       "After a glTF import has completed, open the generated " +
+                       "prefab in the Scene View tab. (This is equivalent to " +
+                       "double-clicking the prefab in the Project Browser.)"),
+                   _styles.ToggleLevel1);
 
-                     _pigletOptions.OpenPrefabAfterImport
-                        = GUILayout.Toggle(
-                            _pigletOptions.OpenPrefabAfterImport,
-                            new GUIContent("Open prefab in Prefab View",
-                                "After a glTF import has completed, open the generated " +
-                                "prefab in the Prefab View. (This is equivalent to " +
-                                "double-clicking the prefab in the Project Browser.)"),
-                            _styles.ToggleLevel2);
+            GUI.enabled = true;
 
-                GUI.enabled = true;
+            GUILayout.Space(20);
 
-                GUILayout.Space(20);
+            if (GUILayout.Button(new GUIContent("Reset to Defaults",
+                "Reset all options to their default values"),
+                _styles.Button, GUILayout.Width(150)))
+            {
+                pigletOptions.Reset();
 
-                if (GUILayout.Button(new GUIContent("Reset to Defaults",
-                    "Reset all options to their default values"),
-                    _styles.Button, GUILayout.Width(150)))
-                {
-                    _pigletOptions.Reset();
-                }
+                // To be safe, we must assume that pressing the
+                // "Reset to Defaults" button caused some changes
+                // to the settings, although we have no way of
+                // knowing for sure.
+                //
+                // Calling `EditorUtility.SetDirty` tells Unity that
+                // PigletOptions should be serialized to disk during
+                // the next call to `AssetDatabase.SaveAssets`.
+
+                EditorUtility.SetDirty(pigletOptions);
+            }
 
             GUILayout.EndArea();
 
-            // Tell Unity that _pigletOptions needs to be saved
-            // to disk on the next call to AssetDatabase.SaveAssets().
-            //
-            // Note: With respect to the GUI code above, it's not very
-            // convenient to check if the _pigletOptions values have
-            // actually changed since they were first loaded from disk.
-            // Instead I just set the dirty flag unconditionally,
-            // with the hope that this does not hurt Editor performance.
+            // If the user changed one or more options in the Piglet Options window
+            // (e.g. unchecking a checkbox), mark `pigletOptions` as dirty.
+            // This lets Unity know that it needs to save the object to disk
+            // during the next call to `AssetDatabase.SaveAll`.
 
-            EditorUtility.SetDirty(_pigletOptions);
-
+            if (EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(pigletOptions);
         }
     }
 }

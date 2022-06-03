@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// Image data used to create a texture. Image can be referenced by URI or

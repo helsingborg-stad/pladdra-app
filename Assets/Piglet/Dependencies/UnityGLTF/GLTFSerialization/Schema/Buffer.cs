@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// A buffer points to binary geometry, animation, or skins.

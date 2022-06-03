@@ -1,9 +1,9 @@
 using System;
-using GLTF.Extensions;
-using GLTF.Math;
-using Newtonsoft.Json;
+using Piglet.GLTF.Extensions;
+using Piglet.Newtonsoft.Json;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	public class MaterialCommonConstant : GLTFProperty
 	{

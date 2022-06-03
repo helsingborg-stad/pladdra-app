@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using GLTF.Schema;
+using Piglet.GLTF.Schema;
 
-namespace GLTF
+namespace Piglet.GLTF
 {
 	public class GLTFParser
 	{
@@ -18,7 +18,7 @@ namespace GLTF
 			public uint Version { get; set; }
 			public uint FileLength { get; set; }
 		}
-		
+
 		public static GLTFRoot ParseJson(byte[] gltfBinary)
 		{
 			string gltfContent;

@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// A camera's projection.  A node can reference a camera to apply a transform

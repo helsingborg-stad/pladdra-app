@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MainStyles.uss?fileID=7433441132597879392&amp;guid=9490a51c7fb4f4a51a69e0373cabd20c&amp;type=3#MainStyles" />
+    <ui:VisualElement picking-mode="Ignore" class="container" style="justify-content: space-between;">
+        <ui:VisualElement name="header-panel" style="align-items: center;">
+            <ui:VisualElement name="scene-navigation" class="card" style="flex-direction: row; justify-content: space-between; display: none;">
+                <ui:Button text="Förgående" display-tooltip-when-elided="true" name="previous-scene-button" class="btn" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+                <ui:Label text="Example Scene" display-tooltip-when-elided="true" name="scene-name" style="-unity-text-align: middle-center; width: 241px; justify-content: flex-start;" />
+                <ui:Button text="Nästa" display-tooltip-when-elided="true" name="next-scene-button" class="btn" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="action-bar">
+            <ui:Button text="Stäng förhandsgranskning" display-tooltip-when-elided="true" enable-rich-text="false" name="exit-preview-button" class="btn btn--light" style="display: none;" />
+            <ui:Button text="Visa" display-tooltip-when-elided="true" enable-rich-text="false" name="inspect-model-button" class="btn btn--light" style="display: none;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

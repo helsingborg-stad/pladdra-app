@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using GLTF.Math;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using GLTF.Schema;
+using Piglet.Newtonsoft.Json;
+using Piglet.Newtonsoft.Json.Linq;
+using Piglet.GLTF.Math;
+using Piglet.GLTF.Schema;
 
-namespace GLTF.Extensions
+namespace Piglet.GLTF.Extensions
 {
 	public static class JsonReaderExtensions
 	{

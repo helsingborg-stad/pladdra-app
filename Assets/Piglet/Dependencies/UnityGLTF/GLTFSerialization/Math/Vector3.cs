@@ -1,4 +1,4 @@
-﻿namespace GLTF.Math
+﻿namespace Piglet.GLTF.Math
 {
 	public struct Vector3
 	{

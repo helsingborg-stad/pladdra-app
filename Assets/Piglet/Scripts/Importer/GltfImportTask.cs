@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -22,7 +23,7 @@ namespace Piglet
 	/// current execution state of the import task
 	/// (running/aborted/exception/completed).
 	/// </summary>
-	public class GltfImportTask
+	public class GltfImportTask : IEnumerator
 	{
 		/// <summary>
 		/// The possible execution states of an import task.
@@ -101,13 +102,31 @@ namespace Piglet
 		List<IEnumerator> _tasks;
 
 		/// <summary>
-		/// Profiling data recorded for each call to
-		/// IEnumerator.MoveNext().  This data is
-		/// used to help determine which subtasks
-		/// create the longest interruptions to
-		/// the main Unity thread.
+		/// Maximum number of milliseconds that MoveNext() should execute
+		/// before returning control back to the main Unity thread.
 		/// </summary>
-		private struct ProfilingRecord
+		public int MillisecondsPerYield;
+
+		/// <summary>
+		/// Stopwatch used to track time spent in MoveNext(). We
+		/// do as much work as possible per frame, but stop as
+		/// soon as we exceed MillisecondsPerYield. This prevents
+		/// unnecessarily stalling of the main Unity thread
+		/// during glTF imports (i.e. frame rate drops).
+		/// </summary>
+		private Stopwatch _stopwatch;
+
+		/// <summary>
+		/// The longest invocation of this class's MoveNext() method
+		/// across the entire glTF import.
+		/// </summary>
+		public long LongestMoveNextInMilliseconds;
+
+		/// <summary>
+		/// Statistics about the time spent executing a import task
+		/// (e.g. GltfImporter.LoadTextures).
+		/// </summary>
+		public class ProfilingRecord
 		{
 			/// <summary>
 			/// The type of the IEnumerator that
@@ -128,57 +147,61 @@ namespace Piglet
 			public Type TaskType;
 
 			/// <summary>
-			/// Number of milliseconds it took to
-			/// execute IEnumerator.MoveNext().  This
-			/// represents an interruption to the main
-			/// Unity thread and should be kept as
-			/// short as possible.
+			/// Records the time spent executing this task's MoveNext() method.
+			/// This result excludes any time spent in Unity's main
+			/// game loop between calls to MoveNext().
 			/// </summary>
-			public long Milliseconds;
+			public Stopwatch StopwatchMoveNext;
+
+			/// <summary>
+			/// Records the total wallclock time spent executing this task,
+			/// between the first and last calls to MoveNext(). This result
+			/// includes any time spent in Unity's main game loop
+			/// between calls to MoveNext().
+			/// </summary>
+			public Stopwatch StopwatchWallclock;
+
+			/// <summary>
+			/// Number of calls to this task's MoveNext() method.
+			/// </summary>
+			public long MoveNextCalls;
+
+			/// <summary>
+			/// Number of frames to execute this task. More
+			/// precisely, the number of GltfImportTask.MoveNext()
+			/// calls used to execute this task.
+			/// </summary>
+			public long Frames;
+
+			public ProfilingRecord(Type taskType)
+			{
+				TaskType = taskType;
+				StopwatchMoveNext = new Stopwatch();
+				StopwatchWallclock = new Stopwatch();
+				MoveNextCalls = 0;
+				Frames = 0;
+			}
 		}
 
 		/// <summary>
-		/// Profiling data for calls to IEnumerator.MoveNext()
-		/// during a glTF import.
+		/// Profiling data recorded for each import task (coroutine).
 		/// </summary>
-		private List<ProfilingRecord> _profilingData;
-
-		/// <summary>
-		/// Stopwatch used to profile calls to IEnumerator.MoveNext().
-		/// </summary>
-		private Stopwatch _stopwatch = new Stopwatch();
+		public List<ProfilingRecord> ProfilingRecords;
 
 		public GltfImportTask()
 		{
 			_tasks = new List<IEnumerator>();
-			_profilingData = new List<ProfilingRecord>();
+			_stopwatch = new Stopwatch();
+			LongestMoveNextInMilliseconds = 0;
+			ProfilingRecords = new List<ProfilingRecord>();
+
 			State = ExecutionState.Running;
 			RethrowExceptionAfterCallbacks = true;
-		}
 
-		/// <summary>
-		/// Log profiling results regarding calls to IEnumerator.MoveNext().
-		/// </summary>
-		public void LogProfilingData()
-		{
-			foreach (var record in _profilingData)
-				Debug.LogFormat("{0}\t{1}",
-					record.TaskType, record.Milliseconds);
-		}
-
-		/// <summary>
-		/// Report the longest time to execute a single
-		/// task step by calling MoveNext().
-		/// </summary>
-		public long LongestStepInMilliseconds()
-		{
-			long max = 0;
-			foreach (var record in _profilingData)
-			{
-				if (record.Milliseconds > max)
-					max = record.Milliseconds;
-			}
-			return max;
+			// For runtime glTF imports, target 60 fps (16 ms per frame).
+			// For Editor imports, run the whole task in one MoveNext call
+			// to minimize the overall import time.
+			MillisecondsPerYield = Application.isPlaying ? 16 : 100;
 		}
 
 		/// <summary>
@@ -187,6 +210,20 @@ namespace Piglet
 		public void PushTask(IEnumerator task)
 		{
 			_tasks.Insert(0, task);
+		}
+
+		/// <summary>
+		/// Add a subtask to the front of the subtask list.
+		/// </summary>
+		public void PushTask(Action action)
+		{
+			IEnumerator ActionWrapper()
+			{
+				action.Invoke();
+				yield return null;
+			}
+
+			_tasks.Insert(0, ActionWrapper());
 		}
 
 		/// <summary>
@@ -209,6 +246,21 @@ namespace Piglet
 		public void AddTask(IEnumerable task)
 		{
 			_tasks.Add(task.GetEnumerator());
+		}
+
+		/// <summary>
+		/// Add a subtask for a C# Action (i.e. a method with zero arguments
+		/// that does not return a value).
+		/// </summary>
+		public void AddTask(Action action)
+		{
+			IEnumerator ActionWrapper()
+			{
+				action.Invoke();
+				yield return null;
+			}
+
+			AddTask(ActionWrapper());
 		}
 
 		/// <summary>
@@ -237,25 +289,74 @@ namespace Piglet
 			if (State != ExecutionState.Running)
 				return false;
 
-			bool moveNext = false;
-			object current = null;
+			bool moveNextOuter = false;
 			try
 			{
-				while (!moveNext && _tasks.Count > 0)
+				// Tracks how long we spend in this method (GltfImportTask.MoveNext).
+				// We want to do as much work as possible per frame but we need to
+				// stop as soon as we exceed the MillisecondsPerYield limit (to
+				// avoid stalling the main Unity thread).
+
+				_stopwatch.Restart();
+
+				// If we have not yet call MoveNext() on first task, we need
+				// to create a profiling record for it.
+
+				if (_tasks.Count > 0 && ProfilingRecords.Count == 0)
 				{
-					_stopwatch.Restart();
-					moveNext = _tasks[0].MoveNext();
-					_stopwatch.Stop();
-
-					_profilingData.Add(new ProfilingRecord {
-						TaskType = _tasks[0].GetType(),
-						Milliseconds = _stopwatch.ElapsedMilliseconds
-					});
-
-					current = _tasks[0].Current;
-					if (!moveNext)
-						_tasks.RemoveAt(0);
+					ProfilingRecords.Add(new ProfilingRecord(_tasks[0].GetType()));
+					ProfilingRecords.Last().StopwatchWallclock.Start();
 				}
+
+				ProfilingRecords.Last().Frames++;
+
+				while (_tasks.Count > 0 &&
+				       (_stopwatch.ElapsedMilliseconds < MillisecondsPerYield || !moveNextOuter))
+				{
+					ProfilingRecords.Last().StopwatchMoveNext.Start();
+					var moveNextInner = _tasks[0].MoveNext();
+					ProfilingRecords.Last().StopwatchMoveNext.Stop();
+					ProfilingRecords.Last().MoveNextCalls++;
+
+					moveNextOuter |= moveNextInner;
+
+					if (moveNextInner
+					    && Current is YieldType yieldType
+					    && yieldType == YieldType.Blocked)
+					{
+						break;
+					}
+
+					if (!moveNextInner)
+					{
+						// stop profiling the completed task
+						ProfilingRecords.Last().StopwatchWallclock.Stop();
+
+						// if we just completed the last task
+						if (_tasks.Count == 1)
+						{
+							State = ExecutionState.Completed;
+							OnCompleted?.Invoke((GameObject)Current);
+						}
+
+						// remove completed task
+						_tasks.RemoveAt(0);
+
+						// if there is a next task, start profiling it
+						if (_tasks.Count > 0)
+						{
+							ProfilingRecords.Add(new ProfilingRecord(_tasks[0].GetType()));
+							ProfilingRecords.Last().StopwatchWallclock.Start();
+							ProfilingRecords.Last().Frames++;
+						}
+					}
+				}
+
+				_stopwatch.Stop();
+
+				if (_stopwatch.ElapsedMilliseconds > LongestMoveNextInMilliseconds)
+					LongestMoveNextInMilliseconds = _stopwatch.ElapsedMilliseconds;
+
 			}
 			catch (Exception e)
 			{
@@ -269,14 +370,47 @@ namespace Piglet
 				return false;
 			}
 
-			if (_tasks.Count == 0)
-			{
-				State = ExecutionState.Completed;
-				OnCompleted?.Invoke((GameObject)current);
-				Clear();
-			}
+			return moveNextOuter;
+		}
 
-			return moveNext;
+		/// <summary>
+		/// <para>
+		/// This method is a stub and always throws
+		/// NotImplementedException().
+		/// </para>
+		/// <para>
+		/// The `Reset()` method is required by the IEnumerator
+		/// interface, but does not serve any useful purpose
+		/// for this particular class (`GltfImportTask`).
+		/// </para>
+		/// </summary>
+		public void Reset()
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// <para>
+		/// The last value returned by `yield return` for the
+		/// currently executing subtask (coroutine).
+		/// </para>
+		/// <para>
+		/// The value of `Current` is generally not of
+		/// interest to Piglet users until the entire glTF import
+		/// has completed successfully, in which case `Current`
+		/// is a reference to the root `GameObject` of the imported
+		/// model.
+		/// </para>
+		/// </summary>
+		public object Current
+		{
+			get
+			{
+				if (_tasks.Count == 0)
+					return null;
+
+				return _tasks[0].Current;
+			}
 		}
 	}
 }

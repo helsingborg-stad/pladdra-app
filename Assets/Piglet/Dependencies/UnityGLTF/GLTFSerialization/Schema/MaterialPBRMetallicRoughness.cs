@@ -1,9 +1,9 @@
 using System;
-using GLTF.Extensions;
-using GLTF.Math;
-using Newtonsoft.Json;
+using Piglet.GLTF.Extensions;
+using Piglet.Newtonsoft.Json;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// A set of parameter values that are used to define the metallic-roughness

@@ -17,6 +17,9 @@ float4 _specularFactor;
 half _glossinessFactor;
 sampler2D _specularGlossinessTexture;
 
+bool _runtime;
+bool _linear;
+
 struct Input
 {
     // Note: The `uv` prefix "magically" maps to
@@ -49,13 +52,69 @@ void surf (Input IN, inout SurfaceOutputStandardSpecular o)
     fixed4 c = tex2D (_diffuseTexture, IN.uv_diffuseTexture) * IN.vertexColor * _diffuseFactor;
     o.Albedo = c.rgb;
     o.Alpha = c.a;
-    o.Normal = UnpackNormal(tex2D(_normalTexture, IN.uv_normalTexture));
+
+    // Compute normals.
+    //
+    // There are a few complications here. In addition
+    // to the usual problem of UnityWebRequestTexture performing
+    // an unwanted sRGB -> linear conversion during runtime
+    // glTF imports, the normal texture is encoded differently
+    // during Editor glTF imports vs runtime glTF imports.
+    //
+    // During Editor imports, Piglet creates a Unity texture
+    // asset with the type set to "Normal map". This causes
+    // the texture to be encoded in DXT5nm format, with the
+    // x coordinate in the alpha channel and the y coordinate
+    // in the green channel. (Since the normals are unit-length,
+    // the z coordinate can be calculated from the x and y
+    // coordinates.) The `UnpackNormal` function below moves the
+    // x and y coordinates back to the red/green channels
+    // and fills in the z coordinate on the blue channel.
+    //
+    // During runtime glTF imports, Piglet just loads the normal
+    // texture like any other texture and leaves the
+    // x/y/z coordinates in the red/green/blue channels.
+    // Therefore the `UnpackNormal` function is not
+    // used during runtime glTF imports.
+    //
+    // In the case of glTF models that don't specify a normal
+    // textures, the shader falls back to using the
+    // default "bump" texture. However, since the "bump" texture
+    // is also encoded in DXT5nm, it does not produce
+    // correct results during runtime imports. We handle this
+    // by explicitly setting the normal texture to
+    // Resources/Textures/RuntimeDefaultNormalTexture.png
+    // during runtime glTF imports, in cases where
+    // the model does not provide its own normal
+    // texture.
+
+    float4 normal = tex2D(_normalTexture, IN.uv_normalTexture);
+    if (_runtime)
+    {
+        o.Normal = normal;
+        // undo sRGB -> linear conversion by UnityWebRequestTexture
+        if (_linear)
+            o.Normal = LinearToGammaSpace(o.Normal);
+        o.Normal = normalize(o.Normal * 2 - 1);
+    }
+    else
+    {
+        o.Normal = UnpackNormal(normal);
+    }
+
     if (IN.vface < 0)
         o.Normal.z *= -1.0;
+
     o.Occlusion = tex2D (_occlusionTexture, IN.uv_occlusionTexture).r;
+    // undo sRGB -> linear conversion by UnityWebRequestTexture
+    if (_runtime && _linear)
+        o.Occlusion = LinearToGammaSpaceExact(o.Occlusion);
+
     o.Emission = tex2D (_emissiveTexture, IN.uv_emissiveTexture) * _emissiveFactor;
-    o.Specular = tex2D(_specularGlossinessTexture, IN.uv_specularGlossinessTexture) * _specularFactor;
-    o.Smoothness = tex2D(_specularGlossinessTexture, IN.uv_specularGlossinessTexture).a * _glossinessFactor;
+
+    float4 specular_glossiness = tex2D(_specularGlossinessTexture, IN.uv_specularGlossinessTexture);
+    o.Specular = specular_glossiness.rgb * _specularFactor;
+    o.Smoothness = specular_glossiness.a * _glossinessFactor;
 }
 
 #endif

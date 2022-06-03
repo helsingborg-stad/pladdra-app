@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using GLTF;
+using Piglet.GLTF;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -57,7 +57,7 @@ namespace Piglet
 #if UNITY_WEBGL && !UNITY_EDITOR
 			yield return JsLib.CreateObjectUrl(data, data.Length);
 #else
-			string path = Path.Combine(Application.temporaryCachePath,
+			string path = PathUtil.Combine(Application.temporaryCachePath,
 				StringUtil.GetRandomString(8));
 
 			foreach (var unused in FileUtil.WriteAllBytes(path, data))
@@ -65,6 +65,156 @@ namespace Piglet
 
 			yield return path;
 #endif
+		}
+
+		/// <summary>
+		/// Return true if the given URI is a base64-encoded data URI,
+		/// or false otherwise.
+		/// </summary>
+		static public bool IsDataUri(string uri)
+		{
+			var match = DATA_URI_REGEX.Match(uri);
+			return match.Success;
+		}
+
+		/// <summary>
+		/// Return true if the given URI is an absolute URI, or
+		/// false otherwise. More specifically, this method will
+		/// return if the given URI is an absolute file path,
+		/// an HTTP(S) URL, or a data URI. Returns false
+		/// if the given URI is null or the empty string.
+		/// </summary>
+		static public bool IsAbsoluteUri(string uri)
+		{
+			if (string.IsNullOrEmpty(uri))
+				return false;
+
+			// Note: `Uri.TryCreate` (and other `Uri` constructors)
+			// often fail on data URIs with a "URI is too long"
+			// error, so we need test for data URIs separately.
+
+			if (IsDataUri(uri))
+				return true;
+
+			return Uri.TryCreate(uri, UriKind.Absolute, out _);
+		}
+
+		/// <summary>
+		/// <para>
+		/// Resolve the given URI to an absolute URI. If the given URI is
+		/// already an absolute URI, return it unchanged.
+		/// </para>
+		/// <para>
+		/// I added this method so that I could resolve relative paths/URIs that
+        /// are provided as command-line arguments to PigletViewer.
+		/// </para>
+		/// <para>
+		/// Note that the rules used to resolve relative URIs are platform-dependent:
+		/// </para>
+		/// <list type="bullet">
+		/// <item>
+		/// <term>Editor (Windows/iOS/Linux): </term>
+		/// <description>
+		/// Resolve URIs relative to the Unity project directory
+		/// (Application.dataPath).
+		/// </description>
+		/// </item>
+		/// <item>
+		/// <term>Standalone PC (Windows/iOS/Linux): </term>
+		/// <description>
+		/// Resolve URIs relative to the current working directory
+		/// (Directory.GetCurrentDirectory()).
+		/// </description>
+		/// </item>
+		/// <item>
+		/// <term>WebGL: </term>
+		/// <description>
+		/// Resolve URIs relative to the web page URL
+		/// (Application.absoluteURL).
+		/// </description>
+		/// </item>
+		/// <item>
+		/// <term>Other platforms (e.g. Android, iOS): </term>
+		/// <description>
+		/// Throw InvalidOperationException. (I can't think of
+		/// any reasonable way to resolve relative URIs on other
+		/// platforms.)
+		/// </description>
+		/// </item>
+		/// </list>
+		/// </summary>
+		static public Uri GetAbsoluteUri(string uriStr)
+		{
+			if (uriStr == null)
+				return null;
+
+			if (IsAbsoluteUri(uriStr))
+				return new Uri(uriStr);
+
+			Uri baseUri;
+
+			switch (Application.platform)
+			{
+				case RuntimePlatform.WindowsEditor:
+				case RuntimePlatform.OSXEditor:
+				case RuntimePlatform.LinuxEditor:
+
+					baseUri = new Uri(Application.dataPath);
+					break;
+
+				case RuntimePlatform.WindowsPlayer:
+				case RuntimePlatform.OSXPlayer:
+				case RuntimePlatform.LinuxPlayer:
+
+					// NOTE: The directory path must have a trailing slash here,
+					// otherwise the last directory component will be stripped before
+					// it is combined with `uriStr` in the `Uri` constructor below.
+					//
+					// For further background info, see the following StackOverflow
+					// answer and the comments below the answer:
+					// https://stackoverflow.com/a/1527643
+
+					baseUri = new Uri(Directory.GetCurrentDirectory() + "/");
+					break;
+
+				case RuntimePlatform.WebGLPlayer:
+
+					baseUri = new Uri(Application.absoluteURL);
+					break;
+
+				default:
+
+					throw new InvalidOperationException(
+						"Not possible to resolve relative URIs on mobile (Android/iOS)");
+			}
+
+			return new Uri(baseUri, uriStr);
+		}
+
+		/// <summary>
+		/// Return true if the given URI is a relative file path
+		/// (e.g. "foo/bar/baz.txt"). Returns false if the
+		/// given URI is null or the empty string.
+		/// </summary>
+		static public bool IsRelativeFilePath(string uri)
+		{
+			if (string.IsNullOrEmpty(uri))
+				return false;
+
+			// Note: `Uri.TryCreate` (and other `Uri` constructors)
+			// often fail on data URIs with a "URI is too long"
+			// error, so we need test for data URIs separately.
+
+			if (IsDataUri(uri))
+				return false;
+
+			// Note: `Uri.TryCreate(uri, UriKind.Relative, out _)`
+			// returns true for URIs with a leading slash (e.g.
+			// "/foo", "/foo/bar.txt") which is not what we want.
+			// For this reason, we instead use
+			// `!Uri.TryCreate(uri, UriKind.Absolute, out _)`.
+
+			return !Uri.TryCreate(uri, UriKind.Absolute, out _);
 		}
 
 		/// <summary>
@@ -93,7 +243,7 @@ namespace Piglet
 		/// Coroutine to download/read all bytes from a URI into an array.
 		/// The URI may refer to a local file or an URL on the web.
 		/// </summary>
-		static public IEnumerable<byte[]> ReadAllBytesEnum(
+		static public IEnumerable<(YieldType, byte[])> ReadAllBytesEnum(
 			string uriStr, Action<ulong, ulong> onProgress = null)
 		{
 			Uri uri = new Uri(uriStr);
@@ -105,7 +255,7 @@ namespace Piglet
 		/// Coroutine to download/read all bytes from a URI into an array.
 		/// The URI may refer to a local file or an URL on the web.
 		/// </summary>
-		static public IEnumerable<byte[]> ReadAllBytesEnum(
+		static public IEnumerable<(YieldType, byte[])> ReadAllBytesEnum(
 			Uri uri, Action<ulong, ulong> onProgress=null)
 		{
 			// Handle reading data from Android content URIs.
@@ -116,10 +266,10 @@ namespace Piglet
 				foreach (var result in ContentUriUtil.ReadAllBytesEnum(uri, onProgress))
 				{
 					data = result;
-					yield return null;
+					yield return (YieldType.Continue, null);
 				}
 
-				yield return data;
+				yield return (YieldType.Continue, data);
 				yield break;
 			}
 
@@ -138,6 +288,7 @@ namespace Piglet
 			{
 				using (var sizeRequest = GetSizeInBytesEnum(uri).GetEnumerator())
 				{
+					var yieldType = YieldType.Continue;
 					while (true)
 					{
 						try
@@ -145,7 +296,7 @@ namespace Piglet
 							if (!sizeRequest.MoveNext())
 								break;
 
-							size = sizeRequest.Current;
+							(yieldType, size) = sizeRequest.Current;
 						}
 						catch (Exception e)
 						{
@@ -153,7 +304,7 @@ namespace Piglet
 							size = 0;
 						}
 
-						yield return null;
+						yield return (yieldType, null);
 					}
 				}
 			}
@@ -165,7 +316,7 @@ namespace Piglet
 			while (!request.isDone)
 			{
 				onProgress?.Invoke(request.downloadedBytes, size);
-				yield return null;
+				yield return (YieldType.Blocked, null);
 			}
 
 			if (request.HasError())
@@ -177,14 +328,14 @@ namespace Piglet
 
 			onProgress?.Invoke(request.downloadedBytes, size);
 
-			yield return request.downloadHandler.data;
+			yield return (YieldType.Continue, request.downloadHandler.data);
 		}
 
 		/// <summary>
 		/// Coroutine to get size of a file in bytes from a URI.
 		/// The URI may refer to a local file or an URL on the web.
 		/// </summary>
-		static public IEnumerable<ulong> GetSizeInBytesEnum(Uri uri)
+		static public IEnumerable<(YieldType, ulong)> GetSizeInBytesEnum(Uri uri)
 		{
 			// Return zero size for URIs that aren't file paths
 			// and don't use the http/https URI scheme.
@@ -195,7 +346,7 @@ namespace Piglet
 
 			if (!uri.IsFile && uri.Scheme != "http" && uri.Scheme != "https")
 			{
-				yield return 0;
+				yield return (YieldType.Continue, 0);
 				yield break;
 			}
 
@@ -205,8 +356,8 @@ namespace Piglet
 				// of uri.AbsolutePath in order to correctly
 				// handle file names with spaces, because uri.AbsolutePath
 				// returns an URL-encoded string.
-				yield return (ulong)
-					new FileInfo(uri.LocalPath).Length;
+				yield return (YieldType.Continue,
+					(ulong) new FileInfo(uri.LocalPath).Length);
 				yield break;
 			}
 
@@ -214,7 +365,7 @@ namespace Piglet
 			request.SendWebRequest();
 
 			while (!request.isDone)
-				yield return 0;
+				yield return (YieldType.Blocked, 0);
 
 			if (request.HasError())
 			{
@@ -226,7 +377,7 @@ namespace Piglet
 			string size = request.GetResponseHeader("Content-Length");
 
 			// returns 0 if size == null
-			yield return Convert.ToUInt64(size);
+			yield return (YieldType.Continue, Convert.ToUInt64(size));
 		}
 
 	}
