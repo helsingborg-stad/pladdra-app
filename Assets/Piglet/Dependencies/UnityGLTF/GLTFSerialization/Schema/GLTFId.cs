@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 
 	/// <summary>

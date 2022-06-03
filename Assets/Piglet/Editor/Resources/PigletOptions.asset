@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddc9f54270664c1489c2e88423a73c43, type: 3}
   m_Name: PigletOptions
   m_EditorClassIdentifier: 
-  EnableDragAndDropImport: 1
+  EnableEditorGltfImports: 1
+  LogProgress: 0
   ImportOptions:
     ShowModelAfterImport: 1
     AutoScale: 0
     AutoScaleSize: 1
     ImportAnimations: 1
     AnimationClipType: 1
-  LogProgress: 0
-  PromptBeforeOverwritingFiles: 1
-  SelectPrefabAfterImport: 1
-  OpenPrefabAfterImport: 1
-  AddPrefabToScene: 0
-  SelectPrefabInScene: 0
+  DragAndDropOptions:
+    PromptBeforeOverwritingFiles: 1
+    CopyGltfFilesIntoProject: 0
+    SelectPrefabAfterImport: 1
+    OpenPrefabAfterImport: 1

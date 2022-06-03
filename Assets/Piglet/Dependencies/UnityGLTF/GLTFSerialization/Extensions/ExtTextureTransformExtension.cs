@@ -1,10 +1,10 @@
 ﻿using System;
-using GLTF.Math;
-using GLTF.Schema;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Piglet.GLTF.Schema;
+using Piglet.Newtonsoft.Json;
+using Piglet.Newtonsoft.Json.Linq;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	public class ExtTextureTransformExtension : Extension
 	{

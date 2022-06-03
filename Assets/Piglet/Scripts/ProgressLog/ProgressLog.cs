@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
-using UnityGLTF;
 using Debug = UnityEngine.Debug;
 
 namespace Piglet

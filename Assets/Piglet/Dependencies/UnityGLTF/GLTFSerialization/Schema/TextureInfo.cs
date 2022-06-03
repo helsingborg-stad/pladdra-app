@@ -1,7 +1,7 @@
 using System;
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// Reference to a texture.

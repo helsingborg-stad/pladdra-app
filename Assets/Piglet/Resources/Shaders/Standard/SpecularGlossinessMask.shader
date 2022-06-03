@@ -36,6 +36,29 @@ Shader "Piglet/SpecularGlossinessMask"
         _specularFactor ("Specular Factor", Color) = (1, 1, 1, 1)
         _glossinessFactor ("Glossiness Factor", Range(0,1)) = 1.0
         _specularGlossinessTexture ("Specular Glossiness Texture", 2D) = "white" {}
+
+        // Boolean shader properties.
+        //
+        // _runtime: "Is this a runtime glTF import?"
+        // _linear: "Is the Unity Editor/Player in linear rendering mode?"
+        //
+        // In the case where both `_runtime` and `_linear`
+        // are true (i.e. equal to 1.0), we need to undo the
+        // Linear -> sRGB color conversions that UnityWebRequestTexture
+        // incorrectly performs on linear textures (e.g. the normal texture).
+        // (`UnityWebRequestTexture` assumes that all input
+        // textures are sRGB-encoded and does not have a `linear` parameter like
+        // `Texture2D.LoadImage`.)
+        //
+        // Piglet uses `UnityWebRequestTexture` to load textures during
+        // runtime glTF imports because it does not stall the main Unity
+        // thread during PNG/JPG decompression like `Texture2D.LoadImage`
+        // does. In the case of Editor glTF imports, we do not need to
+        // make any color corrections because Piglet uses `Texture2D.LoadImage`
+        // to load the textures instead.
+
+        _runtime ("Runtime", Int) = 0.0
+        _linear ("Linear", Int) = 0.0
     }
     SubShader
     {

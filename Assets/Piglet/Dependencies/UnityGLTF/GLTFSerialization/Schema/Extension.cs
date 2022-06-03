@@ -1,7 +1,7 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Piglet.Newtonsoft.Json;
+using Piglet.Newtonsoft.Json.Linq;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	public interface Extension
 	{

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Piglet
 {
@@ -13,19 +12,28 @@ namespace Piglet
     public class PigletOptions : ScriptableObject
     {
         /// <summary>
-        /// Enable/disable automatic import of glTF models when
-        /// dragging external .gltf/.glb/.zip files into the Project
-        /// Browser.
-        ///
-        /// Note: If this option is set to false, none of the other options
-        /// have any effect.
+        /// Singleton instance of PigletOptions.
         /// </summary>
-        [SerializeField] public bool EnableDragAndDropImport;
+        private static PigletOptions _instance;
 
         /// <summary>
-        /// Options that are common to both Editor and runtime glTF imports.
+        /// Get a reference to the singleton instance of PigletOptions, creating
+        /// it first if necessary.
         /// </summary>
-        [SerializeField] public GltfImportOptions ImportOptions;
+        public static PigletOptions Instance
+        {
+            get
+            {
+                if (_instance == null)
+                    _instance = Resources.Load<PigletOptions>("PigletOptions");
+                return _instance;
+            }
+        }
+
+        /// <summary>
+        /// Globally enables/disables glTF imports in the Editor.
+        /// </summary>
+        [SerializeField] public bool EnableEditorGltfImports;
 
         /// <summary>
         /// If true, print progress messages to the Unity
@@ -34,51 +42,31 @@ namespace Piglet
         [SerializeField] public bool LogProgress;
 
         /// <summary>
-        /// If true, show a confirmation prompt whenever a drag-and-drop
-        /// import would overwrite existing files.
+        /// Options that are common to both Editor and runtime glTF imports.
         /// </summary>
-        [SerializeField] public bool PromptBeforeOverwritingFiles;
+        [SerializeField] public GltfImportOptions ImportOptions;
 
         /// <summary>
-        /// If true, select the imported prefab in the Project Browser
-        /// after a glTF import has completed.
+        /// Options that control the behaviour of drag-and-drop glTF imports in the Editor.
         /// </summary>
-        [SerializeField] public bool SelectPrefabAfterImport;
+        [SerializeField] public DragAndDropOptions DragAndDropOptions;
 
         /// <summary>
-        /// Open the imported prefab in Prefab View (replaces current
-        /// Scene View) after a glTF import has completed.
+        /// Options that control Editor actions after a glTF import
+        /// successfully completes.
         /// </summary>
-        [SerializeField] public bool OpenPrefabAfterImport;
-
-        /// <summary>
-        /// Add an instance of the imported prefab to the current
-        /// scene, as a child of the currently selected GameObject
-        /// (if any).
-        [SerializeField] public bool AddPrefabToScene;
-
-        /// <summary>
-        /// Select the prefab in the scene view, after adding
-        /// it to the current scene. This option has no effect
-        /// unless AddPrefabToScene is true.
-        /// </summary>
-        [SerializeField] public bool SelectPrefabInScene;
+        [SerializeField] public PostImportOptions PostImportOptions;
 
         /// <summary>
         /// Reset all Piglet glTF import options to default values.
         /// </summary>
         public void Reset()
         {
-            EnableDragAndDropImport = true;
-
-            ImportOptions = new GltfImportOptions();
-
+            EnableEditorGltfImports = true;
             LogProgress = false;
-            PromptBeforeOverwritingFiles = true;
-            SelectPrefabAfterImport = true;
-            OpenPrefabAfterImport = true;
-            AddPrefabToScene = false;
-            SelectPrefabInScene = false;
+            ImportOptions = new GltfImportOptions();
+            DragAndDropOptions = new DragAndDropOptions();
+            PostImportOptions = new PostImportOptions();
         }
     }
 }

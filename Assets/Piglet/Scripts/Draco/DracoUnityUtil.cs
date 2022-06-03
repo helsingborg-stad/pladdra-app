@@ -45,11 +45,7 @@ namespace Piglet
 		{
 			using (var dracoDataNative = new NativeArray<byte>(dracoData, Allocator.Persistent))
 			{
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 
 				foreach (var result in LoadDracoMesh(dracoDataNative, weightsId, jointsId))
 					yield return result;

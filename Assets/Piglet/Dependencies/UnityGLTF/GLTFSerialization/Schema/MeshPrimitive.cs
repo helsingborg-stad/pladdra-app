@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using GLTF.Extensions;
-using Newtonsoft.Json;
+using Piglet.GLTF.Extensions;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// Geometry to be rendered with the given material.

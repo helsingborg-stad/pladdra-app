@@ -3,7 +3,7 @@ using UnityEditor;
 #endif
 using System.Collections;
 using System.Diagnostics;
-using GLTF.Schema;
+using Piglet.GLTF.Schema;
 using UnityEngine;
 
 namespace Piglet
@@ -54,11 +54,7 @@ namespace Piglet
 
 				curve.MoveKey(i, key);
 
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 			}
 		}
 
@@ -81,11 +77,7 @@ namespace Piglet
 
 				curve.MoveKey(i, key);
 
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 			}
 		}
 
@@ -198,11 +190,7 @@ namespace Piglet
 				AnimationUtility.SetKeyLeftTangentMode(curve, i, tangentMode);
 				AnimationUtility.SetKeyRightTangentMode(curve, i, tangentMode);
 
-				if (YieldTimer.Instance.Expired)
-				{
-					yield return null;
-					YieldTimer.Instance.Restart();
-				}
+				yield return null;
 			}
 		}
 #endif

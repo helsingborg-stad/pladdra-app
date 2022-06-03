@@ -17,6 +17,9 @@ half _roughnessFactor;
 half _metallicFactor;
 sampler2D _metallicRoughnessTexture;
 
+bool _runtime;
+bool _linear;
+
 struct Input
 {
     // Note: The `uv` prefix "magically" maps to
@@ -49,13 +52,79 @@ void surf (Input IN, inout SurfaceOutputStandard o)
     fixed4 c = tex2D (_baseColorTexture, IN.uv_baseColorTexture) * IN.vertexColor * _baseColorFactor;
     o.Albedo = c.rgb;
     o.Alpha = c.a;
-    o.Normal = UnpackNormal(tex2D(_normalTexture, IN.uv_normalTexture));
+
+    // Compute normals.
+    //
+    // There are a few complications here. In addition
+    // to the usual problem of UnityWebRequestTexture performing
+    // an unwanted sRGB -> linear conversion during runtime
+    // glTF imports, the normal texture is encoded differently
+    // during Editor glTF imports vs runtime glTF imports.
+    //
+    // During Editor imports, Piglet creates a Unity texture
+    // asset with the type set to "Normal map". This causes
+    // the texture to be encoded in DXT5nm format, with the
+    // x coordinate in the alpha channel and the y coordinate
+    // in the green channel. (Since the normals are unit-length,
+    // the z coordinate can be calculated from the x and y
+    // coordinates.) The `UnpackNormal` function below moves the
+    // x and y coordinates back to the red/green channels
+    // and fills in the z coordinate on the blue channel.
+    //
+    // During runtime glTF imports, Piglet just loads the normal
+    // texture like any other texture and leaves the
+    // x/y/z coordinates in the red/green/blue channels.
+    // Therefore the `UnpackNormal` function is not
+    // used during runtime glTF imports.
+    //
+    // In the case of glTF models that don't specify a normal
+    // textures, the shader falls back to using the
+    // default "bump" texture. However, since the "bump" texture
+    // is also encoded in DXT5nm, it does not produce
+    // correct results during runtime imports. We handle this
+    // by explicitly setting the normal texture to
+    // Resources/Textures/RuntimeDefaultNormalTexture.png
+    // during runtime glTF imports, in cases where
+    // the model does not provide its own normal
+    // texture.
+
+    float4 normal = tex2D(_normalTexture, IN.uv_normalTexture);
+    if (_runtime)
+    {
+        o.Normal = normal;
+        // undo sRGB -> linear conversion by UnityWebRequestTexture
+        if (_linear)
+            o.Normal = LinearToGammaSpace(o.Normal);
+        o.Normal = normalize(o.Normal * 2 - 1);
+    }
+    else
+    {
+        o.Normal = UnpackNormal(normal);
+    }
+
     if (IN.vface < 0)
         o.Normal.z *= -1.0;
+
     o.Occlusion = tex2D (_occlusionTexture, IN.uv_occlusionTexture).r;
+    // undo sRGB -> linear conversion by UnityWebRequestTexture
+    if (_runtime && _linear)
+        o.Occlusion = LinearToGammaSpaceExact(o.Occlusion);
+
     o.Emission = tex2D (_emissiveTexture, IN.uv_emissiveTexture) * _emissiveFactor;
-    o.Metallic = tex2D(_metallicRoughnessTexture, IN.uv_metallicRoughnessTexture).b * _metallicFactor;
-    o.Smoothness = 1.0 - tex2D(_metallicRoughnessTexture, IN.uv_metallicRoughnessTexture).g * _roughnessFactor;
+
+    float4 metallic_roughness = tex2D(_metallicRoughnessTexture, IN.uv_metallicRoughnessTexture);
+
+    o.Metallic = metallic_roughness.b;
+    // undo sRGB -> linear conversion by UnityWebRequestTexture
+    if (_runtime && _linear)
+        o.Metallic = LinearToGammaSpaceExact(o.Metallic);
+    o.Metallic *= _metallicFactor;
+
+    float roughness = metallic_roughness.g;
+    // undo sRGB -> linear conversion by UnityWebRequestTexture
+    if (_runtime && _linear)
+        roughness = LinearToGammaSpaceExact(roughness);
+    o.Smoothness = 1.0 - roughness * _roughnessFactor;
 }
 
 #endif

@@ -18,62 +18,12 @@ namespace Piglet
 	/// </summary>
 	public static class TextureUtil
 	{
-		/// <summary>
-		/// The initial bytes ("magic numbers") of a file/stream that are used
-		/// to identify different image formats (e.g. PNG, JPG, KTX2).
-		/// </summary>
-		private struct Magic
-		{
-			/// <summary>
-			/// KTX2 is a container format for supercompressed and GPU-ready textures.
-			/// For further info, see: https://github.khronos.org/KTX-Specification/.
-			/// I got the values for the KTX2 magic bytes by examining an example
-			/// KTX2 files with the Linux `od` tool, e.g.
-			/// `od -A n -N 12 -t u1 myimage.ktx2`. The magic byte values are also
-			/// given in Section 3.1 of https://github.khronos.org/KTX-Specification/.
-			/// </summary>
-			public static readonly byte[] KTX2 = { 171, 75, 84, 88, 32, 50, 48, 187, 13, 10, 26, 10 };
-		}
-
-		/// <summary>
-		/// Return true if the file at the given path is
-		/// encoded in KTX2 format.
-		/// </summary>
-		public static bool IsKtx2File(string path)
-		{
-			using (var stream = File.OpenRead(path))
-			{
-				return IsKtx2Data(stream);
-			}
-		}
-
-		/// <summary>
-		/// Return true if the given stream is encoded in
-		/// KTX2 format.
-		/// </summary>
-		public static bool IsKtx2Data(Stream stream)
-		{
-			return IsKtx2Data(StreamUtil.Read(stream, Magic.KTX2.Length));
-		}
-
-		/// <summary>
-		/// Return true if the given byte array is a KTX2 image, or false otherwise.
-		/// KTX2 is a container format for supercompressed or GPU-ready textures.
-		/// For further info, see: https://github.khronos.org/KTX-Specification/.
-		/// </summary>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public static bool IsKtx2Data(IEnumerable<byte> data)
-		{
-			return Magic.KTX2.SequenceEqual(data.Take(Magic.KTX2.Length));
-		}
-
 #if KTX_UNITY_0_9_1_OR_NEWER
 		/// <summary>
 		/// Load a Texture2D from the given KTX2 image (byte array), using the
 		/// KtxUnity package: https://github.com/atteneder/KtxUnity.
 		/// </summary>
-		public static IEnumerable<Texture2D> LoadKtx2Data(byte[] data)
+		public static IEnumerable<(YieldType, Texture2D)> LoadKtx2Data(byte[] data, bool linear)
 		{
 			var ktxTexture = new KtxTexture();
 
@@ -90,15 +40,15 @@ namespace Piglet
 
 			using (var na = new NativeArray<byte>(data, KtxNativeInstance.defaultAllocator))
 			{
-				var task = ktxTexture.LoadFromBytes(na);
+				var task = ktxTexture.LoadFromBytes(na, linear);
 
 				while (!task.IsCompleted)
-					yield return null;
+					yield return (YieldType.Blocked, null);
 
 				if (task.IsFaulted)
 					throw task.Exception;
 
-				yield return task.Result.texture;
+				yield return (YieldType.Continue, task.Result.texture);
 			}
 #else
 			// In version 0.9.1 and older, KtxUnity used a coroutine
@@ -123,7 +73,7 @@ namespace Piglet
 				// during Editor glTF imports.
 
 				var task = new Stack<IEnumerator>();
-				task.Push(ktxTexture.LoadBytesRoutine(na));
+				task.Push(ktxTexture.LoadBytesRoutine(na, linear));
 				while (task.Count > 0)
 				{
 					if (!task.Peek().MoveNext())
@@ -133,7 +83,7 @@ namespace Piglet
 				}
 			}
 
-			yield return result;
+			yield return (YieldType.Continue, result);
 #endif
 		}
 #endif
@@ -149,20 +99,45 @@ namespace Piglet
 		/// is too old), log a warning and return null.
 		/// </para>
 		/// </summary>
-		static public IEnumerable<Texture2D> LoadTextureKtx2(byte[] data)
+		static public IEnumerable<(YieldType, Texture2D)> LoadTextureKtx2(
+			byte[] data, TextureLoadingFlags textureLoadingFlags)
 		{
 #if KTX_UNITY_0_9_1_OR_NEWER
-			foreach (var result in TextureUtil.LoadKtx2Data(data))
+			// Note:
+			//
+			// For runtime glTF imports (i.e. Application.isPlaying == true),
+			// we set `linear` to false here to match the behaviour
+			// of PNG/JPG texture loading with `UnityWebRequestTexture`, which
+			// does not have a `linear` parameter and always assumes that
+			// all PNG/JPG data is gamma-encoded (i.e. sRGB data) [1].
+			//
+			// We therefore need to correct the color values for all linear textures
+			// (e.g. normal maps) downstream in the shaders, by reversing
+			// the erroneous sRGB -> linear translation that was originally
+			// applied by UnityWebRequestTexture/KtxUnity. This shader correction
+			// only needs to be made during runtime glTF imports, since
+			// Editor glTF imports use `Texture2D.LoadImage` instead of
+			// `UnityWebRequestTexture` to load PNG/JPG data.
+			// (Runtime imports need to use `UnityWebRequestTexture` because
+			// `Texture2D.LoadImage` stalls the main Unity thread during PNG/JPG
+			// decompression.)
+			//
+			// [1]: https://docs.unity3d.com/ScriptReference/Networking.UnityWebRequestTexture.GetTexture.html
+
+			var linear = Application.isPlaying
+				? false : textureLoadingFlags.HasFlag(TextureLoadingFlags.Linear);
+
+			foreach (var result in TextureUtil.LoadKtx2Data(data, linear))
 				yield return result;
 #elif KTX_UNITY
 			Debug.LogWarning("Failed to load texture in KTX2 format, "+
 				 "because KtxUnity package is older than 0.9.1.");
-			yield return null;
+			yield return (YieldType.Continue, null);
 #else
 			Debug.LogWarningFormat("Failed to load texture in KTX2 format "+
 				"because KtxUnity package is not installed. Please see "+
 				"\"Installing KtxUnity\" in the Piglet manual.");
-			yield return null;
+			yield return (YieldType.Continue, null);
 #endif
 			yield break;
 		}
@@ -170,17 +145,18 @@ namespace Piglet
 		/// <summary>
 		/// Load Texture2D from a URI for a KTX2 file.
 		/// </summary>
-		static public IEnumerable<Texture2D> LoadTextureKtx2(Uri uri)
+		static public IEnumerable<(YieldType, Texture2D)> LoadTextureKtx2(
+			Uri uri, TextureLoadingFlags textureLoadingFlags)
 		{
 			byte[] data = null;
-			foreach (var result in UriUtil.ReadAllBytesEnum(uri))
+			foreach (var (yieldType, result) in UriUtil.ReadAllBytesEnum(uri))
 			{
 				data = result;
-				yield return null;
+				yield return (yieldType, null);
 			}
 
-			foreach (var texture in LoadTextureKtx2(data))
-				yield return texture;
+			foreach (var (yieldType, texture) in LoadTextureKtx2(data, textureLoadingFlags))
+				yield return (yieldType, texture);
 		}
 
 		/// <summary>
@@ -210,7 +186,7 @@ namespace Piglet
 				texture.height,
 				0,
 				RenderTextureFormat.Default,
-				RenderTextureReadWrite.Default);
+				RenderTextureReadWrite.Linear);
 
 			// Blit the pixels on texture to the RenderTexture
 			Graphics.Blit(texture, tmp);
@@ -222,7 +198,19 @@ namespace Piglet
 			RenderTexture.active = tmp;
 
 			// Create a new readable Texture2D to copy the pixels to it
-			var readableTexture = new Texture2D(texture.width, texture.height);
+			//
+			// Note 1: EncodeToPNG only works for textures that use
+			// TextureFormat.ARGB32 or TextureFormat.RGB24 [1].
+			//
+			// Note 2: We pass true for the last parameter ("linear")
+			// to ensure that no color space transformations take place.
+			// (We want the image data in the returned Texture2D to be
+			// an exact copy from the input Texture2D.)
+
+			var readableTexture = new Texture2D(
+				texture.width, texture.height, TextureFormat.ARGB32,
+				texture.mipmapCount > 1, true);
+
 			readableTexture.name = texture.name;
 
 			// Copy the pixels from the RenderTexture to the new Texture
@@ -251,36 +239,22 @@ namespace Piglet
 		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
 		/// right-side-up.
 		/// </returns>
-		static public IEnumerable<(Texture2D, bool)> LoadTexture(byte[] data)
+		static public IEnumerable<(YieldType, Texture2D, bool)> LoadTexture(
+			byte[] data, TextureLoadingFlags textureLoadingFlags)
 		{
 			// Case 1: Load KTX2/BasisU texture using KtxUnity.
 			//
 			// Unlike PNG/JPG images, KTX2/BasisU images are optimized
 			// for use with GPUs.
 
-			if (IsKtx2Data(data))
+			if (ImageFormatUtil.GetImageFormat(data) == ImageFormat.KTX2)
 			{
-				foreach (var texture in LoadTextureKtx2(data))
-					yield return (texture, false);
+				foreach (var (yieldType, texture) in LoadTextureKtx2(data, textureLoadingFlags))
+					yield return (yieldType, texture, false);
 				yield break;
 			}
 
-			// Case 2: Load PNG/JPG during an Editor glTF import.
-			//
-			// `Texture2D.LoadImage` is fast but is not suitable for runtime
-			// glTF imports because it is synchronous. (Decompressing
-			// large images can stall the main Unity thread for hundreds of
-			// milliseconds.)
-
-			if (!Application.isPlaying)
-			{
-				var texture = new Texture2D(1, 1, TextureFormat.RGBA32, true, false);
-				texture.LoadImage(data, true);
-				yield return (texture, true);
-				yield break;
-			}
-
-			// Case 3: Load PNG/JPG during a runtime glTF import.
+			// Case 2: Load PNG/JPG during a runtime glTF import.
 			//
 			// `UnityWebRequestTexture` is a better option than `Texture2D.LoadImage`
 			// during runtime glTF imports because it performs the PNG/JPG decompression
@@ -302,11 +276,11 @@ namespace Piglet
 			foreach (var result in UriUtil.CreateUri(data))
 			{
 				uri = result;
-				yield return (null, false);
+				yield return (YieldType.Continue, null, false);
 			}
 
-			foreach (var result in LoadTexturePngOrJpg(uri))
-				yield return (result, true);
+			foreach (var (yieldType, texture) in LoadTexturePngOrJpg(uri))
+				yield return (yieldType, texture, true);
 		}
 
 		/// <summary>
@@ -320,10 +294,14 @@ namespace Piglet
 		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
 		/// right-side-up.
 		/// </returns>
-		static public IEnumerable<(Texture2D, bool)> LoadTexture(string uri)
+		static public IEnumerable<(YieldType, Texture2D, bool)> LoadTexture(
+			string uri, TextureLoadingFlags textureLoadingFlags)
 		{
-			foreach (var result in LoadTexture(new Uri(uri)))
+			foreach (var result in
+				LoadTexture(new Uri(uri), textureLoadingFlags))
+			{
 				yield return result;
+			}
 		}
 
 		/// <summary>
@@ -346,7 +324,8 @@ namespace Piglet
 		/// upside-down, whereas KtxUnity loads KTX2/BasisU images
 		/// right-side-up.
 		/// </returns>
-		static public IEnumerable<(Texture2D, bool)> LoadTexture(Uri uri)
+		static public IEnumerable<(YieldType, Texture2D, bool)> LoadTexture(
+			Uri uri, TextureLoadingFlags textureLoadingFlags)
 		{
 			// Optimization:
 			//
@@ -356,15 +335,15 @@ namespace Piglet
 
 			if (uri.IsFile)
 			{
-				if (IsKtx2File(uri.LocalPath))
+				if (ImageFormatUtil.GetImageFormat(uri.LocalPath) == ImageFormat.KTX2)
 				{
-					foreach (var texture in LoadTextureKtx2(uri))
-						yield return (texture, false);
+					foreach (var (yieldType, texture) in LoadTextureKtx2(uri, textureLoadingFlags))
+						yield return (yieldType, texture, false);
 				}
 				else
 				{
-					foreach (var texture in LoadTexturePngOrJpg(uri))
-						yield return (texture, true);
+					foreach (var (yieldType, texture) in LoadTexturePngOrJpg(uri))
+						yield return (yieldType, texture, true);
 				}
 
 				yield break;
@@ -373,32 +352,32 @@ namespace Piglet
 			// Read entire byte content of URI into memory.
 
 			byte[] data = null;
-			foreach (var result in UriUtil.ReadAllBytesEnum(uri))
+			foreach (var (yieldType, result) in UriUtil.ReadAllBytesEnum(uri))
 			{
 				data = result;
-				yield return (null, false);
+				yield return (yieldType, null, false);
 			}
 
 			// Case 1: Texture has KTX2 format, so load it with KtxUnity (if installed).
 
-			if (IsKtx2Data(data))
+			if (ImageFormatUtil.GetImageFormat(data) == ImageFormat.KTX2)
 			{
-				foreach (var _texture in LoadTextureKtx2(data))
-					yield return (_texture, false);
+				foreach (var (yieldType, _texture) in LoadTextureKtx2(data, textureLoadingFlags))
+					yield return (yieldType, _texture, false);
 				yield break;
 			}
 
 			// Case 2: Texture is not KTX2. Assume file is a PNG/JPG and
 			// re-download it with a UnityWebRequestTexture.
 
-			foreach (var _texture in LoadTexturePngOrJpg(uri))
-				yield return (_texture, true);
+			foreach (var (yieldType, _texture) in LoadTexturePngOrJpg(uri))
+				yield return (yieldType, _texture, true);
 		}
 
 		/// <summary>
 		/// Coroutine to load a Texture2D from a URI in PNG/JPG format.
 		/// </summary>
-		static public IEnumerable<Texture2D> LoadTexturePngOrJpg(string uri)
+		static public IEnumerable<(YieldType, Texture2D)> LoadTexturePngOrJpg(string uri)
 		{
 			foreach (var result in LoadTexturePngOrJpg(new Uri(uri)))
 				yield return result;
@@ -407,13 +386,13 @@ namespace Piglet
 		/// <summary>
 		/// Coroutine to load a Texture2D from a URI in PNG/JPG format.
 		/// </summary>
-		static public IEnumerable<Texture2D> LoadTexturePngOrJpg(Uri uri)
+		static public IEnumerable<(YieldType, Texture2D)> LoadTexturePngOrJpg(Uri uri)
 		{
 			var request = UnityWebRequestTexture.GetTexture(uri, true);
 			request.SendWebRequest();
 
 			while (!request.isDone)
-				yield return null;
+				yield return (YieldType.Blocked, null);
 
 			if( request.HasError())
 				throw new Exception( string.Format(
@@ -422,7 +401,7 @@ namespace Piglet
 
 			var texture = DownloadHandlerTexture.GetContent(request);
 
-			yield return texture;
+			yield return (YieldType.Continue, texture);
 		}
 	}
 }

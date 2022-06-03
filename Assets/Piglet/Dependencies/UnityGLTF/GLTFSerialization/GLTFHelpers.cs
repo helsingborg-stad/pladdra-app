@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using GLTF.Schema;
+using Piglet.GLTF.Schema;
 
-namespace GLTF
+namespace Piglet.GLTF
 {
 	public static class GLTFHelpers
 	{

@@ -23,8 +23,6 @@ namespace Piglet
         {
             var clip = new AnimationClip { name = "Static Pose", legacy = legacy };
 
-            YieldTimer.Instance.Restart();
-
             foreach (var unused in CreateStaticPoseClipImpl(o, "", clip))
                 yield return null;
 
@@ -138,11 +136,7 @@ namespace Piglet
                 }
             }
 
-            if (YieldTimer.Instance.Expired)
-            {
-                yield return null;
-                YieldTimer.Instance.Restart();
-            }
+            yield return null;
 
             // recurse
 

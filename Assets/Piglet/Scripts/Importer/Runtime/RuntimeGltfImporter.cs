@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Animation = GLTF.Schema.Animation;
+using Animation = Piglet.GLTF.Schema.Animation;
 
 namespace Piglet {
     public class RuntimeGltfImporter : GltfImporter
@@ -15,7 +15,7 @@ namespace Piglet {
         public RuntimeGltfImporter(Uri uri, byte[] data,
             GltfImportOptions importOptions,
             ProgressCallback progressCallback)
-            : base(uri, data, importOptions, new RuntimeGltfImportCache(), progressCallback)
+            : base(uri, data, importOptions, progressCallback)
         {}
 
         /// <summary>
@@ -69,6 +69,7 @@ namespace Piglet {
             importTask.AddTask(importer.LoadSkins());
             importTask.AddTask(importer.ScaleModel());
             importTask.AddTask(importer.LoadAnimations());
+            importTask.AddTask(importer.AddAnimationComponentsToSceneObject);
             importTask.AddTask(importer.ShowModel());
 
             // note: the final subtask must return the

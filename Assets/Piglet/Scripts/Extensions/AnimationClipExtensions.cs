@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
-using GLTF.Schema;
+using System.Collections.Generic;
+using Piglet.GLTF.Schema;
 using UnityEngine;
 
 namespace Piglet
@@ -24,13 +25,14 @@ namespace Piglet
 		/// The target animation clip that will store the new
 		/// x/y/z animation curves.
 		/// </param>
-		/// <param name="nodePath">
-		/// A slash-separated path of GameObject names that identifies
-		/// the target GameObject that will be animated (e.g.
-		/// "LeftLeg/LeftFoot/BigToe"). The path is specified relative
-		/// to the root GameObject for the model, which contains
-		/// the Animation/Animator component for playing back the animation
-		/// clip at runtime.
+		/// <param name="nodePaths">
+		/// Slash-separated list of paths that identify
+		/// the target GameObjects to be animated (e.g.
+		/// "LeftLeg/LeftFoot/BigToe"). In most cases this list
+		/// will only contain one path, but in the case where a glTF mesh has
+		/// multiple primitives there will be one path per primitive.
+		/// The paths are specified relative to the root GameObject for
+		/// the model.
 		/// </param>
 		/// <param name="type">
 		/// The type of GameObject component that will be animated
@@ -61,7 +63,7 @@ namespace Piglet
 		/// </param>
 		public static IEnumerable SetCurvesFromVector3Array(
 			this AnimationClip clip,
-			string nodePath,
+			IEnumerable<string> nodePaths,
 			Type type,
 			string property,
 			float[] times,
@@ -103,11 +105,7 @@ namespace Piglet
 						curveY.AddKey(new Keyframe(times[i] - times[0], value.y));
 						curveZ.AddKey(new Keyframe(times[i] - times[0], value.z));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -144,11 +142,7 @@ namespace Piglet
 						curveZ.AddKey(new Keyframe(times[i] - times[0], value.z,
 							inTangent.z, outTangent.z));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -163,28 +157,16 @@ namespace Piglet
 			foreach (var unused in curveZ.SetTangents(interpolationType))
 				yield return null;
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.x", property), curveX);
-
-			if (YieldTimer.Instance.Expired)
+			foreach (var path in nodePaths)
 			{
+				clip.SetCurve(path, type, string.Format("{0}.x", property), curveX);
 				yield return null;
-				YieldTimer.Instance.Restart();
-			}
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.y", property), curveY);
-
-			if (YieldTimer.Instance.Expired)
-			{
+				clip.SetCurve(path, type, string.Format("{0}.y", property), curveY);
 				yield return null;
-				YieldTimer.Instance.Restart();
-			}
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.z", property), curveZ);
-
-			if (YieldTimer.Instance.Expired)
-			{
+				clip.SetCurve(path, type, string.Format("{0}.z", property), curveZ);
 				yield return null;
-				YieldTimer.Instance.Restart();
 			}
 		}
 
@@ -196,13 +178,14 @@ namespace Piglet
 		/// The target animation clip that will store the new
 		/// x/y/z/w animation curves.
 		/// </param>
-		/// <param name="nodePath">
-		/// A slash-separated path of GameObject names that identifies
-		/// the target GameObject that will be animated (e.g.
-		/// "LeftLeg/LeftFoot/BigToe"). The path is specified relative
-		/// to the root GameObject for the model, which contains
-		/// the Animation/Animator component for playing back the animation
-		/// clip at runtime.
+		/// <param name="nodePaths">
+		/// Slash-separated list of paths that identify
+		/// the target GameObjects to be animated (e.g.
+		/// "LeftLeg/LeftFoot/BigToe"). In most cases this list
+		/// will only contain one path, but in the case where a glTF mesh has
+		/// multiple primitives there will be one path per primitive.
+		/// The paths are specified relative to the root GameObject for
+		/// the model.
 		/// </param>
 		/// <param name="type">
 		/// The type of GameObject component that will be animated
@@ -233,7 +216,7 @@ namespace Piglet
 		/// </param>
 		public static IEnumerable SetCurvesFromVector4Array(
 			this AnimationClip clip,
-			string nodePath,
+			IEnumerable<string> nodePaths,
 			Type type,
 			string property,
 			float[] times,
@@ -277,11 +260,7 @@ namespace Piglet
 						curveZ.AddKey(new Keyframe(times[i] - times[0], value.z));
 						curveW.AddKey(new Keyframe(times[i] - times[0], value.w));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -321,11 +300,7 @@ namespace Piglet
 						curveW.AddKey(new Keyframe(times[i] - times[0], value.w,
 							inTangent.w, outTangent.w));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -343,36 +318,19 @@ namespace Piglet
 			foreach (var unused in curveW.SetTangents(interpolationType))
 				yield return null;
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.x", property), curveX);
-
-			if (YieldTimer.Instance.Expired)
+			foreach (var path in nodePaths)
 			{
+				clip.SetCurve(path, type, string.Format("{0}.x", property), curveX);
 				yield return null;
-				YieldTimer.Instance.Restart();
-			}
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.y", property), curveY);
-
-			if (YieldTimer.Instance.Expired)
-			{
+				clip.SetCurve(path, type, string.Format("{0}.y", property), curveY);
 				yield return null;
-				YieldTimer.Instance.Restart();
-			}
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.z", property), curveZ);
-
-			if (YieldTimer.Instance.Expired)
-			{
+				clip.SetCurve(path, type, string.Format("{0}.z", property), curveZ);
 				yield return null;
-				YieldTimer.Instance.Restart();
-			}
 
-			clip.SetCurve(nodePath, type, string.Format("{0}.w", property), curveW);
-
-			if (YieldTimer.Instance.Expired)
-			{
+				clip.SetCurve(path, type, string.Format("{0}.w", property), curveW);
 				yield return null;
-				YieldTimer.Instance.Restart();
 			}
 		}
 
@@ -384,13 +342,14 @@ namespace Piglet
 		/// The target animation clip that will store the new
 		/// animation curve.
 		/// </param>
-		/// <param name="nodePath">
-		/// A slash-separated path of GameObject names that identifies
-		/// the target GameObject that will be animated (e.g.
-		/// "LeftLeg/LeftFoot/BigToe"). The path is specified relative
-		/// to the root GameObject for the model, which contains
-		/// the Animation/Animator component for playing back the animation
-		/// clip at runtime.
+		/// <param name="nodePaths">
+		/// Slash-separated list of paths that identify
+		/// the target GameObjects to be animated (e.g.
+		/// "LeftLeg/LeftFoot/BigToe"). In most cases this list
+		/// will only contain one path, but in the case where a glTF mesh has
+		/// multiple primitives there will be one path per primitive.
+		/// The paths are specified relative to the root GameObject for
+		/// the model.
 		/// </param>
 		/// <param name="type">
 		/// The type of GameObject component that will be animated
@@ -421,7 +380,7 @@ namespace Piglet
 		/// </param>
 		public static IEnumerable SetCurveFromFloatArray(
 			this AnimationClip clip,
-			string nodePath,
+			IEnumerable<string> nodePaths,
 			Type type,
 			string property,
 			float[] times,
@@ -456,11 +415,7 @@ namespace Piglet
 
 						curve.AddKey(new Keyframe(times[i] - times[0], values[valueIndex]));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -489,11 +444,7 @@ namespace Piglet
 						curve.AddKey(new Keyframe(times[i] - times[0],
 							value, inTangent, outTangent));
 
-						if (YieldTimer.Instance.Expired)
-						{
-							yield return null;
-							YieldTimer.Instance.Restart();
-						}
+						yield return null;
 					}
 
 					break;
@@ -502,12 +453,10 @@ namespace Piglet
 			foreach (var unused in curve.SetTangents(interpolationType))
 				yield return null;
 
-			clip.SetCurve(nodePath, type, property, curve);
-
-			if (YieldTimer.Instance.Expired)
+			foreach (var path in nodePaths)
 			{
+				clip.SetCurve(path, type, property, curve);
 				yield return null;
-				YieldTimer.Instance.Restart();
 			}
 		}
 	}

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using Piglet.Newtonsoft.Json.Linq;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
     /// <summary>
     /// C# class mirroring the JSON content of the KHR_draco_mesh_compression

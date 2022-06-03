@@ -1,6 +1,6 @@
-using Newtonsoft.Json;
+using Piglet.Newtonsoft.Json;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// Targets an animation's sampler at a node's property.
@@ -40,7 +40,7 @@ namespace GLTF.Schema
 				}
 			}
 
-			return animationChannel;	
+			return animationChannel;
 		}
 
 		public override void Serialize(JsonWriter writer)

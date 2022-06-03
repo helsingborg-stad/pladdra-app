@@ -12,7 +12,7 @@ namespace Piglet
     /// import phases. For example, imported Unity textures
     /// need to be accessed/reused when importing materials.
     /// </summary>
-    abstract public class GltfImportCache
+    public class GltfImportCache
     {
         /// <summary>
         /// Binary data buffers loaded from GLTF file.
@@ -24,7 +24,7 @@ namespace Piglet
         /// are images with additional parameters applied
         /// (e.g. scaling, filtering).
         /// </summary>
-        public IList<Texture2D> Textures;
+        public List<Texture2D> Textures;
 
         /// <summary>
         /// Boolean indicating if the corresponding texture was
@@ -37,9 +37,25 @@ namespace Piglet
         public List<bool> TextureIsUpsideDown;
 
         /// <summary>
+        /// <para>
+        /// Default normal texture for runtime glTF imports.
+        /// This texture is used whenever a glTF material does not
+        /// specify its own normal texture.
+        /// </para>
+        /// <para>
+        /// We need to use a different default normal texture during
+        /// runtime glTF imports because normal textures are
+        /// encoded differently during runtime and Editor glTF imports.
+        /// See Assets/Piglet/Resources/Textures/README.txt for
+        /// further explanation.
+        /// </para>
+        /// </summary>
+        public Texture2D RuntimeDefaultNormalTexture;
+
+        /// <summary>
         /// Materials imported from GLTF file.
         /// </summary>
-        public IList<Material> Materials;
+        public List<Material> Materials;
 
         /// <summary>
         /// The index of the default material in the `Materials`
@@ -68,7 +84,7 @@ namespace Piglet
         /// Here the outer list are the top-level meshes and the inner
         /// lists are the primitives that make up each mesh.
         /// </summary>
-        public IList<List<KeyValuePair<Mesh,Material>>> Meshes;
+        public List<List<KeyValuePair<Mesh,Material>>> Meshes;
 
         /// <summary>
         /// The nodes of the GLTF scene hierarchy, which have
@@ -85,7 +101,7 @@ namespace Piglet
         /// <summary>
         /// Animations imported from GLTF file.
         /// </summary>
-        public IList<AnimationClip> Animations;
+        public List<AnimationClip> Animations;
 
         /// <summary>
         /// Stores the names of imported animation clips.
@@ -163,8 +179,12 @@ namespace Piglet
             StaticPoseAnimationIndex = -1;
 
             Buffers = new List<byte[]>();
+            Textures = new List<Texture2D>();
             TextureIsUpsideDown = new List<bool>();
+            Materials = new List<Material>();
+            Meshes = new List<List<KeyValuePair<Mesh, Material>>>();
             Nodes = new Dictionary<int, GameObject>();
+            Animations = new List<AnimationClip>();
             AnimationNames = new List<string>();
             Scene = null;
 
@@ -175,118 +195,18 @@ namespace Piglet
         }
 
         /// <summary>
-        /// <para>Get the special ZWrite material used to address the Order
-        /// Independent Transparency (OIT) problem when using URP
-        /// (Universal Render Pipeline). For background about the OIT
-        /// problem, see:
-        /// https://forum.unity.com/threads/render-mode-transparent-doesnt-work-see-video.357853/#post-2315934.</para>
-        /// <para>The ZWrite material writes only to the Z-buffer
-        /// (a.k.a. depth buffer) and not to the RGBA framebuffer like
-        /// a normal shader would. With the built-in render pipeline,
-        /// we can do the Z-write-only pass by adding a (preliminary)
-        /// pass to the shader that renders the mesh. However, since URP
-        /// only supports single-pass shaders, we must instead
-        /// emulate two shader passes by assigning two materials to
-        /// the mesh.</para>
-        /// <para>Note!: This method must be called after populating
-        /// the `Materials` array with all of the materials
-        /// from the glTF file. Otherwise, the indices in the
-        /// `Materials` array will not match the material indices
-        /// in the glTF file, and the importer will assign the wrong
-        /// materials to the meshes.</para>
-        /// </summary>
-        /// <param name="create">
-        /// create the ZWrite material if it does not already exist
-        /// </param>
-        public Material GetZWriteMaterial(bool create)
-        {
-            if (ZWriteMaterialIndex < 0)
-            {
-                if (!create)
-                    return null;
-
-                var pipeline = RenderPipelineUtil.GetRenderPipeline(true);
-                if (pipeline != RenderPipelineType.URP)
-                    throw new Exception("ZWrite material can only be used with URP");
-
-                ZWriteMaterialIndex = Materials.Count;
-                var shader = Shader.Find("Piglet/URPZWrite");
-                var zwrite = new Material(shader) {name = "zwrite"};
-                Materials.Add(zwrite);
-            }
-
-            return Materials[ZWriteMaterialIndex];
-        }
-
-        /// <summary>
-        /// <para>Get the default material, which is used whenever
-        /// a mesh is not explicitly assigned a material.</para>
-        /// <para>Note!: This method must be called after populating
-        /// the `Materials` array with all of the materials
-        /// from the glTF file. Otherwise, the indices in the
-        /// `Materials` array will not match the material indices
-        /// in the glTF file, and the importer will assign the wrong
-        /// materials to the meshes.</para>
-        /// </summary>
-        /// <param name="create">
-        /// create the default material if it does not already exist
-        /// </param>
-        public Material GetDefaultMaterial(bool create)
-        {
-            if (DefaultMaterialIndex < 0)
-            {
-                if (!create)
-                    return null;
-
-                string shaderName;
-
-                var pipeline = RenderPipelineUtil.GetRenderPipeline(true);
-                switch (pipeline)
-                {
-                    case RenderPipelineType.BuiltIn:
-                        shaderName = "Piglet/MetallicRoughnessOpaque";
-                        break;
-                    case RenderPipelineType.URP:
-                        shaderName = "Shader Graphs/URPMetallicRoughnessOpaque";
-                        break;
-                    default:
-                        throw new Exception("current render pipeline unsupported, " +
-                            " GetRenderPipeline should have thrown exception");
-                }
-
-                Shader shader = Shader.Find(shaderName);
-                if (shader == null)
-                {
-                    if (pipeline == RenderPipelineType.URP)
-                        throw new Exception(String.Format(
-                            "Piglet failed to load URP shader \"{0}\". Please ensure that " +
-                            "you have installed the URP shaders from the appropriate .unitypackage " +
-                            "in Assets/Piglet/Extras, and that the shaders are being included " +
-                            "your build.",
-                            shaderName));
-
-                    throw new Exception(String.Format(
-                        "Piglet failed to load shader \"{0}\". Please ensure that " +
-                        "this shader is being included your build.",
-                        shaderName));
-                }
-
-                DefaultMaterialIndex = Materials.Count;
-
-                var material = new Material(shader) {name = "default"};
-
-                Materials.Add(material);
-            }
-
-            return Materials[DefaultMaterialIndex];
-        }
-
-        /// <summary>
         /// Remove a game object from the Unity scene and from memory.
         /// </summary>
-        virtual protected void Destroy(GameObject gameObject)
+        protected static void Destroy(GameObject gameObject)
         {
-            Object.Destroy(gameObject);
+            // Note: We must use Object.DestroyImmediate instead of
+            // Object.Destroy during Editor glTF imports, because
+            // Object.Destroy relies only works in Play Mode.
+
+            if (Application.isPlaying)
+                Object.Destroy(gameObject);
+            else
+                Object.DestroyImmediate(gameObject);
         }
 
         /// <summary>

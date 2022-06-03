@@ -1,10 +1,10 @@
-﻿using GLTF.Math;
-using GLTF.Schema;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using GLTF.Extensions;
+﻿using Piglet.GLTF.Schema;
+using Piglet.Newtonsoft.Json;
+using Piglet.Newtonsoft.Json.Linq;
+using Piglet.GLTF.Extensions;
+using Piglet.GLTF.Math;
 
-namespace GLTF.Schema
+namespace Piglet.GLTF.Schema
 {
 	/// <summary>
 	/// glTF extension that defines the specular-glossiness 
