@@ -5,35 +5,36 @@ namespace Pipelines
 {
     public class Load3dModel: CustomYieldInstruction {
         private Piglet.GltfImportTask Task { get; }
-        private Tuple<GameObject, Exception> Result {get; set; }
-        public Load3dModel(string path, Action<GameObject> callback) {
-            Callback = callback;
+        public Load3dModel(string path, Action<GameObject> callback): this(path, new Callback<GameObject>(callback)) {}
+        public Load3dModel(string path, ICallback<GameObject> callback) {
+            
             var options = new Piglet.GltfImportOptions(){
                 AutoScale = true,
                 AutoScaleSize = 1.0f,
                 ShowModelAfterImport = false
             };
             Task = Piglet.RuntimeGltfImporter.GetImportTask(path, options);
-            Task.OnAborted = () => Result = new Tuple<GameObject, Exception>(null, null);
-            Task.OnCompleted = go => Result = new Tuple<GameObject, Exception>(go, null);
-            Task.OnException = err => Result = new Tuple<GameObject, Exception>(null, err);
+            Task.OnAborted = () => callback.OnSuccess(null);
+            Task.OnCompleted = callback.OnSuccess;
+            Task.OnException = callback.OnError;
             Task.OnProgress = (step, completed, total) => { };
         }
 
-        public override bool keepWaiting {
-            get {
-                if (Result == null) {
-                    Task.MoveNext();
-                    return true;
+        public override bool keepWaiting
+        {
+            get
+            {
+                try
+                {
+                    return Task.MoveNext();
                 }
-                if (Result.Item2 != null) {
-                    throw Result.Item2;
+                catch (Exception e)
+                {
+                    // Errors will be propagated through Task.OnException -> callback.OnError
+                    // Still important that we suppress them here
+                    return false;
                 }
-                Callback(Result.Item1);
-                return false;
             }
         }
-
-        private Action<GameObject> Callback { get; }
     }
 }
