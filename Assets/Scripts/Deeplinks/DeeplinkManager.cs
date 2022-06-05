@@ -7,21 +7,31 @@ using Abilities.ARRoomAbility.WP;
 using ExampleScreens;
 using Screens;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Deeplinks
 {
     public class DeeplinkManager : MonoBehaviour
     {
+        protected bool afterStart;
         private void Awake()
         {
             Application.deepLinkActivated += url => TryNavigateDeeplink(url);
 
             var didNavigate = TryNavigateDeeplink(Application.absoluteURL) || TryNavigateDeeplink(TryReadDevelopmentDeeplink());
         }
+        
+        private void Start()
+        {
+            afterStart = true;
+        }
 
         private bool TryNavigateDeeplink(string url)
         {
-            Debug.Log(url);
+            if (afterStart)
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
             var ability = AbilityUri.TryCreateAbility(url,
                 new WpArDialogueRoomForAdminAbilityFactory(),
                 new WpArDialogueRoomForVisitorAbilityFactory(),
