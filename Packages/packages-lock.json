@@ -254,6 +254,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.yasirkula.runtimepreviewgenerator": {
+      "version": "https://github.com/yasirkula/UnityRuntimePreviewGenerator.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5c61fc5e5b60e87f916daa66c5734d393747c358"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

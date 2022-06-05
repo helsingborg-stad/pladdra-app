@@ -25,6 +25,7 @@ namespace Workspace.UxHandlers
                 resources.ForEach(item =>
                 {
                     var itemInstance = listItem.Instantiate();
+                    itemInstance.Q<IMGUIContainer>().style.backgroundImage = item.Thumbnails.First();
                     itemInstance.Q<Label>().text = item.ResourceID;
                     itemInstance.Q<Button>().clicked += () =>
                     {

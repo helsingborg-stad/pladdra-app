@@ -55,6 +55,14 @@ namespace Abilities.ARRoomAbility
                     $"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()} i minnet!",
                     () => new Load3dModel(path, go => { path2model[path] = go; }));
             }
+            
+            var path2Thumbnail = new Dictionary<string, Texture2D>();
+            foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
+            {
+                yield return LogTask(
+                    $"Nu skapar vi thumbnail för {Path.GetFileNameWithoutExtension(path).Split('.').Last()}!",
+                    () => new GenerateThumbnail(path2model[path], thumbnail => path2Thumbnail[path] = thumbnail));
+            }
 
             var modelItems = LogAction("Nu skapar vi modeller!", () => project.Resources
                 .Where(resource => resource.Type == "model")
@@ -62,22 +70,16 @@ namespace Abilities.ARRoomAbility
                 {
                     resource,
                     model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
-                    marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl))
+                    marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
+                    thumbnail = path2Thumbnail.TryGet(url2path.TryGet(resource.ModelUrl)),
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.marker, o.model))
+                .Where(o => o.thumbnail != null)
+                .Select(o => CreateWorkspaceResource(o.resource, o.thumbnail, o.marker, o.model))
                 .Where(item => item != null)
                 .ToList());
-
-            var markerItems = LogAction("Nu skapar vi markörer", () => project.Resources
-                .Where(resource => resource.Type == "marker")
-                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.ModelUrl)) })
-                .Where(o => o.gameObject != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.gameObject))
-                .Where(item => item != null)
-                .ToList());
-
+            
             Texture2D markerImageTexture = null;
             if (project?.Marker?.Image != null)
             {
@@ -88,7 +90,7 @@ namespace Abilities.ARRoomAbility
                 }));
             }
 
-            var allResources = modelItems.Concat(markerItems);
+            var allResources = modelItems;
 
             var configuration = LogAction("Här skapas det en konfiguration minsann!", () => new WorkspaceConfiguration
             {
