@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace Pipelines
 {
-    public class GenerateThumbnail: CustomYieldInstruction {
+    public class LoadPreview: CustomYieldInstruction {
         private Action<Texture2D> Callback { get; }
 
         private GameObject Go { get; }
 
-        public GenerateThumbnail(GameObject go, Action<Texture2D> callback)
+        public LoadPreview(GameObject go, Action<Texture2D> callback)
         {
             Go = go;
             Callback = text =>
