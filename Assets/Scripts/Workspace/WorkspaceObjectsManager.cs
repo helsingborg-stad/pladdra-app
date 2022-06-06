@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Workspace
 {
@@ -9,9 +11,16 @@ namespace Workspace
         public class Item : IWorkspaceObject
         {
             public GameObject GameObject { get; set; }
-            public IEnumerable<GameObject> ChildGameObjects { get; set;  }
+            public IDictionary<string, GameObject> LayerObjects { get; set; }
             public WorkspaceObject WorkspaceObject { get; set; }
             public IWorkspaceResource WorkspaceResource { get; set; }
+            public void UseLayers(Func<string, bool> layerShouldBeUsed)
+            {
+                foreach (var kv in LayerObjects)
+                {
+                    kv.Value.SetActive(layerShouldBeUsed(kv.Key));
+                }
+            }
         }
         private readonly GameObject itemPrefab;
         private List<Item> Items { get; }
@@ -22,32 +31,34 @@ namespace Workspace
             Items = new List<Item>();
         }
 
-        public GameObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
+        public IWorkspaceObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
             Quaternion rotation, Vector3 scale)
         {
             var go = Object.Instantiate(itemPrefab, targetParent.transform);
             go.SetActive(false);
             TransformItem(go, position, rotation, scale);
 
-            var children = resource.Prefabs.Select((prefab, index) =>
-            {
-                var cgo = Object.Instantiate(prefab, go.transform);
-                cgo.SetActive(index == 0);
-                cgo.transform.SetParent(go.transform, false);
-                return cgo;
-            }).ToList();
-
-
-            Items.Add(new Item
+            var layerObjects = resource.LayerPrefabs
+                .ToDictionary(
+                    kv => kv.Key /* layer name */,
+                    kv =>
+                    {
+                        var cgo = Object.Instantiate(kv.Value, go.transform);
+                        cgo.SetActive(false);
+                        cgo.transform.SetParent(go.transform, false);
+                        return cgo;
+                    });
+            
+            var item = new Item
             {
                 GameObject = go,
                 WorkspaceObject = go.GetComponent<WorkspaceObject>(),
                 WorkspaceResource = resource,
-                ChildGameObjects = children
-            });
-
+                LayerObjects = layerObjects
+            };
+            Items.Add(item);
             go.SetActive(true);
-            return go;
+            return item;
         }
 
         public void DestroyItem(GameObject go)
@@ -64,6 +75,14 @@ namespace Workspace
                 UnityEngine.Object.Destroy(item.GameObject);
             }
             Items.Clear();
+        }
+        
+        public void UseLayers(Func<string, bool> layerShouldBeUsed)
+        {
+            foreach (var item in Items)
+            {
+                item.UseLayers(layerShouldBeUsed);
+            }
         }
 
         private void TransformItem(GameObject go, Vector3 position, Quaternion rotation, Vector3 scale)

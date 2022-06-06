@@ -84,6 +84,11 @@ namespace Workspace
             HudManager.UseHud(templatePath, bindUi);
         }
 
+        public void UseLayer(string layer)
+        {
+            throw new NotImplementedException();
+        }
+
         public void UseUxHandler(IUxHandler handler)
         {
             UseUxHandler(handler, true);
@@ -116,6 +121,11 @@ namespace Workspace
         public void ClearHud()
         {
             HudManager.ClearHud();
+        }
+
+        public void UseLayers(Func<string, bool> layerShouldBeUsed)
+        {
+            ObjectsManager.UseLayers(layerShouldBeUsed);
         }
     }
 }

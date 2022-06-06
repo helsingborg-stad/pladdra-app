@@ -82,11 +82,24 @@ namespace Abilities.ARRoomAbility
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)
-                .Where(o => o.thumbnail != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.thumbnail, o.marker, o.model))
+                .Select(o => CreateWorkspaceResource(o.resource, 
+                    new Dictionary<string, GameObject>()
+                    {
+                        {Layers.Marker.Name, o.marker},
+                        {Layers.Model.Name, o.model}
+                    }))
                 .Where(item => item != null)
                 .ToList());
             
+/*
+            var markerItems = LogAction("Nu skapar vi markörer", () => project.Resources
+                .Where(resource => resource.Type == "marker")
+                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.ModelUrl)) })
+                .Where(o => o.gameObject != null)
+                .Select(o => CreateWorkspaceResource(o.resource, o.gameObject))
+                .Where(item => item != null)
+                .ToList());
+*/
             Texture2D markerImageTexture = null;
             if (project?.Marker?.Image != null)
             {
@@ -97,7 +110,8 @@ namespace Abilities.ARRoomAbility
                 }));
             }
 
-            var allResources = modelItems;
+            var markerItems = Enumerable.Empty<IWorkspaceResource>();
+            var allResources = modelItems.Concat(markerItems);
 
             var configuration = LogAction("Här skapas det en konfiguration minsann!", () => new WorkspaceConfiguration
             {

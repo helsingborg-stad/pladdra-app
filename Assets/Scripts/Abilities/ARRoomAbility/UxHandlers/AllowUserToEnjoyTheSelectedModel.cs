@@ -10,6 +10,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheSelectedModel : AbstractUxHandler
     {
+        
         private IWorkspaceObject WorkspaceObject { get; }
         private Action<IWorkspace> Done { get; }
 
@@ -22,14 +23,8 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
-            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(false));
-            
-            WorkspaceObject.ChildGameObjects.Select((go, index) =>
-            {
-                go.SetActive(index == 1);
-                return 0;
-            }).ToList();
-
+            WorkspaceObject.UseLayers(Layers.Model);
+            // SelectObject(WorkspaceObject.GameObject);
             workspace.UseHud("user-can-cancel-inspect-model-hud", root =>
             {
                 root.Q<Button>("done").clicked += () => Done(workspace);
@@ -39,12 +34,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Deactivate(scene, workspace);
-            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(true));
-            WorkspaceObject.ChildGameObjects.Select((go, index) =>
-            {
-                go.SetActive(index == 0);
-                return 0;
-            }).ToList();
+            WorkspaceObject.UseLayers(Layers.Marker);
         }
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)

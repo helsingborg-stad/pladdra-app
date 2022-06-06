@@ -32,7 +32,6 @@ namespace Abilities.ARRoomAbility.UxHandlers
             var selected = scene.ObjectsManager.Objects.FirstOrDefault(obj => obj.GameObject == go);
             if (selected != null)
             {
-                var children = selected?.ChildGameObjects;
                 workspace.UseUxHandler(new AllowUserToEnjoyTheSelectedModel(selected, ws =>
                 {
                     ws.UseUxHandler(new AllowUserToEnjoyTheRoom(FeaturedScene, FeaturedScenes));
