@@ -115,6 +115,7 @@ namespace Abilities.ARRoomAbility
 
             var configuration = LogAction("Här skapas det en konfiguration minsann!", () => new WorkspaceConfiguration
             {
+                Layers = new List<IWorkspaceLayer>(){Layers.Marker, Layers.Model},
                 Marker = markerImageTexture ? new WorkspaceMarker()
                 {
                     Image = markerImageTexture,

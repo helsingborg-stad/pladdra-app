@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Data.Dialogs;
 using UnityEngine;
@@ -11,14 +12,14 @@ namespace Workspace
         public GameObject Plane { get; private set;  }
         public IWorkspaceObjectsManager ObjectsManager { get; private set;  }
         public IWorkspaceResourceCollection Resources { get; private set;  }
+        public IEnumerable<IWorkspaceLayer> Layers { get; }
         public DialogScene CreateWorkspaceSceneDescription(string name) => DialogScene.Describe(this, name);
         public IWorkspaceObject SpawnItem(IWorkspaceResource item)
         {
             return
                 ObjectsManager
                     .SpawnItem(item, Plane, Vector3.zero, new Quaternion(), new Vector3(1, 1, 1))
-                    // TODO: Remove hardcoded layer
-                    .UseLayers("marker");
+                    .UseLayers(Layers.Select(l => l.Name).FirstOrDefault());
         }
 
         public void UseScene(DialogScene scene)
@@ -51,11 +52,13 @@ namespace Workspace
             Name = scene?.Name ?? "";
         }
 
-        public WorkspaceScene(GameObject plane, IWorkspaceObjectsManager objectsManager, IWorkspaceResourceCollection resources)
+        public WorkspaceScene(GameObject plane, IWorkspaceObjectsManager objectsManager,
+            IWorkspaceResourceCollection resources, IEnumerable<IWorkspaceLayer> layers)
         {
             Plane = plane;
             ObjectsManager = objectsManager;
             Resources = resources;
+            Layers = (layers ?? Enumerable.Empty<IWorkspaceLayer>()).ToList();
         }
     }
 }

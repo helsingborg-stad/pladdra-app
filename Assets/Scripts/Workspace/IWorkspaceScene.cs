@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Data.Dialogs;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace Workspace
         IWorkspaceResourceCollection Resources { get; }
         DialogScene CreateWorkspaceSceneDescription(string name);
         IWorkspaceObject SpawnItem(IWorkspaceResource item);
+        IEnumerable<IWorkspaceLayer> Layers { get; }
         void UseScene(DialogScene scene);
     }
 }

@@ -29,7 +29,7 @@ namespace Workspace
             
             plane.transform.SetParent(wc.Origin.go.transform, false);
 
-            Scene = new WorkspaceScene(plane, objectsManager, wc.ResourceCollection);
+            Scene = new WorkspaceScene(plane, objectsManager, wc.ResourceCollection, wc.Layers);
 
             Workspace = new Workspace(this, Scene, objectsManager, wc.ResourceCollection, hudManager,
                 dialogProjectRepository, History);
