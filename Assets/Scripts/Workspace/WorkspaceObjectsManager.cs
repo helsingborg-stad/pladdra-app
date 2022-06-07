@@ -8,12 +8,17 @@ namespace Workspace
 {
     public class WorkspaceObjectsManager : IWorkspaceObjectsManager
     {
-        public class Item : IWorkspaceObject
+        private class Item : IWorkspaceObject
         {
             public GameObject GameObject { get; set; }
             public IDictionary<string, GameObject> LayerObjects { get; set; }
             public WorkspaceObject WorkspaceObject { get; set; }
             public IWorkspaceResource WorkspaceResource { get; set; }
+            public bool ContainsGameObject(GameObject go)
+            {
+                return (go == GameObject) || (LayerObjects?.Values.Contains(go) == true);
+            }
+
             public void UseLayers(Func<string, bool> layerShouldBeUsed)
             {
                 foreach (var kv in LayerObjects)
@@ -45,6 +50,7 @@ namespace Workspace
                     select new { layer, layerPlaceHolder })
                 .ToDictionary(o => o.layer, o => o.layerPlaceHolder);
             
+            // layerObjects["model"].transform.SetParent(layerObjects["marker"].transform, false);
             var item = new Item
             {
                 GameObject = itemPlaceholder,
@@ -69,7 +75,7 @@ namespace Workspace
 
         public void DestroyItem(GameObject go)
         {
-            var item = Items.Find(item => item.GameObject == go);
+            var item = Items.Find(item => item.ContainsGameObject(go));
             Items.Remove(item);
             UnityEngine.Object.Destroy(go);
         }

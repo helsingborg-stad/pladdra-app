@@ -55,11 +55,9 @@ namespace Workspace.UxHandlers
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
-            return from item in scene.ObjectsManager.Objects
-                from kv in item.LayerObjects
-                let layer = kv.Key
-                let layerObject = kv.Value
-                select layerObject;
+            return from o in scene.ObjectsManager.Objects
+                from go in o.LayerObjects.Values
+                select go;
         }
         
         private void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, IWorkspace workspace, GameObject go)

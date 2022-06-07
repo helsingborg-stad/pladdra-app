@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -25,6 +24,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
             base.Activate(scene, workspace);
             WorkspaceObject.UseLayers(Layers.Model);
             // SelectObject(WorkspaceObject.GameObject);
+            // SelectObject(WorkspaceObject.LayerObjects[Layers.Model.Name]);
             workspace.UseHud("user-can-cancel-inspect-model-hud", root =>
             {
                 root.Q<Button>("done").clicked += () => Done(workspace);
@@ -39,7 +39,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
-            return new []{ WorkspaceObject.GameObject };
+            return WorkspaceObject.LayerObjects.Values;
         }
     }
 }

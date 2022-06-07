@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,5 +10,6 @@ namespace Workspace
         IDictionary<string, GameObject> LayerObjects { get; }
         
         public IWorkspaceResource WorkspaceResource { get; }
+        bool ContainsGameObject(GameObject go);
     }
 }

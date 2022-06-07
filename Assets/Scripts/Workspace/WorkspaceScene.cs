@@ -1,6 +1,5 @@
 using System.Linq;
 using Data.Dialogs;
-using UnityEditor;
 using UnityEngine;
 using Utility;
 
@@ -18,6 +17,7 @@ namespace Workspace
             return
                 ObjectsManager
                     .SpawnItem(item, Plane, Vector3.zero, new Quaternion(), new Vector3(1, 1, 1))
+                    // TODO: Remove hardcoded layer
                     .UseLayers("marker");
         }
 
