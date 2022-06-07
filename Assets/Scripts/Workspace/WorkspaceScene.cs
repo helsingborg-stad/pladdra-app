@@ -1,6 +1,8 @@
 using System.Linq;
 using Data.Dialogs;
+using UnityEditor;
 using UnityEngine;
+using Utility;
 
 namespace Workspace
 {
@@ -25,26 +27,25 @@ namespace Workspace
 
             UpdateTransform(Plane, scene?.Plane);
 
-            foreach (var item in scene?.Items ??
-                                 Enumerable.Empty<DialogScene.ItemDescription>())
-            {
-                var resource = Resources.TryGetResource(item.ResourceId);
-                if (resource != null)
-                {
-                    SpawnItem(resource);
-                    /*
-                    ObjectsManager.SpawnItem(resource, Scene.Plane, item.Position?.ToVector3() ?? new Vector3(1, 1, 1),
-                        item.Rotation?.ToQuaternion() ?? new Quaternion(),
-                        item.Scale?.ToVector3() ?? new Vector3(1, 1, 1));
-                    */
-                }
-            }
+            var transforms = (
+                    from sceneItem in scene?.Items ?? Enumerable.Empty<DialogScene.ItemDescription>()
+                    let resource = Resources.TryGetResource(sceneItem.ResourceId)
+                    where resource != null
+                    let item = SpawnItem(resource)
+                    from kv in item.LayerObjects
+                    let layer = kv.Key
+                    let layerObject = kv.Value
+                    let layerTransform = sceneItem?.Layers?.TryGet(layer)
+                    where layerTransform != null
+                    select UpdateTransform(layerObject, layerTransform))
+                .ToArray();
 
-            void UpdateTransform(GameObject go, DialogScene.TransformDescription t)
+            bool UpdateTransform(GameObject go, DialogScene.TransformDescription t)
             {
                 go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
                 go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
                 go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
+                return t != null;
             }
 
             Name = scene?.Name ?? "";
