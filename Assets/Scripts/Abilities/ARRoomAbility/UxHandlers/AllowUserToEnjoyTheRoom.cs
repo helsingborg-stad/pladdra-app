@@ -59,6 +59,8 @@ namespace Abilities.ARRoomAbility.UxHandlers
                 
                 UseRaycast(new RaycastSelectables((successHit, hitGo) =>
                 {
+                    root.Q<VisualElement>("crosshair_inner").style.backgroundColor =
+                        successHit ? Color.white : Color.clear;
                     root.Q<Button>("inspect-model-button").style.display = successHit ? DisplayStyle.Flex : DisplayStyle.None;
                     focusedGo = successHit ? hitGo : null;
                 }));
