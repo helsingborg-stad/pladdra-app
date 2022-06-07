@@ -23,7 +23,7 @@ namespace Pipelines
             get {
                 RuntimePreviewGenerator.BackgroundColor = Color.clear;
                 RuntimePreviewGenerator.MarkTextureNonReadable = false;
-                Callback(RuntimePreviewGenerator.GenerateModelPreview(Go.transform));
+                Callback(RuntimePreviewGenerator.GenerateModelPreview(Go.transform, 512, 512));
                 return false;
             }
         }
