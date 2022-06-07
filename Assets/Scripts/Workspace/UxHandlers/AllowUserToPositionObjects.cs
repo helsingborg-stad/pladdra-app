@@ -60,8 +60,6 @@ namespace Workspace.UxHandlers
                 let layer = kv.Key
                 let layerObject = kv.Value
                 select layerObject;
-//            return scene.ObjectsManager.Objects.Select(o => o.GameObject);
-//            return scene.ObjectsManager.Objects.Select(o => o);
         }
         
         private void UseUserHasSelectedWorkspaceObjectHud(IWorkspaceScene scene, IWorkspace workspace, GameObject go)
@@ -93,6 +91,8 @@ namespace Workspace.UxHandlers
         {
             workspace.UseHud("user-can-select-object-hud", root =>
             {
+                root.Q<Button>("layer-markers").clicked += () => workspace.UseLayers("marker");
+                root.Q<Button>("layer-models").clicked += () => workspace.UseLayers("model");
                 root.Q<Button>("done").clicked += () => workspace.Actions.DispatchAction("default");
             });
 
