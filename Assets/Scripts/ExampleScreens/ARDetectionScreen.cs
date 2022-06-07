@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Abilities;
@@ -6,6 +7,7 @@ using ARHandlers;
 using DefaultNamespace;
 using Screens;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.XR.ARFoundation;
 using Workspace;
 using Workspace.Hud;
@@ -33,15 +35,26 @@ namespace ExampleScreens
         {
             HudManager.UseHud("ar-is-detecting-tracked-image", root =>
             {
+                root.Q<VisualElement>("marker-image").style.backgroundImage = Configuration.Marker.Image;
                 TrackImageOnFloorAndThen(go =>
                 {
-                    go.name = "WorkspaceOrigin";
-                    Configuration.Origin.go = go;
-                    ScreenManager.SetActiveScreen<WorkspaceScreen>(
-                        beforeActivate: screen => screen.Configure(Ability, Configuration)
-                    );
+                    root.Q<VisualElement>("marker-image").style.opacity = 1;
+                    StartCoroutine(WaitAndThen(() =>
+                    {
+                        go.name = "WorkspaceOrigin";
+                        Configuration.Origin.go = go;
+
+                        ScreenManager.SetActiveScreen<WorkspaceScreen>(
+                            beforeActivate: screen => screen.Configure(Ability, Configuration)
+                        );
+                    }, 0.33f));
                 });
             });
+        }
+        
+        IEnumerator WaitAndThen(Action action, float waitTime) {
+            yield return new WaitForSeconds(waitTime);
+            action();
         }
 
         private void TrackImageOnFloorAndThen(Action<GameObject> action)
