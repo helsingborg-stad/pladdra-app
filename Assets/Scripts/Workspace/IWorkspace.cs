@@ -17,7 +17,6 @@ namespace Workspace
         DialogScene GetSceneDescription();
         void UseScene(DialogScene scene);
         void UseHud(string templatePath, Action<VisualElement> bindUi);
-        void UseLayer(string layer);
         void ClearHud();
         void UseUxHandler(IUxHandler handler);
         void WaitForThen<T>(Func<Task<T>> waitFor, Action<T> then);

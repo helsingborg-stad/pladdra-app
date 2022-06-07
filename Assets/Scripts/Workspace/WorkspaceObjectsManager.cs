@@ -34,31 +34,37 @@ namespace Workspace
         public IWorkspaceObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
             Quaternion rotation, Vector3 scale)
         {
-            var go = Object.Instantiate(itemPrefab, targetParent.transform);
-            go.SetActive(false);
-            TransformItem(go, position, rotation, scale);
+            var itemPlaceholder = CreateChildGameObject(itemPrefab, targetParent, (child, parent) => TransformItem(child, position, rotation, scale));
 
-            var layerObjects = resource.LayerPrefabs
-                .ToDictionary(
-                    kv => kv.Key /* layer name */,
-                    kv =>
-                    {
-                        var cgo = Object.Instantiate(kv.Value, go.transform);
-                        cgo.SetActive(false);
-                        cgo.transform.SetParent(go.transform, false);
-                        return cgo;
-                    });
+            var layerObjects = (
+                    from kv in resource.LayerPrefabs
+                    let layer = kv.Key
+                    let layerPrefab = kv.Value
+                    let layerPlaceHolder = CreateChildGameObject(itemPrefab, itemPlaceholder)
+                    let layerObject = CreateChildGameObject(layerPrefab, layerPlaceHolder)
+                    select new { layer, layerPlaceHolder })
+                .ToDictionary(o => o.layer, o => o.layerPlaceHolder);
             
             var item = new Item
             {
-                GameObject = go,
-                WorkspaceObject = go.GetComponent<WorkspaceObject>(),
+                GameObject = itemPlaceholder,
+                WorkspaceObject = itemPlaceholder.GetComponent<WorkspaceObject>(),
                 WorkspaceResource = resource,
                 LayerObjects = layerObjects
             };
             Items.Add(item);
-            go.SetActive(true);
+            itemPlaceholder.SetActive(true);
             return item;
+
+            GameObject CreateChildGameObject(GameObject prefab, GameObject parent, Action<GameObject, GameObject> init = null)
+            {
+                var go = Object.Instantiate(prefab, parent.transform);
+                go.transform.SetParent(parent.transform, false);
+                go.SetActive(true);
+                init?.Invoke(go, parent);
+                return go;
+            }
+                
         }
 
         public void DestroyItem(GameObject go)
