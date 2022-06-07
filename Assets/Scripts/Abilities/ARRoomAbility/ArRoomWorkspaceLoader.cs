@@ -53,15 +53,22 @@ namespace Abilities.ARRoomAbility
             {
                 yield return LogTask(
                     $"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()} i minnet!",
-                    () => new Load3dModel(path, go => { path2model[path] = go; }));
+                    () => new Load3dModel(path, go =>
+                    {
+                        // TODO: Decide if this is the best place for this stuff
+                        if (go.GetComponent<Animation>())
+                            go.GetComponent<Animation>().playAutomatically = true;
+                        
+                        path2model[path] = go;
+                    }));
             }
             
-            var path2Thumbnail = new Dictionary<string, Texture2D>();
+            var path2Preview = new Dictionary<string, Texture2D>();
             foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
             {
                 yield return LogTask(
-                    $"Nu skapar vi thumbnail för {Path.GetFileNameWithoutExtension(path).Split('.').Last()}!",
-                    () => new GenerateThumbnail(path2model[path], thumbnail => path2Thumbnail[path] = thumbnail));
+                    $"Nu tar vi en bild på en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()}!",
+                    () => new LoadPreview(path2model[path], texture => path2Preview[path] = texture));
             }
 
             var modelItems = LogAction("Nu skapar vi modeller!", () => project.Resources
@@ -71,7 +78,7 @@ namespace Abilities.ARRoomAbility
                     resource,
                     model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
                     marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
-                    thumbnail = path2Thumbnail.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)
