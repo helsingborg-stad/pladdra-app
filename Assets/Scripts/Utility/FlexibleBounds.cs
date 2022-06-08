@@ -16,8 +16,8 @@ public class FlexibleBounds : MonoBehaviour
 
     public Bounds CalculateBoundsFromChildren(GameObject gameObject, bool checkColliders)
     {
-        Renderer[] allChildren = gameObject.GetComponentsInChildren<Renderer>();
-        Collider[] allColliders = gameObject.GetComponentsInChildren<Collider>();
+        Renderer[] allChildren = gameObject.GetComponentsInChildren<Renderer>(false);
+        Collider[] allColliders = gameObject.GetComponentsInChildren<Collider>(false);
 
         Vector3 center = gameObject.transform.position;
         foreach (Renderer child in allChildren)
