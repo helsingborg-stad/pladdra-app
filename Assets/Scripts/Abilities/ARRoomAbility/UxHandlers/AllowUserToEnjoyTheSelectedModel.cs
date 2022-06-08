@@ -13,7 +13,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         private IWorkspaceObject WorkspaceObject { get; }
         private Action<IWorkspace> Done { get; }
 
-        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject, Action<IWorkspace> onDone): base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds)
+        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject, Action<IWorkspace> onDone): base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowScale)
         {
             WorkspaceObject = workspaceObject;
             Done = onDone;
