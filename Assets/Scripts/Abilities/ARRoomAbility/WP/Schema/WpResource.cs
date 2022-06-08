@@ -10,5 +10,7 @@ namespace Abilities.ARRoomAbility.WP.Schema
         public string Model { get; set; }
         [JsonProperty("marker_model")]
         public string MarkerModel { get; set; }
+        [JsonProperty("disable")]
+        public bool Disable { get; set; }
     }
 }

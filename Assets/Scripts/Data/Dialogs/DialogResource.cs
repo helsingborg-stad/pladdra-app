@@ -8,5 +8,6 @@ namespace Data.Dialogs
         public string Type { get; set; }
         public string ModelUrl { get; set; }
         public string MarkerModelUrl { get; set; }
+        public bool Disable { get; set; }
     }
 }
