@@ -64,6 +64,12 @@ namespace Workspace.UxHandlers
         {
             workspace.UseHud("user-has-selected-workspace-object-hud", root =>
             {
+                var rid = scene.ObjectsManager.Objects
+                    .Where(wo => wo.ContainsGameObject(go))
+                    .Select(wo => wo.WorkspaceResource.ResourceID)
+                    .FirstOrDefault();
+                root.Q<Label>("resource_id").text = rid;
+                
                 root.Q<Button>("gesture-behaviour-toggle").clicked += () =>
                 {
                     PinchToScale = !PinchToScale;
