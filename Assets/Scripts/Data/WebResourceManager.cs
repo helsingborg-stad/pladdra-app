@@ -51,6 +51,12 @@ namespace Data
 
         public async Task<string> GetResourcePath (string url)
         {
+            if (!IsValidUrl(url))
+            {
+                return null;
+            }
+            
+            
             Directory.CreateDirectory(Path.GetDirectoryName(IndexPath));
             var cachePath = GetCachePath(url);
             if (string.IsNullOrEmpty(cachePath)) {
@@ -85,6 +91,7 @@ namespace Data
         {
             Debug.Log($"[WebResourceManager] using cache in {TempPath}");   
             var uniqueUrls = urls
+                .Where(IsValidUrl)
                 .Where(url => !string.IsNullOrEmpty(url))
                 .UniqueBy(url => url)
                 .ToList();
@@ -99,8 +106,12 @@ namespace Data
                 Debug.Log($"[WebResourceManager] fetching {url}...");
                 var path = await GetResourcePath(url);
                 Debug.Log($"[WebResourceManager] done fetching {url}");
-                lock (mapping) {
-                    mapping[url] = path;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    lock (mapping)
+                    {
+                        mapping[url] = path;
+                    }
                 }
                 Debug.Log($"[WebResourceManager] {url} -> {path}");
             }));
@@ -193,6 +204,11 @@ namespace Data
                 stream.Position = 0;
                 return (T)formatter.Deserialize(stream);
             }
+        }
+        private bool IsValidUrl(string url)
+        {
+            Uri uri = null;
+            return Uri.TryCreate(url, UriKind.Absolute, out uri);
         }
     }
 }
