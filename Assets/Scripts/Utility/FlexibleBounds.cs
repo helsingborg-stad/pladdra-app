@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FlexibleBounds : MonoBehaviour
@@ -16,8 +17,8 @@ public class FlexibleBounds : MonoBehaviour
 
     public Bounds CalculateBoundsFromChildren(GameObject gameObject, bool checkColliders)
     {
-        Renderer[] allChildren = gameObject.GetComponentsInChildren<Renderer>(false);
-        Collider[] allColliders = gameObject.GetComponentsInChildren<Collider>(false);
+        IEnumerable<Renderer> allChildren = gameObject.GetComponentsInChildren<Renderer>(false);
+        IEnumerable<Collider> allColliders = gameObject.GetComponentsInChildren<Collider>(false).Where(c => !gameObject.GetComponent<Collider>() || gameObject.GetComponent<Collider>() != c);
 
         Vector3 center = gameObject.transform.position;
         foreach (Renderer child in allChildren)
@@ -32,7 +33,7 @@ public class FlexibleBounds : MonoBehaviour
                 center += collider.bounds.center;
             }
         }
-        center /= allChildren.Length;
+        center /= allChildren.Count();
 
         Bounds bounds = new Bounds(center, Vector3.zero);
         foreach (Renderer child in allChildren)
