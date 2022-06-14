@@ -62,6 +62,18 @@ namespace UXHandlers
                         meshFilter.mesh = new BoundingBoxFactory(bounds.size, bounds.center).CreateMesh();
                     });
                 });
+            },
+            OnDeactivate = (c, ctx) => {
+                ctx.TryConfigureComponent<BoxCollider>(boxCollider =>
+                {
+                    boxCollider.center = Vector3.zero;
+                    boxCollider.size = Vector3.zero;
+                });
+
+                ctx.TryConfigureComponent<MeshFilter>(meshFilter =>
+                {
+                    meshFilter.mesh = null;
+                });
             }
         };
 

@@ -17,42 +17,27 @@ public class FlexibleBounds : MonoBehaviour
 
     public Bounds CalculateBoundsFromChildren(GameObject gameObject, bool checkColliders)
     {
-        IEnumerable<Renderer> allChildren = gameObject.GetComponentsInChildren<Renderer>(false);
-        IEnumerable<Collider> allColliders = gameObject.GetComponentsInChildren<Collider>(false).Where(c => !gameObject.GetComponent<Collider>() || gameObject.GetComponent<Collider>() != c);
-
-        Vector3 center = gameObject.transform.position;
-        foreach (Renderer child in allChildren)
-        {
-            center += child.bounds.center;
-        }
-
-        if (checkColliders)
-        {
-            foreach (Collider collider in allColliders)
-            {
-                center += collider.bounds.center;
-            }
-        }
-        center /= allChildren.Count();
-
-        Bounds bounds = new Bounds(center, Vector3.zero);
-        foreach (Renderer child in allChildren)
+        Quaternion currentRotation = gameObject.transform.rotation;        
+        Vector3 currentScale = gameObject.transform.localScale;
+        
+        gameObject.transform.rotation = Quaternion.Euler(0f,0f,0f);
+        gameObject.transform.localScale = Vector3.one;
+        
+        IEnumerable<Renderer> renderers = gameObject.GetComponentsInChildren<Renderer>(false);
+        IEnumerable<Collider> colliders = gameObject.GetComponentsInChildren<Collider>(false);
+       
+        // TODO: Include collider bounds
+        Bounds bounds = new Bounds(gameObject.transform.position, Vector3.zero);
+        foreach (Renderer child in renderers)
         {
             bounds.Encapsulate(child.bounds);
         }
-
-        if (checkColliders)
-        {
-            foreach (Collider collider in allColliders)
-            {
-                bounds.Encapsulate(collider.bounds);
-            }
-        }
-
-        Vector3 centerWithRelativeOffset = ((bounds.center - gameObject.transform.position) / gameObject.transform.localScale.x);
-        Vector3 sizeWithRelativeOffset = (bounds.size / gameObject.transform.localScale.x);
-        bounds = new Bounds(centerWithRelativeOffset, sizeWithRelativeOffset);
-
+        
+        bounds.center -= gameObject.transform.position;
+        
+        gameObject.transform.rotation = currentRotation;
+        gameObject.transform.localScale = currentScale;
+        
         return bounds;
     }
 }
