@@ -22,12 +22,14 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
+            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(false));
+            
             WorkspaceObject.ChildGameObjects.Select((go, index) =>
             {
                 go.SetActive(index == 1);
                 return 0;
             }).ToList();
-            // SelectObject(WorkspaceObject.GameObject);
+
             workspace.UseHud("user-can-cancel-inspect-model-hud", root =>
             {
                 root.Q<Button>("done").clicked += () => Done(workspace);
@@ -37,6 +39,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Deactivate(scene, workspace);
+            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(true));
             WorkspaceObject.ChildGameObjects.Select((go, index) =>
             {
                 go.SetActive(index == 0);
