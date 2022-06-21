@@ -25,11 +25,11 @@ namespace Workspace.UxHandlers
                 resources.ForEach(item =>
                 {
                     var itemInstance = listItem.Instantiate();
-                    itemInstance.Q<IMGUIContainer>().style.backgroundImage = item.Thumbnails.First();
+                    itemInstance.Q<IMGUIContainer>().style.backgroundImage = item.LayerThumbnails[scene.Layers.First().Name];
                     itemInstance.Q<Label>().text = item.ResourceID;
                     itemInstance.Q<Button>().clicked += () =>
                     {
-                        scene.ObjectsManager.SpawnItem(item, scene.Plane, Vector3.zero, new Quaternion(), new Vector3(1, 1, 1));
+                        scene.SpawnItem(item);
                         workspace.Actions.DispatchAction("default");
                     };
                     container.Add(itemInstance);

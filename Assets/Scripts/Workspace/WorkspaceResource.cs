@@ -6,10 +6,8 @@ namespace Workspace
     public class WorkspaceResource : IWorkspaceResource
     {
         public string ResourceID { get; set; }
-        public GameObject Prefab { get; set; }
-        public IEnumerable<GameObject> Prefabs { get; set; }
-        
-        public IEnumerable<Texture2D> Thumbnails { get; set; }
+        public Dictionary<string, GameObject> LayerPrefabs { get; set; }
+        public Dictionary<string,Texture2D> LayerThumbnails { get; set; }
     }
 }
 

@@ -44,7 +44,7 @@ namespace Workspace
         private IWorkspaceResourceCollection ResourceCollection { get; set; }
         private IHudManager HudManager { get; set; }
         private IWorkspaceEditHistory History { get;  set;  }
-        public string Name { get; private set; }
+        public string Name => Scene?.Name ?? "";
         public IEnumerable<DialogScene> FeaturedScenes { get; private set;  }
         public IWorkspaceEditHistoryActions HistoryActions { get; }
         public IDialogProjectRepository DialogProjectRepository { get; }
@@ -57,33 +57,14 @@ namespace Workspace
 
         public void UseScene(DialogScene scene)
         {
-            ObjectsManager.DestroyAll();
-
-            UpdateTransform(Scene.Plane, scene?.Plane);
-
-            foreach (var item in scene?.Items ??
-                                 Enumerable.Empty<DialogScene.ItemDescription>())
-            {
-                var resource = ResourceCollection.TryGetResource(item.ResourceId);
-                if (resource != null)
-                    ObjectsManager.SpawnItem(resource, Scene.Plane, item.Position?.ToVector3() ?? new Vector3(1, 1, 1), item.Rotation?.ToQuaternion() ?? new Quaternion(), item.Scale?.ToVector3() ?? new Vector3(1, 1, 1));
-            }
-
-            void UpdateTransform(GameObject go, DialogScene.TransformDescription t)
-            {
-                go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
-                go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;
-                go.transform.localRotation = t?.Rotation?.ToQuaternion() ?? go.transform.localRotation;
-            }
-
-            Name = scene?.Name ?? "";
+            Scene.UseScene(scene);
         }
 
         public void UseHud(string templatePath, Action<VisualElement> bindUi)
         {
             HudManager.UseHud(templatePath, bindUi);
         }
-
+        
         public void UseUxHandler(IUxHandler handler)
         {
             UseUxHandler(handler, true);
@@ -116,6 +97,11 @@ namespace Workspace
         public void ClearHud()
         {
             HudManager.ClearHud();
+        }
+
+        public void UseLayers(Func<string, bool> layerShouldBeUsed)
+        {
+            ObjectsManager.UseLayers(layerShouldBeUsed);
         }
     }
 }

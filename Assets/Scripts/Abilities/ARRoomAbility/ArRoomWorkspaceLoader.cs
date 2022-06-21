@@ -78,15 +78,28 @@ namespace Abilities.ARRoomAbility
                     resource,
                     model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
                     marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
-                    thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    modelThumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    markerThumbnail = path2Preview.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)
-                .Where(o => o.thumbnail != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.thumbnail, o.marker, o.model))
+                .Where(o => o.modelThumbnail != null)
+                .Where(o => o.markerThumbnail != null)
+                .Select(o => CreateWorkspaceResource(o.resource, 
+                    new Dictionary<string, GameObject>()
+                    {
+                        {Layers.Marker.Name, o.marker},
+                        {Layers.Model.Name, o.model}
+                    },
+                    new Dictionary<string, Texture2D>
+                    {
+                        {Layers.Marker.Name, o.modelThumbnail},
+                        {Layers.Model.Name, o.markerThumbnail}
+                        
+                    }))
                 .Where(item => item != null)
                 .ToList());
-            
+
             Texture2D markerImageTexture = null;
             if (project?.Marker?.Image != null)
             {
@@ -97,10 +110,12 @@ namespace Abilities.ARRoomAbility
                 }));
             }
 
-            var allResources = modelItems;
+            var markerItems = Enumerable.Empty<IWorkspaceResource>();
+            var allResources = modelItems.Concat(markerItems);
 
             var configuration = LogAction("Här skapas det en konfiguration minsann!", () => new WorkspaceConfiguration
             {
+                Layers = new List<IWorkspaceLayer>(){Layers.Marker, Layers.Model},
                 Marker = markerImageTexture ? new WorkspaceMarker()
                 {
                     Image = markerImageTexture,

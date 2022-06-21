@@ -1,5 +1,17 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement picking-mode="Ignore" class="container" style="justify-content: flex-end;">
-        <ui:Button text="Jag är klar med att justera objekt!" display-tooltip-when-elided="true" name="done" class="btn btn--light" />
+    <ui:VisualElement picking-mode="Ignore" name="root" class="container" style="justify-content: flex-end; align-items: center;">
+        <ui:VisualElement class="card" style="flex-direction: column; justify-content: center; align-items: stretch; margin-left: -4px; margin-right: -4px; margin-top: 0; margin-bottom: 0; flex-wrap: nowrap;">
+            <ui:VisualElement style="flex-direction: row; justify-content: center; align-items: stretch; flex-wrap: nowrap;">
+                <ui:Button text="Visa lager 0" display-tooltip-when-elided="true" name="layer-0" class="btn btn--light" />
+                <ui:Button text="Visa lager 1" display-tooltip-when-elided="true" name="layer-1" class="btn btn--light" />
+                <ui:Button text="Visa lager 2" display-tooltip-when-elided="true" name="layer-2" class="btn btn--light" />
+                <ui:Button text="Visa lager 3" display-tooltip-when-elided="true" name="layer-3" class="btn btn--light" />
+                <ui:Button text="Visa lager 4" display-tooltip-when-elided="true" name="layer-4" class="btn btn--light" />
+                <ui:Button text="Visa lager 5" display-tooltip-when-elided="true" name="layer-5" class="btn btn--light" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-direction: row; justify-content: center; align-items: stretch; flex-wrap: nowrap;">
+                <ui:Button text="Jag är klar med att justera objekt!" display-tooltip-when-elided="true" name="done" class="btn btn--light" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

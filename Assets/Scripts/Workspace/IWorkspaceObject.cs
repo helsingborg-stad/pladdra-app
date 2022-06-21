@@ -3,11 +3,13 @@ using UnityEngine;
 
 namespace Workspace
 {
-    public interface IWorkspaceObject
+    public interface IWorkspaceObject: IHasWorkspaceLayers
     {
         GameObject GameObject { get; }
-        IEnumerable<GameObject> ChildGameObjects { get; }
+        
+        IDictionary<string, GameObject> LayerObjects { get; }
         
         public IWorkspaceResource WorkspaceResource { get; }
+        bool ContainsGameObject(GameObject go);
     }
 }

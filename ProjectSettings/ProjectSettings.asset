@@ -134,7 +134,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 1.2
+  bundleVersion: 1.3
   preloadedAssets:
   - {fileID: 0}
   - {fileID: -8845016483602810289, guid: 9ccac4b8367534c798418955425b92c6, type: 2}
@@ -161,7 +161,7 @@ PlayerSettings:
     iPhone: works.hbg.pladdra
   buildNumber:
     Standalone: 0
-    iPhone: 43
+    iPhone: 44
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1
@@ -728,7 +728,7 @@ PlayerSettings:
   allowUnsafeCode: 0
   useDeterministicCompilation: 1
   enableRoslynAnalyzers: 1
-  additionalIl2CppArgs: 
+  additionalIl2CppArgs: --maximum-recursive-generic-depth=50
   scriptingRuntimeVersion: 1
   gcIncremental: 1
   assemblyVersionValidation: 0

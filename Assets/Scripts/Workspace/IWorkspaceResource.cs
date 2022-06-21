@@ -7,7 +7,7 @@ namespace Workspace
     public interface IWorkspaceResource
     {
         string ResourceID { get; }
-        IEnumerable<GameObject> Prefabs { get;  }
-        IEnumerable<Texture2D> Thumbnails { get;  }
+        Dictionary<string, GameObject> LayerPrefabs { get; }
+        Dictionary<string, Texture2D> LayerThumbnails { get; }
     }
 }

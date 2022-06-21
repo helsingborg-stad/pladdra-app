@@ -16,6 +16,7 @@ namespace Data.Dialogs
                 Items = scene.ObjectsManager.Objects.Select(o => CopyTransformTo(o.GameObject, new ItemDescription()
                     {
                         ResourceId = o.WorkspaceResource.ResourceID,
+                        Layers = o.LayerObjects.ToDictionary(kv => kv.Key, kv => CopyTransformTo(kv.Value, new TransformDescription()))
                     }))
                     .ToList()
             };
@@ -75,6 +76,7 @@ namespace Data.Dialogs
         public class ItemDescription:  TransformDescription 
         {
             public string ResourceId { get; set; }
+            public Dictionary<string, TransformDescription> Layers { get; set; }
         }
     }
 }

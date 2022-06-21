@@ -1,17 +1,31 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Workspace
 {
     public class WorkspaceObjectsManager : IWorkspaceObjectsManager
     {
-        public class Item : IWorkspaceObject
+        private class Item : IWorkspaceObject
         {
             public GameObject GameObject { get; set; }
-            public IEnumerable<GameObject> ChildGameObjects { get; set;  }
+            public IDictionary<string, GameObject> LayerObjects { get; set; }
             public WorkspaceObject WorkspaceObject { get; set; }
             public IWorkspaceResource WorkspaceResource { get; set; }
+            public bool ContainsGameObject(GameObject go)
+            {
+                return (go == GameObject) || (LayerObjects?.Values.Contains(go) == true);
+            }
+
+            public void UseLayers(Func<string, bool> layerShouldBeUsed)
+            {
+                foreach (var kv in LayerObjects)
+                {
+                    kv.Value.SetActive(layerShouldBeUsed(kv.Key));
+                }
+            }
         }
         private readonly GameObject itemPrefab;
         private List<Item> Items { get; }
@@ -22,37 +36,46 @@ namespace Workspace
             Items = new List<Item>();
         }
 
-        public GameObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
+        public IWorkspaceObject SpawnItem(IWorkspaceResource resource, GameObject targetParent, Vector3 position,
             Quaternion rotation, Vector3 scale)
         {
-            var go = Object.Instantiate(itemPrefab, targetParent.transform);
-            go.SetActive(false);
-            TransformItem(go, position, rotation, scale);
+            var itemPlaceholder = CreateChildGameObject(itemPrefab, targetParent, (child, parent) => TransformItem(child, position, rotation, scale));
 
-            var children = resource.Prefabs.Select((prefab, index) =>
+            var layerObjects = (
+                    from kv in resource.LayerPrefabs
+                    let layer = kv.Key
+                    let layerPrefab = kv.Value
+                    let layerPlaceHolder = CreateChildGameObject(itemPrefab, itemPlaceholder)
+                    let layerObject = CreateChildGameObject(layerPrefab, layerPlaceHolder)
+                    select new { layer, layerPlaceHolder })
+                .ToDictionary(o => o.layer, o => o.layerPlaceHolder);
+            
+            // layerObjects["model"].transform.SetParent(layerObjects["marker"].transform, false);
+            var item = new Item
             {
-                var cgo = Object.Instantiate(prefab, go.transform);
-                cgo.SetActive(index == 0);
-                cgo.transform.SetParent(go.transform, false);
-                return cgo;
-            }).ToList();
-
-
-            Items.Add(new Item
-            {
-                GameObject = go,
-                WorkspaceObject = go.GetComponent<WorkspaceObject>(),
+                GameObject = itemPlaceholder,
+                WorkspaceObject = itemPlaceholder.GetComponent<WorkspaceObject>(),
                 WorkspaceResource = resource,
-                ChildGameObjects = children
-            });
+                LayerObjects = layerObjects
+            };
+            Items.Add(item);
+            itemPlaceholder.SetActive(true);
+            return item;
 
-            go.SetActive(true);
-            return go;
+            GameObject CreateChildGameObject(GameObject prefab, GameObject parent, Action<GameObject, GameObject> init = null)
+            {
+                var go = Object.Instantiate(prefab, parent.transform);
+                go.transform.SetParent(parent.transform, false);
+                go.SetActive(true);
+                init?.Invoke(go, parent);
+                return go;
+            }
+                
         }
 
         public void DestroyItem(GameObject go)
         {
-            var item = Items.Find(item => item.GameObject == go);
+            var item = Items.Find(item => item.ContainsGameObject(go));
             Items.Remove(item);
             UnityEngine.Object.Destroy(go);
         }
@@ -64,6 +87,14 @@ namespace Workspace
                 UnityEngine.Object.Destroy(item.GameObject);
             }
             Items.Clear();
+        }
+        
+        public void UseLayers(Func<string, bool> layerShouldBeUsed)
+        {
+            foreach (var item in Items)
+            {
+                item.UseLayers(layerShouldBeUsed);
+            }
         }
 
         private void TransformItem(GameObject go, Vector3 position, Quaternion rotation, Vector3 scale)

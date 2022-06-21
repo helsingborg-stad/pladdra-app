@@ -2,6 +2,7 @@
     <ui:VisualElement class="container" style="justify-content: space-around;">
         <ui:VisualElement style="flex-grow: 1;">
             <ui:VisualElement style="flex-direction: column; flex-wrap: nowrap; flex-grow: 0;">
+                <ui:Label display-tooltip-when-elided="true" name="resource_id" />
                 <ui:TextField picking-mode="Ignore" label="x" value="x" name="position_x" />
                 <ui:TextField picking-mode="Ignore" label="y" value="y" name="position_y" />
                 <ui:TextField picking-mode="Ignore" label="z" value="z" name="position_z" />

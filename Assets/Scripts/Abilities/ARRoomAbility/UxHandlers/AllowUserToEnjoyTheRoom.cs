@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Data.Dialogs;
-using Lean.Common;
 using Lean.Touch;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,7 +11,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheRoom: AbstractUxHandler
     {
-        private IRaycastHandler RaycastHandler;
+        private IRaycastHandler RaycastHandler { get; set; }
         private DialogScene FeaturedScene { get; }
         private List<DialogScene> FeaturedScenes { get; }
 
@@ -29,10 +27,9 @@ namespace Abilities.ARRoomAbility.UxHandlers
             base.OnSelected(scene, workspace, go);
             UseRaycast(new NullRaycastHandler());
             
-            var selected = scene.ObjectsManager.Objects.FirstOrDefault(obj => obj.GameObject == go);
+            var selected = scene.ObjectsManager.Objects.FirstOrDefault(obj => obj.ContainsGameObject(go));
             if (selected != null)
             {
-                var children = selected?.ChildGameObjects;
                 workspace.UseUxHandler(new AllowUserToEnjoyTheSelectedModel(selected, ws =>
                 {
                     ws.UseUxHandler(new AllowUserToEnjoyTheRoom(FeaturedScene, FeaturedScenes));
@@ -47,9 +44,9 @@ namespace Abilities.ARRoomAbility.UxHandlers
             base.Activate(scene, workspace);
             workspace.ClearHud();
             
-            //TODO: Find solution for handling PlaneMesh 
+            //TODO: Find solution for handling PlaneMesh
             UnityEngine.GameObject.Find("PlaneMesh").GetComponent<MeshRenderer>().enabled = false;
-            UnityEngine.GameObject.Find("LeanSelect").GetComponent<LeanFingerDown>().enabled = false;
+            //UnityEngine.GameObject.Find("LeanSelect").GetComponent<LeanFingerDown>().enabled = false;
 
             GameObject focusedGo = null;
             
@@ -94,7 +91,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
             UseRaycast(new NullRaycastHandler());
             base.Deactivate(scene, workspace);
             
-            UnityEngine.GameObject.Find("LeanSelect").GetComponent<LeanFingerDown>().enabled = true;
+            GameObject.Find("LeanSelect").GetComponent<LeanFingerDown>().enabled = true;
         }
 
         private void UseRaycast(IRaycastHandler handler)
@@ -107,7 +104,9 @@ namespace Abilities.ARRoomAbility.UxHandlers
 
         protected override IEnumerable<GameObject> GetSelectableObjects(IWorkspaceScene scene)
         {
-            return scene.ObjectsManager.Objects.Select(o => o.GameObject);
+            return from o in scene.ObjectsManager.Objects
+                from go in o.LayerObjects.Values
+                select go;
         }
         
     }

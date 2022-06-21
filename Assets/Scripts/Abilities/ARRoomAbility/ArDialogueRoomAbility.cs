@@ -16,7 +16,11 @@ namespace Abilities.ARRoomAbility
         {
             if (IsEditMode)
             {
-                workspace.Actions.RegisterAction("default", (scene, workspace) => workspace.UseUxHandler(new AllowUserSelectWorkspaceActions()));
+                workspace.Actions.RegisterAction("default", (scene, workspace) =>
+                {
+                    workspace.UseUxHandler(new AllowUserSelectWorkspaceActions());
+                    workspace.UseLayers(Layers.Marker);
+                });
                 workspace.Actions.RegisterAction("cancel-preview", (scene, workspace) => workspace.Actions.DispatchAction("default"));
                 workspace.Actions.RegisterAction("preview", (scene, workspace) =>
                 {
