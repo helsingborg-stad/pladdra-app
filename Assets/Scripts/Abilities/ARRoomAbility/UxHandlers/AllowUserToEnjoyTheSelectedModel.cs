@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
@@ -13,7 +14,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         private IWorkspaceObject WorkspaceObject { get; }
         private Action<IWorkspace> Done { get; }
 
-        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject, Action<IWorkspace> onDone): base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowScale)
+        public AllowUserToEnjoyTheSelectedModel(IWorkspaceObject workspaceObject, Action<IWorkspace> onDone): base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowScale, Traits.AllowSelect)
         {
             WorkspaceObject = workspaceObject;
             Done = onDone;
@@ -22,9 +23,9 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Activate(scene, workspace);
+            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(false));
             WorkspaceObject.UseLayers(Layers.Model);
-            // SelectObject(WorkspaceObject.GameObject);
-            // SelectObject(WorkspaceObject.LayerObjects[Layers.Model.Name]);
+            SelectObject(WorkspaceObject.LayerObjects[Layers.Model.Name]);
             workspace.UseHud("user-can-cancel-inspect-model-hud", root =>
             {
                 root.Q<Button>("done").clicked += () => Done(workspace);
@@ -34,6 +35,7 @@ namespace Abilities.ARRoomAbility.UxHandlers
         public override void Deactivate(IWorkspaceScene scene, IWorkspace workspace)
         {
             base.Deactivate(scene, workspace);
+            scene.ObjectsManager.Objects.Where(o => WorkspaceObject != o).ToList().ForEach(o => o.GameObject.SetActive(true));
             WorkspaceObject.UseLayers(Layers.Marker);
         }
 

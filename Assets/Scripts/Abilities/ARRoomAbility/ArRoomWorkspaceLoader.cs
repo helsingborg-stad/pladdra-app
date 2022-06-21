@@ -78,28 +78,28 @@ namespace Abilities.ARRoomAbility
                     resource,
                     model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
                     marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
-                    thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    modelThumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    markerThumbnail = path2Preview.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)
+                .Where(o => o.modelThumbnail != null)
+                .Where(o => o.markerThumbnail != null)
                 .Select(o => CreateWorkspaceResource(o.resource, 
                     new Dictionary<string, GameObject>()
                     {
                         {Layers.Marker.Name, o.marker},
                         {Layers.Model.Name, o.model}
+                    },
+                    new Dictionary<string, Texture2D>
+                    {
+                        {Layers.Marker.Name, o.modelThumbnail},
+                        {Layers.Model.Name, o.markerThumbnail}
+                        
                     }))
                 .Where(item => item != null)
                 .ToList());
-            
-/*
-            var markerItems = LogAction("Nu skapar vi markörer", () => project.Resources
-                .Where(resource => resource.Type == "marker")
-                .Select(resource => new { resource, gameObject = path2model.TryGet(url2path.TryGet(resource.ModelUrl)) })
-                .Where(o => o.gameObject != null)
-                .Select(o => CreateWorkspaceResource(o.resource, o.gameObject))
-                .Where(item => item != null)
-                .ToList());
-*/
+
             Texture2D markerImageTexture = null;
             if (project?.Marker?.Image != null)
             {
