@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Abilities.ARRoomAbility.UxHandlers;
 using Data.Dialogs;
-using Workspace;
-using Workspace.UxHandlers;
+using Pladdra.Workspace;
+using Pladdra.Workspace.UxHandlers;
+using Pladdra.Data;
 
 namespace Abilities.ARRoomAbility
 {
@@ -22,12 +23,12 @@ namespace Abilities.ARRoomAbility
                 {
                     var s = workspace.GetSceneDescription();
                     workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(
-                        s, new List<DialogScene>() { s }));
+                        s, new List<UserProposal>() { s }));
                 });
             }
             else
             {
-                workspace.Actions.RegisterAction("default", (scene, workspace) => workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.FeaturedScenes.FirstOrDefault(), configuration.FeaturedScenes)));
+                workspace.Actions.RegisterAction("default", (scene, workspace) => workspace.UseUxHandler(new AllowUserToEnjoyTheRoom(configuration.UserProposals.FirstOrDefault(), configuration.UserProposals)));
             }
             workspace.Actions.DispatchAction("default");
         }

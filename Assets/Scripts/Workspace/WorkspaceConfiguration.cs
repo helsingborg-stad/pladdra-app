@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Data.Dialogs;
+using Pladdra.Data;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceConfiguration
     {
@@ -11,6 +12,6 @@ namespace Workspace
         public IWorkspaceResourceCollection ResourceCollection { get; set; }
         
         public DialogScene Scene { get; set; }
-        public List<DialogScene> FeaturedScenes { get; set; }
+        public List<UserProposal> UserProposals { get; set; }
     }
 }

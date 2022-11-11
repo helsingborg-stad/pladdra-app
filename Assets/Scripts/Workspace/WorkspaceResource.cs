@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceResource : IWorkspaceResource
     {

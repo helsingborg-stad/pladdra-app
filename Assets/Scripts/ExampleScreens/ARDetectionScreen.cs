@@ -9,8 +9,8 @@ using Screens;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.XR.ARFoundation;
-using Workspace;
-using Workspace.Hud;
+using Pladdra.Workspace;
+using Pladdra.Workspace.Hud;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
 
-namespace Workspace.UxHandlers
+namespace Pladdra.Workspace.UxHandlers
 {
     public class AllowUserToSpawnItemFromResource : AbstractUxHandler
     {
@@ -34,7 +34,6 @@ namespace Workspace.UxHandlers
                     };
                     container.Add(itemInstance);
                 });
-
 
                 root.Q<Button>("close").clicked += () => { workspace.Actions.DispatchAction("default"); };
             });

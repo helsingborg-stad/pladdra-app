@@ -9,7 +9,7 @@ using Utility;
 using UXHandlers;
 using Workspace.UxHandlers.ObjectInspectors;
 
-namespace Workspace.UxHandlers
+namespace Pladdra.Workspace.UxHandlers
 {
     public class AllowUserToPositionObjects: AbstractUxHandler
     {

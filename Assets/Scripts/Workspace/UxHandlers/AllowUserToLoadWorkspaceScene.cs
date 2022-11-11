@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Data.Dialogs;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
+using Pladdra.Data;
 
-namespace Workspace.UxHandlers
+namespace Pladdra.Workspace.UxHandlers
 {
     public class AllowUserToLoadWorkspaceScene : AbstractUxHandler
     {
@@ -21,7 +21,7 @@ namespace Workspace.UxHandlers
             workspace.WaitForThen(() => repo.LoadScenes(), scenes => UseUserCanSelectSceneHud(workspace, scenes));
         }
 
-        private void UseUserCanSelectSceneHud(IWorkspace workspace, Dictionary<string, DialogScene> scenes)
+        private void UseUserCanSelectSceneHud(IWorkspace workspace, Dictionary<string, UserProposal> scenes)
         {
             workspace.UseHud("user-can-select-scene-hud", root =>
             {

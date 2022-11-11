@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceMarker : IWorkspaceMarker
     {

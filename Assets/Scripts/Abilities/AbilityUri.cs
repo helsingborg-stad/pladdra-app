@@ -23,6 +23,7 @@ namespace Abilities
 
             var abilityName = uri.Authority;
             var abilityConfig = TryDecodePathToJson(uri.AbsolutePath.TrimStart('/'));
+            Debug.Log($"AbilityUri: {abilityName} config {abilityConfig}");
 
             return factories
                 .Select(f => f.TryCreateAbility(abilityName, abilityConfig))

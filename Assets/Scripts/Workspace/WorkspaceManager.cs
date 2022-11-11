@@ -1,9 +1,9 @@
 using Abilities;
 using UnityEngine;
-using Workspace.EditHistory;
-using Workspace.Hud;
+using Pladdra.Workspace.EditHistory;
+using Pladdra.Workspace.Hud;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceManager : MonoBehaviour
     {

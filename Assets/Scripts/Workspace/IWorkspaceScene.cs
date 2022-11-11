@@ -1,14 +1,14 @@
-using Data.Dialogs;
 using UnityEngine;
+using Pladdra.Data;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public interface IWorkspaceScene
     {
         GameObject Plane { get; }
         IWorkspaceObjectsManager ObjectsManager { get; }
         IWorkspaceResourceCollection Resources { get; }
-        DialogScene CreateWorkspaceSceneDescription(string name);
+        UserProposal CreateWorkspaceSceneDescription(string name);
 /*
         void UseScene(string name, DialogScene scene);
 

@@ -1,14 +1,15 @@
 using System;
 using Data.Dialogs;
+using Pladdra.Data;
 
-namespace Workspace.EditHistory
+namespace Pladdra.Workspace.EditHistory
 {
     public class WorkspaceEditHistoryActions : IWorkspaceEditHistoryActions
     {
         private IWorkspaceEditHistory WorkspaceEditHistory { get; }
-        private Action<DialogScene> Restore { get; }
+        private Action<UserProposal> Restore { get; }
 
-        public WorkspaceEditHistoryActions(IWorkspaceEditHistory workspaceEditHistory, Action<DialogScene> restore)
+        public WorkspaceEditHistoryActions(IWorkspaceEditHistory workspaceEditHistory, Action<UserProposal> restore)
         {
             WorkspaceEditHistory = workspaceEditHistory;
             Restore = restore;

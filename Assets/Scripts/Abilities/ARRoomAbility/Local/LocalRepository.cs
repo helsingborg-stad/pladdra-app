@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Data.Dialogs;
 using Newtonsoft.Json;
 using UnityEngine;
+using Pladdra.Data;
 
 namespace Abilities.ARRoomAbility.Local
 {
@@ -27,13 +28,13 @@ namespace Abilities.ARRoomAbility.Local
             TempPath = tempPath;
         }
 
-        public virtual Task<DialogProject> Load() => Task.FromResult(new DialogProject() {
+        public virtual Task<Project> Load() => Task.FromResult(new Project() {
                 Id = "dialog-1",
-                Plane = new DialogPlane(){Width = 4, Height = 4},
-                Resources = SampleModels.Select(url => new DialogResource{ModelUrl = url, MarkerModelUrl = url, Type = "model"}).ToList()
+                // Plane = new DialogPlane(){Width = 4, Height = 4},
+                Resources = SampleModels.Select(url => new PladdraResource{ModelUrl = url, ModelIconUrl = url, Type = "model"}).ToList()
         });
 
-        public virtual Task<DialogScene> SaveScene(DialogScene scene)
+        public virtual Task<UserProposal> SaveScene(UserProposal scene)
         {
             var path = Path.Combine(TempPath, "scenes", $"{scene.Name}.scene.json");
             Debug.Log($"Saving scene {scene.Name} to {path}");
@@ -44,7 +45,7 @@ namespace Abilities.ARRoomAbility.Local
             return Task.FromResult(scene);
         }
 
-        public virtual Task<Dictionary<string, DialogScene>> LoadScenes()
+        public virtual Task<Dictionary<string, UserProposal>> LoadScenes()
         {
             var path = Path.Combine(TempPath, "scenes");
             try
@@ -62,17 +63,17 @@ namespace Abilities.ARRoomAbility.Local
             }
             catch (DirectoryNotFoundException)
             {
-                return Task.FromResult(new Dictionary<string, DialogScene>());
+                return Task.FromResult(new Dictionary<string, UserProposal>());
             }
         }
 
-        private DialogScene TryLoadScene(string path)
+        private UserProposal TryLoadScene(string path)
         {
             var text = File.ReadAllText(path, Encoding.UTF8);
-            return JsonConvert.DeserializeObject<DialogScene>(text);
+            return JsonConvert.DeserializeObject<UserProposal>(text);
         }
 
-        private DialogScene PatchScene(string name, DialogScene scene)
+        private UserProposal PatchScene(string name, UserProposal scene)
         {
             // We patch in nane in the scene since it wasn't previously persisted
             scene.Name = string.IsNullOrEmpty(scene.Name) ? name : scene.Name;

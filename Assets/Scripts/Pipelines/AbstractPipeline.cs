@@ -5,7 +5,8 @@ using System.Linq;
 using Data;
 using Data.Dialogs;
 using UnityEngine;
-using Workspace;
+using Pladdra.Workspace;
+using Pladdra.Data;
 
 namespace Pipelines
 {
@@ -16,9 +17,9 @@ namespace Pipelines
 
         protected virtual IWebResourceManager CreateWebResourceManager(string cacheSubFolder = "resources") =>
             new WebResourceManager(Path.Combine(Application.temporaryCachePath, cacheSubFolder));
-        protected virtual IWorkspaceResourceCollection CreateWorkspaceResourceCollection(DialogProject project, IEnumerable<IWorkspaceResource> resources) => new WorkspaceResourceCollection { Resources = resources.ToList() };
+        protected virtual IWorkspaceResourceCollection CreateWorkspaceResourceCollection(Project project, IEnumerable<IWorkspaceResource> resources) => new WorkspaceResourceCollection { Resources = resources.ToList() };
 
-        protected virtual IWorkspaceResource CreateWorkspaceResource(DialogResource resource, Texture2D thumbnail, params GameObject[] prefabs) =>
+        protected virtual IWorkspaceResource CreateWorkspaceResource(PladdraResource resource, Texture2D thumbnail, params GameObject[] prefabs) =>
             new WorkspaceResource() { Prefabs = prefabs, ResourceID = resource.Id, Thumbnails = new []{thumbnail}};
 
         protected virtual CustomYieldInstruction LogTask(string label, Func<CustomYieldInstruction> factory) => LogTask(CreateEvents(label), factory);

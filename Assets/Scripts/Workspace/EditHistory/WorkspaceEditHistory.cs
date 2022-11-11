@@ -5,8 +5,9 @@ using Data.Dialogs;
 using Newtonsoft.Json;
 using UnityEngine;
 using Utility;
+using Pladdra.Data;
 
-namespace Workspace.EditHistory
+namespace Pladdra.Workspace.EditHistory
 {
     public class WorkspaceEditHistory: IWorkspaceEditHistory
     {
@@ -52,7 +53,7 @@ namespace Workspace.EditHistory
             }
         }
 
-        public void Undo(Action<DialogScene> restore)
+        public void Undo(Action<UserProposal> restore)
         {
             if (CanUndo())
             {
@@ -60,7 +61,7 @@ namespace Workspace.EditHistory
             }
         }
 
-        public void Redo(Action<DialogScene> restore)
+        public void Redo(Action<UserProposal> restore)
         {
             if (CanRedo())
             {
@@ -68,7 +69,7 @@ namespace Workspace.EditHistory
             }
         }
 
-        private void Slide(Stack<string> prev, Stack<string> next, Action<DialogScene> restore)
+        private void Slide(Stack<string> prev, Stack<string> next, Action<UserProposal> restore)
         {
             if (!String.IsNullOrEmpty(Current))
             {
@@ -105,9 +106,9 @@ namespace Workspace.EditHistory
                 Head.Concat(Tail).Concat(new[] { Current }));
         }
 
-        private DialogScene Decode(string encoding)
+        private UserProposal Decode(string encoding)
         {
-            return JsonConvert.DeserializeObject<DialogScene>(encoding);
+            return JsonConvert.DeserializeObject<UserProposal>(encoding);
         }
 
         private string TryReuseString(string value, IEnumerable<string> existing)

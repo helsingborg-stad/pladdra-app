@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceObjectsManager : IWorkspaceObjectsManager
     {

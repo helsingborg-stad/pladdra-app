@@ -1,14 +1,14 @@
 using System;
-using Data.Dialogs;
+using Pladdra.Data;
 
-namespace Workspace.EditHistory
+namespace Pladdra.Workspace.EditHistory
 {
     public interface IWorkspaceEditHistory
     {
         bool CanUndo();
         bool CanRedo();
         void SaveSnapshot(IWorkspace workspace);
-         void Undo(Action<DialogScene> restore);
-         void Redo(Action<DialogScene> restore);
+         void Undo(Action<UserProposal> restore);
+         void Redo(Action<UserProposal> restore);
     }
 }

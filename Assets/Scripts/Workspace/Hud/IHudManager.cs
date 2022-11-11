@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UIElements;
 
-namespace Workspace.Hud
+namespace Pladdra.Workspace.Hud
 {
     public interface IHudManager
     {

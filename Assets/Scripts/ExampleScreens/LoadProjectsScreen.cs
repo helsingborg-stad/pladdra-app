@@ -6,7 +6,7 @@ using Screens;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utility;
-using Workspace.Hud;
+using Pladdra.Workspace.Hud;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens
@@ -42,7 +42,7 @@ namespace ExampleScreens
             // pipeline.OnTaskProgress += (label, step) => setLabelText($"{label} {new String('.', step)}");
 
             // run pipeline, and when done: clear hud, transition to another screen
-            StartCoroutine(pipeline.LoadWorkspace((configuration) =>
+            StartCoroutine(pipeline.LoadWorkspace((configuration,project) =>
             {
                 updateUI = () => { };
                 setLabelText = s => { };

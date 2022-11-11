@@ -13,25 +13,31 @@ using Utility;
 
 namespace Data
 {
-    public class WebResourceManager: IWebResourceManager {
+    public class WebResourceManager : IWebResourceManager
+    {
         [Serializable]
-        public class CacheEntry {
-            public Dictionary<string, string> Headers {get; set; }
+        public class CacheEntry
+        {
+            public Dictionary<string, string> Headers { get; set; }
         }
         [Serializable]
-        public class CacheIndex {
+        public class CacheIndex
+        {
             public Dictionary<string, CacheEntry> EntriesByUrl { get; set; }
 
-            public CacheIndex(){
+            public CacheIndex()
+            {
                 EntriesByUrl = new Dictionary<string, CacheEntry>();
             }
 
             public string GetHeader(string url, string headerName)
             {
                 CacheEntry entry = null;
-                if (EntriesByUrl.TryGetValue(url, out entry)) {
+                if (EntriesByUrl.TryGetValue(url, out entry))
+                {
                     string headerValue = null;
-                    if (entry.Headers.TryGetValue(headerName, out headerValue)) {
+                    if (entry.Headers.TryGetValue(headerName, out headerValue))
+                    {
                         return headerValue;
                     }
 
@@ -42,64 +48,77 @@ namespace Data
 
         private static object _lock = new object();
         private CacheIndex _cacheIndex = null;
-        public WebResourceManager(string tempPath) {
+        public WebResourceManager(string tempPath)
+        {
             TempPath = tempPath;
         }
 
         public string TempPath { get; }
         public string IndexPath { get { return Path.Combine(TempPath, "cache.index.json"); } }
 
-        public async Task<string> GetResourcePath (string url)
+        public async Task<string> GetResourcePath(string url)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(IndexPath));
             var cachePath = GetCachePath(url);
-            if (string.IsNullOrEmpty(cachePath)) {
+            if (string.IsNullOrEmpty(cachePath))
+            {
                 return null;
             }
             var cacheExists = File.Exists(cachePath);
             var request = CreateRequest(url, cacheExists);
-            try {
-                using (var response = await request.GetResponseAsync()) {
+            try
+            {
+                using (var response = await request.GetResponseAsync())
+                {
                     var stream = response.GetResponseStream();
-                    using (var dest = new FileStream(cachePath, FileMode.OpenOrCreate)) {
+                    using (var dest = new FileStream(cachePath, FileMode.OpenOrCreate))
+                    {
                         stream.CopyTo(dest);
                     }
                     UpdateCacheIndex(url, response);
-                    return cachePath; 
+                    return cachePath;
                 }
-            } catch (WebException e) {
+            }
+            catch (WebException e)
+            {
                 var statusCode = (e?.Response as HttpWebResponse)?.StatusCode;
-                switch (statusCode) {
-                    case HttpStatusCode.NotModified: {
-                        Debug.Log($"[304 Not Modified]: {url} -> {cachePath}");
-                        return cachePath;
-                    }
-                    default: {
-                        throw e;
-                    }
+                switch (statusCode)
+                {
+                    case HttpStatusCode.NotModified:
+                        {
+                            Debug.Log($"[304 Not Modified]: {url} -> {cachePath}");
+                            return cachePath;
+                        }
+                    default:
+                        {
+                            throw e;
+                        }
                 }
             }
         }
 
         public async Task<Dictionary<string, string>> GetResourcePaths(IEnumerable<string> urls)
         {
-            Debug.Log($"[WebResourceManager] using cache in {TempPath}");   
+            Debug.Log($"[WebResourceManager] using cache in {TempPath}");
             var uniqueUrls = urls
                 .Where(url => !string.IsNullOrEmpty(url))
                 .UniqueBy(url => url)
                 .ToList();
-                
-            Debug.Log($"[WebResourceManager] the urls are...");   
-            foreach (var url in uniqueUrls) {
-                Debug.Log($"[WebResourceManager] -- {url}");   
+
+            Debug.Log($"[WebResourceManager] the urls are...");
+            foreach (var url in uniqueUrls)
+            {
+                Debug.Log($"[WebResourceManager] -- {url}");
             }
 
             var mapping = new Dictionary<string, string>();
-            await Task.WhenAll(uniqueUrls.Select(async url => {
+            await Task.WhenAll(uniqueUrls.Select(async url =>
+            {
                 Debug.Log($"[WebResourceManager] fetching {url}...");
                 var path = await GetResourcePath(url);
                 Debug.Log($"[WebResourceManager] done fetching {url}");
-                lock (mapping) {
+                lock (mapping)
+                {
                     mapping[url] = path;
                 }
                 Debug.Log($"[WebResourceManager] {url} -> {path}");
@@ -108,9 +127,11 @@ namespace Data
             return mapping;
         }
 
-        protected string GetCachePath (string url ) {
+        protected string GetCachePath(string url)
+        {
             Uri validatedUri;
-            if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out validatedUri)) {
+            if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out validatedUri))
+            {
                 return null;
             };
             var name = new UriBuilder(url).Path.Split('/').Last();
@@ -118,48 +139,65 @@ namespace Data
             var fileName = Path.Combine(TempPath, $"{hash}.{name}");
             return fileName;
         }
- 
-        protected virtual string GetHash (string s) {
+
+        protected virtual string GetHash(string s)
+        {
             using (var alg = MD5.Create())
             {
                 return BitConverter.ToString(alg.ComputeHash(Encoding.UTF8.GetBytes(s))).Replace("-", "");
             }
         }
 
-        protected WebRequest CreateRequest(string url, bool allowCaching) {
+        protected WebRequest CreateRequest(string url, bool allowCaching)
+        {
             var cacheIndex = GetCacheIndex();
             var etag = cacheIndex?.GetHeader(url, "ETag");
             var lastModified = cacheIndex?.GetHeader(url, "Last-Modified");
-            var request = WebRequest.Create(url);
-            
-            if (allowCaching) {
-                if (!string.IsNullOrEmpty(etag)) {
-                    request.Headers.Add(HttpRequestHeader.IfNoneMatch, etag);
-                }
-                if (!string.IsNullOrEmpty(lastModified))
+            try
+            {
+
+                var request = WebRequest.Create(url);
+
+                if (allowCaching)
                 {
-                    var httpRequest = request as HttpWebRequest;
-                    if (httpRequest != null)
+                    if (!string.IsNullOrEmpty(etag))
                     {
-                        httpRequest.IfModifiedSince = DateTime.Parse(lastModified);
+                        request.Headers.Add(HttpRequestHeader.IfNoneMatch, etag);
                     }
-                    //request.Headers.Add(HttpRequestHeader.IfModifiedSince, lastModified);
+                    if (!string.IsNullOrEmpty(lastModified))
+                    {
+                        var httpRequest = request as HttpWebRequest;
+                        if (httpRequest != null)
+                        {
+                            httpRequest.IfModifiedSince = DateTime.Parse(lastModified);
+                        }
+                        //request.Headers.Add(HttpRequestHeader.IfModifiedSince, lastModified);
+                    }
                 }
+                return request;
             }
-            return request;
+            catch
+            {
+                Debug.Log($"[WebResourceManager] failed to create request for {url}");
+                return null;
+                throw;
+            }
         }
 
-        
-        protected CacheIndex GetCacheIndex () {
+
+        protected CacheIndex GetCacheIndex()
+        {
             return LockCacheIndex(index => index);
         }
 
         private void UpdateCacheIndex(string url, WebResponse response)
         {
-            LockCacheIndex(index => {
+            LockCacheIndex(index =>
+            {
                 var newIndex = DeepCopy(index);
                 var headers = response.Headers;
-                var entry = new CacheEntry{
+                var entry = new CacheEntry
+                {
                     Headers = headers.AllKeys.ToDictionary(key => key, key => headers.Get(key))
                 };
                 newIndex.EntriesByUrl[url] = entry;
@@ -168,13 +206,19 @@ namespace Data
             });
         }
 
-        protected CacheIndex LockCacheIndex (Func<CacheIndex, CacheIndex> fn) {
-            lock(_lock) {
-                if (_cacheIndex == null) {
-                    try {
+        protected CacheIndex LockCacheIndex(Func<CacheIndex, CacheIndex> fn)
+        {
+            lock (_lock)
+            {
+                if (_cacheIndex == null)
+                {
+                    try
+                    {
                         var text = File.ReadAllText(IndexPath, Encoding.UTF8);
                         _cacheIndex = JsonConvert.DeserializeObject<CacheIndex>(text);
-                    } catch (FileNotFoundException) {
+                    }
+                    catch (FileNotFoundException)
+                    {
                         _cacheIndex = new CacheIndex();
                     }
                 }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
 
-namespace Workspace.UxHandlers
+namespace Pladdra.Workspace.UxHandlers
 {
     public class AllowUserToPositionPlane : AbstractUxHandler
     {

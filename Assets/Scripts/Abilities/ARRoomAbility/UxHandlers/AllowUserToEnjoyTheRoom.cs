@@ -7,20 +7,21 @@ using Lean.Touch;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UXHandlers;
-using Workspace;
+using Pladdra.Workspace;
+using Pladdra.Data;
 
 namespace Abilities.ARRoomAbility.UxHandlers
 {
     public class AllowUserToEnjoyTheRoom: AbstractUxHandler
     {
         private IRaycastHandler RaycastHandler;
-        private DialogScene FeaturedScene { get; }
-        private List<DialogScene> FeaturedScenes { get; }
+        private UserProposal FeaturedScene { get; }
+        private List<UserProposal> FeaturedScenes { get; }
 
-        public AllowUserToEnjoyTheRoom(DialogScene featuredScene, List<DialogScene> featuredScenes) : base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect)
+        public AllowUserToEnjoyTheRoom(UserProposal userProposal, List<UserProposal> userProposals) : base(Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect)
         {
-            FeaturedScene = featuredScene;
-            FeaturedScenes = featuredScenes;
+            FeaturedScene = userProposal;
+            FeaturedScenes = userProposals;
             RaycastHandler = RaycastHandler ?? new NullRaycastHandler();
         }
 

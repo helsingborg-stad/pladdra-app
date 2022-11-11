@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using Workspace.Hud;
+using Pladdra.Workspace.Hud;
 
 namespace Screens
 {

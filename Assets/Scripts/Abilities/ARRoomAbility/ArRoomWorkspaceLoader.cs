@@ -8,7 +8,8 @@ using Pipelines;
 using Unity.VisualScripting;
 using UnityEngine;
 using Utility;
-using Workspace;
+using Pladdra.Workspace;
+using Pladdra.Data;
 
 namespace Abilities.ARRoomAbility
 {
@@ -27,14 +28,16 @@ namespace Abilities.ARRoomAbility
             OnTaskProgress += (label, step) => { };
         }
         
-        public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration> callback)
+        public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration, Project> callback)
         {
-            DialogProject project = null;
+            // DialogProject project = null;
+            Project project = null;
+            
             yield return LogTask("Nu hämtar vi definitioner från servern!",
                 () => new LoadExternalProject(Repository, p => project = p));
 
             var modelUrls = project.Resources.Select(resource => resource.ModelUrl)
-                .Concat(project.Resources.Select(resource => resource.MarkerModelUrl))
+                .Concat(project.Resources.Select(resource => resource.ModelIconUrl))
                 .Where(s => !string.IsNullOrEmpty(s));
             
             var markerImageUrls = new[] { project?.Marker?.Image }
@@ -58,10 +61,16 @@ namespace Abilities.ARRoomAbility
                         // TODO: Decide if this is the best place for this stuff
                         if (go.GetComponent<Animation>())
                             go.GetComponent<Animation>().playAutomatically = true;
+
+                            // TODO Add gameobject to pladdra resource
                         
                         path2model[path] = go;
                     }));
             }
+
+            // TODO Load video
+            // TODO Load audio
+            // TODO Load asset bundles
             
             var path2Preview = new Dictionary<string, Texture2D>();
             foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
@@ -77,7 +86,7 @@ namespace Abilities.ARRoomAbility
                 {
                     resource,
                     model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
-                    marker = path2model.TryGet(url2path.TryGet(resource.MarkerModelUrl)),
+                    marker = path2model.TryGet(url2path.TryGet(resource.ModelIconUrl)),
                     thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
                 })
                 .Where(o => o.model != null)
@@ -91,7 +100,7 @@ namespace Abilities.ARRoomAbility
             if (project?.Marker?.Image != null)
             {
                 yield return LogTask("Nu laddar vi in en markörbild!", () => 
-                new Load2dTexture(url2path[project.Marker.Image], t =>
+                new Load2dTexture(url2path[project.Marker.Image], t =>  
                 {
                     markerImageTexture = t;
                 }));
@@ -108,16 +117,16 @@ namespace Abilities.ARRoomAbility
                     Height = project.Marker.Height
                 } : null,
                 Origin = new WorkspaceOrigin(),
-                Plane = new WorkspacePlane()
-                {
-                    Width = project.Plane?.Width ?? 4,
-                    Height = project.Plane?.Height ?? 4
-                },
+                // Plane = new WorkspacePlane()
+                // {
+                //     Width = project.Plane?.Width ?? 4,
+                //     Height = project.Plane?.Height ?? 4
+                // },
                 ResourceCollection = CreateWorkspaceResourceCollection(project, allResources.ToList()),
-                FeaturedScenes = project.FeaturedScenes ?? new List<DialogScene>()
+                UserProposals = project.UserProposals ?? new List<UserProposal>()
             });
 
-            callback(configuration);
+            callback(configuration, project);
         }
 
         protected override IPipelineTaskEvents CreateEvents(string label)

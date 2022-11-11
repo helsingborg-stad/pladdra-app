@@ -1,4 +1,4 @@
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public interface IWorkspacePlane
     {

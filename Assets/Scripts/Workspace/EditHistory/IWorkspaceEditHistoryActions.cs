@@ -1,4 +1,4 @@
-namespace Workspace.EditHistory
+namespace Pladdra.Workspace.EditHistory
 {
     public interface IWorkspaceEditHistoryActions
     {

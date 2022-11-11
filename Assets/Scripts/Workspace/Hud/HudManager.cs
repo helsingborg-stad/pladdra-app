@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Workspace.Hud
+namespace Pladdra.Workspace.Hud
 {
     public class HudManager : MonoBehaviour, IHudManager
     {

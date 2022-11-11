@@ -1,15 +1,17 @@
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using Workspace;
+using System.Linq;
+using Pladdra.Workspace;
 
-namespace Data.Dialogs
+namespace Pladdra.Data
 {
-    public class DialogScene
+    public class UserProposal
     {
-        public static DialogScene Describe(IWorkspaceScene scene, string name)
+        // ! What is this for?  
+       public static UserProposal Describe(IWorkspaceScene scene, string name)
         {
-            return new DialogScene()
+            return new UserProposal()
             {
                 Name = name,
                 Plane = CopyTransformTo(scene.Plane, new PlaneDescription()),

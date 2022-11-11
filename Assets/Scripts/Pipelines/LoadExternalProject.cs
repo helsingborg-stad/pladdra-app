@@ -1,11 +1,11 @@
 using System;
 using Abilities.ARRoomAbility;
-using Data.Dialogs;
+using Pladdra.Data;
 
 namespace Pipelines
 {
-    public class LoadExternalProject : TaskYieldInstruction<DialogProject>
+    public class LoadExternalProject : TaskYieldInstruction<Project>
     {
-        public LoadExternalProject(IDialogProjectRepository repository, Action<DialogProject> callback) : base(() => repository.Load(), callback) { }
+        public LoadExternalProject(IDialogProjectRepository repository, Action<Project> callback) : base(() => repository.Load(), callback) { }
     }
 }

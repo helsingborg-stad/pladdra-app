@@ -1,6 +1,6 @@
 using System;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public interface IWorkspaceActions
     {

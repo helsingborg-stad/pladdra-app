@@ -12,11 +12,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Utility;
 using UXHandlers;
-using Workspace.EditHistory;
-using Workspace.Hud;
-using Workspace.UxHandlers;
+using Pladdra.Workspace.EditHistory;
+using Pladdra.Workspace.Hud;
+using Pladdra.Workspace.UxHandlers;
+using Pladdra.Data;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class Workspace: IWorkspace {
         public Workspace(MonoBehaviour owner, IWorkspaceScene scene, IWorkspaceObjectsManager objectsManager, IWorkspaceResourceCollection resourceCollection, IHudManager hudManager, IDialogProjectRepository dialogProjectRepository, IWorkspaceEditHistory history)
@@ -50,26 +51,26 @@ namespace Workspace
         public IDialogProjectRepository DialogProjectRepository { get; }
         public IWorkspaceActions Actions { get; }
 
-        public DialogScene GetSceneDescription()
+        public UserProposal GetSceneDescription()
         {
             return Scene.CreateWorkspaceSceneDescription(Name);
         }
 
-        public void UseScene(DialogScene scene)
+        public void UseScene(UserProposal scene)
         {
             ObjectsManager.DestroyAll();
 
             UpdateTransform(Scene.Plane, scene?.Plane);
 
             foreach (var item in scene?.Items ??
-                                 Enumerable.Empty<DialogScene.ItemDescription>())
+                                 Enumerable.Empty<UserProposal.ItemDescription>())
             {
                 var resource = ResourceCollection.TryGetResource(item.ResourceId);
                 if (resource != null)
                     ObjectsManager.SpawnItem(resource, Scene.Plane, item.Position?.ToVector3() ?? new Vector3(1, 1, 1), item.Rotation?.ToQuaternion() ?? new Quaternion(), item.Scale?.ToVector3() ?? new Vector3(1, 1, 1));
             }
 
-            void UpdateTransform(GameObject go, DialogScene.TransformDescription t)
+            void UpdateTransform(GameObject go, UserProposal.TransformDescription t)
             {
                 go.transform.localPosition = t?.Position?.ToVector3() ?? go.transform.localPosition;
                 go.transform.localScale = t?.Scale?.ToVector3() ?? go.transform.localScale;

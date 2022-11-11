@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44407925, g: 0.49333048, b: 0.5723981, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -318,6 +318,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 77006490073951433, guid: cfb97e1cf63fa43f7a139e6bf17994bc,
+        type: 3}
+      propertyPath: deeplink
+      value: pladdra://ar-dialogue-room/eyJlbmRwb2ludCI6Imh0dHBzOi8vbW9kdWwtdGVzdC5oZWxzaW5nYm9yZy5pby9oZWxzaW5nYm9yZ3NydW1tZXQvd3AtanNvbi93cC92Mi9hci1kaWFsb2d1ZS1yb29tLzcyMz9hY2ZfZm9ybWF0PXN0YW5kYXJkIn0=
+      objectReference: {fileID: 0}
     - target: {fileID: 5347740243230622060, guid: cfb97e1cf63fa43f7a139e6bf17994bc,
         type: 3}
       propertyPath: m_RootOrder

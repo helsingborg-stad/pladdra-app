@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public class WorkspaceActions : IWorkspaceActions
     {

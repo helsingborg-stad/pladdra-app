@@ -1,6 +1,6 @@
 using Abilities;
 using UnityEngine;
-using Workspace;
+using Pladdra.Workspace;
 using Screen = Screens.Screen;
 
 namespace ExampleScreens

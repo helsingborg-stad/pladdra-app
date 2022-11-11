@@ -5,10 +5,11 @@ using Abilities.ARRoomAbility;
 using Data.Dialogs;
 using UnityEngine.UIElements;
 using UXHandlers;
-using Workspace.EditHistory;
-using Workspace.UxHandlers;
+using Pladdra.Workspace.EditHistory;
+using Pladdra.Workspace.UxHandlers;
+using Pladdra.Data;
 
-namespace Workspace
+namespace Pladdra.Workspace
 {
     public interface IWorkspace
     {
@@ -16,8 +17,8 @@ namespace Workspace
         IWorkspaceEditHistoryActions HistoryActions { get; }
         IDialogProjectRepository DialogProjectRepository { get;  }
         IWorkspaceActions Actions { get;  }
-        DialogScene GetSceneDescription();
-        void UseScene(DialogScene scene);
+        UserProposal GetSceneDescription();
+        void UseScene(UserProposal scene);
 
         void UseHud(string templatePath, Action<VisualElement> bindUi);
         void ClearHud();

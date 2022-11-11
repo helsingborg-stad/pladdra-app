@@ -11,6 +11,7 @@ using Data.Dialogs;
 using Newtonsoft.Json;
 using UnityEngine;
 using Utility;
+using Pladdra.Data;
 
 namespace Abilities.ARRoomAbility.WP
 {
@@ -26,38 +27,38 @@ namespace Abilities.ARRoomAbility.WP
             CachePath = Path.Join(Application.temporaryCachePath,"ar-dialogue-room");
         }
         
-        public virtual async Task<DialogProject> Load()
+        public virtual async Task<Project> Load()
         {
             var model = await FetchModel();
             
-            return new DialogProject()
+            return new Project()
             {
                 Id = Endpoint,
-                Plane = new DialogPlane()
-                {
-                    Width = model.Acf?.PlaneDimensionsWidth ?? 5,
-                    Height = model.Acf?.PlaneDimensionsHeight ?? 5
-                },
-                Resources = (model?.Acf?.Resources?.Select(r => new DialogResource()
+                // Plane = new DialogPlane()
+                // {
+                //     Width = model.Acf?.PlaneDimensionsWidth ?? 5,
+                //     Height = model.Acf?.PlaneDimensionsHeight ?? 5
+                // },
+                Resources = (model?.Acf?.Resources?.Select(r => new PladdraResource()
                                  {
                                      Id = r.Name,
                                      Type = "model",
                                      ModelUrl = r.Model,
-                                     MarkerModelUrl = r.MarkerModel,
+                                     ModelIconUrl = r.MarkerModel,
                                      Disable = r.Disable
                                  })
                                  .Where(r => !string.IsNullOrEmpty(r.Id))
                                  .Where(r => !string.IsNullOrEmpty(r.ModelUrl))
-                                 .Where(r => !string.IsNullOrEmpty(r.MarkerModelUrl))
+                                 .Where(r => !string.IsNullOrEmpty(r.ModelIconUrl))
                                  .Where(r => r.Disable != true)
-                             ?? Enumerable.Empty<DialogResource>()).ToList(),
-                FeaturedScenes = model?.Acf?.Scenes?
+                             ?? Enumerable.Empty<PladdraResource>()).ToList(),
+                UserProposals = model?.Acf?.Scenes?
                     .Where(s => s != null)
                     .Where(s => s.IsFeatured)
                     .Select(TryParseScene)
                     .Where(s => s != null)
-                    .ToList() ?? new List<DialogScene>(),
-                Marker = model?.Acf.Marker != null ? new DialogueMarker()
+                    .ToList() ?? new List<UserProposal>(),
+                Marker = model?.Acf.Marker != null ? new ProjectARMarker()
                 {
                     Image = model.Acf.Marker.Image,
                     Width = model.Acf.Marker.Width,
@@ -66,7 +67,7 @@ namespace Abilities.ARRoomAbility.WP
             };
         }
         
-        public virtual async Task<DialogScene> SaveScene(DialogScene scene)
+        public virtual async Task<UserProposal> SaveScene(UserProposal scene)
         {
             // SaveScene
             //  load existing room
@@ -106,7 +107,7 @@ namespace Abilities.ARRoomAbility.WP
             return scene;
         }
 
-        public virtual async Task<Dictionary<string, DialogScene>> LoadScenes()
+        public virtual async Task<Dictionary<string, UserProposal>> LoadScenes()
         {
             var model = await new WebRestManager().GetJson<WpArDialogueRoom>(Endpoint);
 
@@ -123,9 +124,9 @@ namespace Abilities.ARRoomAbility.WP
             return await new WebRestManager().GetJson<WpArDialogueRoom>(Endpoint);
         }
 
-        private DialogScene TryParseScene(WpScene scene)
+        private UserProposal TryParseScene(WpScene scene)
         {
-            var parsed = TryParseJson<DialogScene>(scene.Json);
+            var parsed = TryParseJson<UserProposal>(scene.Json);
             if (parsed != null)
             {
                 parsed.Name = scene.Name;
