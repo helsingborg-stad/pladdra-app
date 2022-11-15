@@ -36,8 +36,8 @@ namespace Abilities.ARRoomAbility
             yield return LogTask("Nu hämtar vi definitioner från servern!",
                 () => new LoadExternalProject(Repository, p => project = p));
 
-            var modelUrls = project.Resources.Select(resource => resource.ModelUrl)
-                .Concat(project.Resources.Select(resource => resource.ModelIconUrl))
+            var ModelURLs = project.Resources.Select(resource => resource.ModelURL)
+                .Concat(project.Resources.Select(resource => resource.ModelIconURL))
                 .Where(s => !string.IsNullOrEmpty(s));
             
             var markerImageUrls = new[] { project?.Marker?.Image }
@@ -48,11 +48,11 @@ namespace Abilities.ARRoomAbility
             yield return LogTask("Vi tankar ner alla modeller för att det ska gå snabbare sen!",
                 () => new MapExternalResourceToLocalPaths(
                     wrm,
-                    modelUrls.Concat(markerImageUrls),
+                    ModelURLs.Concat(markerImageUrls),
                     p => url2path = p));
 
             var path2model = new Dictionary<string, GameObject>();
-            foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
+            foreach (var path in ModelURLs.Select(url => url2path[url]).DistinctBy(path => path))
             {
                 yield return LogTask(
                     $"Nu läser vi in en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()} i minnet!",
@@ -73,7 +73,7 @@ namespace Abilities.ARRoomAbility
             // TODO Load asset bundles
             
             var path2Preview = new Dictionary<string, Texture2D>();
-            foreach (var path in modelUrls.Select(url => url2path[url]).DistinctBy(path => path))
+            foreach (var path in ModelURLs.Select(url => url2path[url]).DistinctBy(path => path))
             {
                 yield return LogTask(
                     $"Nu tar vi en bild på en 3d modell som heter {Path.GetFileNameWithoutExtension(path).Split('.').Last()}!",
@@ -85,9 +85,9 @@ namespace Abilities.ARRoomAbility
                 .Select(resource => new
                 {
                     resource,
-                    model = path2model.TryGet(url2path.TryGet(resource.ModelUrl)),
-                    marker = path2model.TryGet(url2path.TryGet(resource.ModelIconUrl)),
-                    thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelUrl)),
+                    model = path2model.TryGet(url2path.TryGet(resource.ModelURL)),
+                    marker = path2model.TryGet(url2path.TryGet(resource.ModelIconURL)),
+                    thumbnail = path2Preview.TryGet(url2path.TryGet(resource.ModelURL)),
                 })
                 .Where(o => o.model != null)
                 .Where(o => o.marker != null)

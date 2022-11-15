@@ -1,0 +1,14 @@
+{
+    "Id": 723,
+    "Name": "Arkitekturförslag",
+    "Description": "Förslag på ny kyrkbyggnad till förmån för kräftorna.",
+    "allowAnyUserToInteract": false,
+    "StaticResources": [
+        {
+            "Id": 1,
+            "Name": "buu",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/city_hall.glb",
+            "Scale": {"x": 0.01, "y": 0.01, "z": 0.01}
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "Id": 723,
+    "Name": "Lekplatsdialog",
+    "Description": "Lekplatsdialog",
+    "allowAnyUserToInteract": true,
+    "Resources": [
+        {
+            "Name": "Mammoth",
+            "ModelURL": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/mammoth.glb",
+            "Scale": {"x": 0.01, "y": 0.01, "z": 0.01}
+        }
+    ],
+    "Marker": {
+        "Image": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg",
+        "Height": "0.27",
+        "Width": "0.21"
+    }
+}

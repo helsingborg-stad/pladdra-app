@@ -5,9 +5,12 @@ using Lean.Common;
 using UnityEngine;
 using Pladdra.Workspace;
 using Object = UnityEngine.Object;
+using Pladdra.UI;
+using Pladdra;
 
 namespace UXHandlers
 {
+    // TODO Generalize 
     public abstract class AbstractUxHandler : IUxHandler, IUxHandlerEvents
     {
         protected AbstractUxHandler(): this(Traits.AllowTranslate, Traits.AllowRotate, Traits.AllowScale, Traits.AllowBoxCollider, Traits.AllowFlexibleBounds, Traits.AllowSelect, Traits.AllowOutline){}
@@ -29,7 +32,11 @@ namespace UXHandlers
         {
             InvokeTraits(go, scene, workspace, (trait, ctx) => trait.Deselect(ctx));
         }
-        
+        // TODO Clean this up
+        public virtual void Activate(UIManager uiManager, ProposalManager proposalManager)
+        {
+
+        }
         public virtual void Activate(IWorkspaceScene scene, IWorkspace workspace)
         {
             foreach (var go in GetSelectableObjects(scene))

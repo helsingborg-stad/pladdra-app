@@ -31,7 +31,7 @@ namespace Abilities.ARRoomAbility.Local
         public virtual Task<Project> Load() => Task.FromResult(new Project() {
                 Id = "dialog-1",
                 // Plane = new DialogPlane(){Width = 4, Height = 4},
-                Resources = SampleModels.Select(url => new PladdraResource{ModelUrl = url, ModelIconUrl = url, Type = "model"}).ToList()
+                Resources = SampleModels.Select(url => new PladdraResource{ModelURL = url, ModelIconURL = url, Type = "model"}).ToList()
         });
 
         public virtual Task<UserProposal> SaveScene(UserProposal scene)

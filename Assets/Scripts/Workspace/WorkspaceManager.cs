@@ -11,9 +11,8 @@ namespace Pladdra.Workspace
         private IAbility Ability { get; set; }
         private IWorkspaceScene Scene { get; set; }
         private IWorkspace Workspace { get; set; }
-        
-        public GameObject itemPrefab;
 
+        public GameObject itemPrefab;
         public void Activate(IAbility ability, WorkspaceConfiguration wc)
         {
             History = new WorkspaceEditHistory();
@@ -21,12 +20,12 @@ namespace Pladdra.Workspace
             var hudManager = FindObjectOfType<HudManager>();
             var dialogProjectRepository = Ability.Repository;
             var objectsManager = new WorkspaceObjectsManager(itemPrefab);
-            
+
             // TODO: Destroy/detach any existing children of workspaceOrigin
-            
+
             var plane = FindObjectOfType<PlaneFactory>()
                 .SpawnPlane(wc.Plane.Width, wc.Plane.Height);
-            
+
             plane.transform.SetParent(wc.Origin.go.transform, false);
 
             Scene = new WorkspaceScene(plane, objectsManager, wc.ResourceCollection);

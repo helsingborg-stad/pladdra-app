@@ -43,13 +43,13 @@ namespace Abilities.ARRoomAbility.WP
                                  {
                                      Id = r.Name,
                                      Type = "model",
-                                     ModelUrl = r.Model,
-                                     ModelIconUrl = r.MarkerModel,
+                                     ModelURL = r.Model,
+                                     ModelIconURL = r.MarkerModel,
                                      Disable = r.Disable
                                  })
                                  .Where(r => !string.IsNullOrEmpty(r.Id))
-                                 .Where(r => !string.IsNullOrEmpty(r.ModelUrl))
-                                 .Where(r => !string.IsNullOrEmpty(r.ModelIconUrl))
+                                 .Where(r => !string.IsNullOrEmpty(r.ModelURL))
+                                 .Where(r => !string.IsNullOrEmpty(r.ModelIconURL))
                                  .Where(r => r.Disable != true)
                              ?? Enumerable.Empty<PladdraResource>()).ToList(),
                 UserProposals = model?.Acf?.Scenes?
@@ -58,7 +58,7 @@ namespace Abilities.ARRoomAbility.WP
                     .Select(TryParseScene)
                     .Where(s => s != null)
                     .ToList() ?? new List<UserProposal>(),
-                Marker = model?.Acf.Marker != null ? new ProjectARMarker()
+                Marker = model?.Acf.Marker != null ? new ARMarker()
                 {
                     Image = model.Acf.Marker.Image,
                     Width = model.Acf.Marker.Width,

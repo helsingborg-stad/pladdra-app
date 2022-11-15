@@ -1,0 +1,25 @@
+{
+    "Id": 8,
+    "Name": "Exhibition",
+    "allowAnyUserToInteract": false,
+    "Resources": [
+        {
+            "Id": 1,
+            "Name": "artwork1",
+            "ModelURL": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/mammoth.glb",
+            "Marker": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg"
+        },
+        {
+            "Id": 1,
+            "Name": "artwork1",
+            "ModelURL": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoxVertexColors/glTF-Embedded/BoxVertexColors.gltf",
+            "Marker": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg"
+        },
+        {
+            "Id": 1,
+            "Name": "artwork1",
+            "ModelURL": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/mammoth.glb",
+            "Marker": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg"
+        }
+    ]
+}
