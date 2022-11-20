@@ -4,6 +4,7 @@ using System.Linq;
 using Abilities;
 using Abilities.ARRoomAbility.Local;
 using Abilities.ARRoomAbility.WP;
+using Abilities.Tutorial;
 using ExampleScreens;
 using Screens;
 using UnityEngine;
@@ -35,7 +36,8 @@ namespace Deeplinks
             var ability = AbilityUri.TryCreateAbility(url,
                 new WpArDialogueRoomForAdminAbilityFactory(),
                 new WpArDialogueRoomForVisitorAbilityFactory(),
-                new LocalArDialogueRoomAbilityFactory(Application.temporaryCachePath)
+                new LocalArDialogueRoomAbilityFactory(Application.temporaryCachePath),
+                new TutorialAbilityFactory()
             );
             if (ability != null)
             {
