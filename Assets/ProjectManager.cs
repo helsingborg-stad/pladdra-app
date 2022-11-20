@@ -153,7 +153,7 @@ namespace Pladdra
             if (origin == null)
             {
                 origin = new GameObject("ProjectOrigin").transform;
-                origin.position = Camera.main.gameObject.RelativeToUser(new Vector3(0, 0, 4), false, true, new string[] { "ARMesh" });
+                origin.position = Camera.main.gameObject.RelativeToObject(new Vector3(0, 0, 4), VectorExtensions.RelativeToObjectOptions.OnGroundLayers, new string[] { "ARMesh" });
             }
             return origin;
         }

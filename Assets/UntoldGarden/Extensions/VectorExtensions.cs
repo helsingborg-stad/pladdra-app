@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,8 +24,19 @@ namespace UntoldGarden
             return origin;
         }
 
+        public enum RelativeToObjectOptions { OnGroundLayers, OnNavMesh, OnGroundLayersAndNavMesh }
 
-        public static Vector3 RelativeToUser(this GameObject origin, Vector3? offset, bool onNavMesh = false, bool onFloor = false, string[] layers = null)
+        /// <summary>
+        /// Gets a position relative to a GameObject, with options to place it on a specific ground layer and/or on the NavMesh.
+        /// </summary>
+        /// <param name="origin">GameObject to get a relative position to.</param>
+        /// <param name="offset">Offset from that GameObject, e.g. 2m in front.</param>
+        /// <param name="args">OnGroundLayer gets a raycast downward from the relative position and returns the first hit.point. 
+        /// OnNavMesh returns the closest point to the relative position on the NavMesh.
+        /// OnGroundLayersAndNavMesh does both of the above.</param>
+        /// <param name="layers">The GroundLayers to look for RaycastHit's on.</param>
+        /// <returns></returns>
+        public static Vector3 RelativeToObject(this GameObject origin, Vector3? offset, RelativeToObjectOptions args, string[] layers = null)
         {
 
             Vector3 pos = origin.transform.position;
@@ -34,7 +45,7 @@ namespace UntoldGarden
                 (origin.transform.right * offset.Value.x) +
                 (origin.transform.up * offset.Value.y);
 
-            if (onFloor)
+            if (args == RelativeToObjectOptions.OnGroundLayers || args == RelativeToObjectOptions.OnGroundLayersAndNavMesh)
             {
                 if (layers == null)
                 {
@@ -44,7 +55,6 @@ namespace UntoldGarden
                 RaycastHit hit;
                 if (Physics.Raycast(pos, -origin.transform.up, out hit, Mathf.Infinity, LayerMask.GetMask(layers)))
                 {
-                    // Debug.Log("Hit " + hit.collider.name);
                     pos = hit.point;
                 }
                 else
@@ -53,19 +63,17 @@ namespace UntoldGarden
                 }
             }
 
-            if (onNavMesh)
+            if (args == RelativeToObjectOptions.OnNavMesh || args == RelativeToObjectOptions.OnGroundLayersAndNavMesh)
             {
                 if (UnityEngine.AI.NavMesh.SamplePosition(pos, out UnityEngine.AI.NavMeshHit navHit, 10f, UnityEngine.AI.NavMesh.AllAreas))
                 {
                     pos = navHit.position;
-                    //Debug.Log("VectorExtensions.RelativeToUser found navmesh point on " + pos);
                 }
                 else
                 {
                     Debug.Log("VectorExtensions.RelativeToUser could not get NavMesh hit!");
                 }
             }
-
             return pos;
         }
 

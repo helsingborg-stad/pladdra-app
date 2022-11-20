@@ -79,6 +79,7 @@ namespace Pladdra
         }
 
         // TODO Add timer
+        // 
         IEnumerator DownloadResource(string url, Action<UnityWebRequest> callback)
         {
             using (UnityWebRequest req = UnityWebRequest.Get(url))
@@ -97,7 +98,7 @@ namespace Pladdra
             model.SetActive(false);
             return model;
         }
-        
+
         string GetFilePath(string url)
         {
             string[] pieces = url.Split('/');
