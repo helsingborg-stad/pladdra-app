@@ -1,16 +1,207 @@
 {
-    "Id": 723,
-    "Name": "Lekplatsdialog",
-    "Description": "Lekplatsdialog",
+    "id": 723,
+    "name": "Lekplatsdialog",
+    "description": "Här står det information om lekplatsdialogen, som beskriver vad som kan göras och varför. Där kan även stå någonting roligt för att inspirera till att delta. Kanske finns där en bild, kanske på en påfågel. Vem vet.",
     "allowAnyUserToInteract": true,
-    "Resources": [
+    "startScale": 0.5,
+    "staticResources": [
         {
-            "Name": "Mammoth",
-            "ModelURL": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/mammoth.glb",
-            "Scale": {"x": 0.01, "y": 0.01, "z": 0.01}
+            "Name": "Playground",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/playground-bottomplate-1.glb"
         }
     ],
-    "Marker": {
+    "resources": [
+        {
+            "Name": "Egg slicer",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/eggslicer_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Donut",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/godis-donut.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymd - Raket",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/raket_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Bro",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/bron_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Planta",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/seed_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Sten",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/sten_2_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Lövträd",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/tra_2_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Träd",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/tra_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Gran",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/tra_3_low.glb",
+            "Scale": {
+                "x": 0.01,
+                "y": 0.01,
+                "z": 0.01
+            }
+        },
+        {
+            "Name": "Natur - Tall",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/tra_4_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Natur - Spökträd",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/wood_3_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Donut",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/donut_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Gummibjörnar",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/gummybear_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Klubba",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/lollipop_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Regnbåge - Båge",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/regnbage_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Regnbåge - Kruka",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/pot_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Regnbåge - Paraply",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/umbrella_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Robot - Orange",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/robot_1_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Robot - Blå",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/robot_2_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Robot - Lila",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/robot_3_low.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Gul bil",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/van_shell.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        }
+    ],
+    "marker": {
         "Image": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg",
         "Height": "0.27",
         "Width": "0.21"

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UntoldGarden
+namespace UntoldGarden.Utils
 {
     public static class VectorExtensions
     {
@@ -24,7 +24,7 @@ namespace UntoldGarden
             return origin;
         }
 
-        public enum RelativeToObjectOptions { OnGroundLayers, OnNavMesh, OnGroundLayersAndNavMesh }
+        public enum RelativeToObjectOptions { None, OnGroundLayers, OnNavMesh, OnGroundLayersAndNavMesh }
 
         /// <summary>
         /// Gets a position relative to a GameObject, with options to place it on a specific ground layer and/or on the NavMesh.
@@ -374,6 +374,57 @@ namespace UntoldGarden
         public static float GetInternalVectorAngle(this Vector3 angleToGet, Vector3 b, Vector3 c)
         {
             return Vector3.Angle(b - angleToGet, c - angleToGet);
+        }
+        #endregion
+
+        #region Vector2
+
+        public static Vector2 CalculateScreenBounds(this Bounds bounds) {
+            Vector3 c = bounds.center;
+            Vector3 e = bounds.extents;
+    
+            Vector3[] worldCorners = new [] {
+                new Vector3( c.x + e.x, c.y + e.y, c.z + e.z ),
+                new Vector3( c.x + e.x, c.y + e.y, c.z - e.z ),
+                new Vector3( c.x + e.x, c.y - e.y, c.z + e.z ),
+                new Vector3( c.x + e.x, c.y - e.y, c.z - e.z ),
+                new Vector3( c.x - e.x, c.y + e.y, c.z + e.z ),
+                new Vector3( c.x - e.x, c.y + e.y, c.z - e.z ),
+                new Vector3( c.x - e.x, c.y - e.y, c.z + e.z ),
+                new Vector3( c.x - e.x, c.y - e.y, c.z - e.z ),
+            };
+
+            // IEnumerable<Vector3> screenCorners = worldCorners.select(corner => Camera.main.WorldToScreenPoint(corner));
+            // float max_x = screenCorners.Max(corner => corner.x);
+            // float min_x = screenCorners.Min(corner => corner.x);
+            // float max_y = screenCorners.Max(corner => corner.y);
+            // float min_y = screenCorners.Min(corner => corner.y);
+            float min_x = worldCorners[0].x;
+            float min_y = worldCorners[0].y;
+            float max_x = worldCorners[0].x;
+            float max_y = worldCorners[0].y;
+
+            for (int i = 1; i < 8; i++) {
+                if(worldCorners[i].x < min_x) {
+                    min_x = worldCorners[i].x;
+                }
+                if(worldCorners[i].y < min_y) {
+                    min_y = worldCorners[i].y;
+                }
+                if(worldCorners[i].x > max_x) {
+                    max_x = worldCorners[i].x;
+                }
+                if(worldCorners[i].y > max_y) {
+                    max_y = worldCorners[i].y;
+                }
+            }
+
+            Vector3 topRight = new Vector3(max_x, max_y, 0);
+            Vector3 topLeft = new Vector3(min_x, max_y, 0);
+            Vector3 bottomRight = new Vector3(max_x, min_y, 0);
+            Vector3 bottomLeft = new Vector3(min_x, min_y, 0);
+
+            return new Vector2(Vector3.Distance(topLeft, topRight), Vector3.Distance(topLeft, bottomLeft));
         }
         #endregion
 

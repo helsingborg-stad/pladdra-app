@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.AI;
+using System.Linq;
 
 /// <summary>
 /// Unity and C# extension scripts
 /// </summary>
 
-namespace UntoldGarden
+namespace UntoldGarden.Utils
 {
     public static class GameObjectExtensions
     {
         // Checks if gameobject is seen by camera
-        public static bool IsSeenByCam(this GameObject go, Camera cam = null)          
+        public static bool IsSeenByCam(this GameObject go, Camera cam = null)
         {
             if (cam == null)
                 cam = Camera.main;
@@ -42,7 +43,7 @@ namespace UntoldGarden
             }
             return null;
         }
-        
+
         public static GameObject[] FindDeepChildrenWithTag(this GameObject parent, string tag)
         {
             List<GameObject> gameObjects = new List<GameObject>();
@@ -62,7 +63,8 @@ namespace UntoldGarden
             else
                 return null;
         }
-         // Finds a grandchild with a specific tag - use sparingly, not optimized
+
+        // Finds a grandchild with a specific tag - use sparingly, not optimized
         public static Transform FindDeepChildByName(this GameObject parent, string name)
         {
             Queue<Transform> queue = new Queue<Transform>();
@@ -76,6 +78,76 @@ namespace UntoldGarden
                     queue.Enqueue(t);
             }
             return null;
+        }
+
+        public static Transform FindDeepChildWithComponent<T>(this GameObject parent) where T : Component
+        {
+            Queue<Transform> queue = new Queue<Transform>();
+            queue.Enqueue(parent.transform);
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                if (c.GetComponent<T>() != null)
+                    return c;
+                foreach (Transform t in c)
+                    queue.Enqueue(t);
+            }
+            return null;
+        }
+
+        public static GameObject[] FindDeepChildrenWithComponent<T>(this GameObject parent) where T : Component
+        {
+            List<GameObject> gameObjects = new List<GameObject>();
+            Queue<Transform> queue = new Queue<Transform>();
+            queue.Enqueue(parent.transform);
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                if (c.GetComponent<T>() != null)
+                    gameObjects.Add(c.gameObject);
+                foreach (Transform t in c)
+                    queue.Enqueue(t);
+            }
+
+            if (gameObjects.Count > 0)
+                return gameObjects.ToArray();
+            else
+                return null;
+        }
+
+        public static T FindDeepComponent<T>(this GameObject parent) where T : Component
+        {
+            Queue<Transform> queue = new Queue<Transform>();
+            queue.Enqueue(parent.transform);
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                if (c.GetComponent<T>() != null)
+                    return c.GetComponent<T>();
+                foreach (Transform t in c)
+                    queue.Enqueue(t);
+            }
+            return null;
+        }
+
+        public static T[] FindDeepComponents<T>(this GameObject parent) where T : Component
+        {
+            List<T> components = new List<T>();
+            Queue<Transform> queue = new Queue<Transform>();
+            queue.Enqueue(parent.transform);
+            while (queue.Count > 0)
+            {
+                var c = queue.Dequeue();
+                if (c.GetComponent<T>() != null)
+                    components.Add(c.gameObject.GetComponent<T>());
+                foreach (Transform t in c)
+                    queue.Enqueue(t);
+            }
+
+            if (components.Count > 0)
+                return components.ToArray();
+            else
+                return null;
         }
         public static bool IsInLayerMask(int layer, LayerMask layermask)
         {
@@ -103,17 +175,17 @@ namespace UntoldGarden
 
             GameObject go = GameObject.CreatePrimitive(type);
             go.transform.position = midPoint;
-            if(type == PrimitiveType.Plane)
+            if (type == PrimitiveType.Plane)
                 go.transform.localScale = new Vector3(width * .1f, width * .1f, length * .1f);
             else if (type == PrimitiveType.Cylinder)
-                go.transform.localScale = new Vector3(width, length/2, width);
+                go.transform.localScale = new Vector3(width, length / 2, width);
             else if (type == PrimitiveType.Cube)
                 go.transform.localScale = new Vector3(width, length, width);
 
 
             go.transform.LookAt(a.transform);
 
-            if(type == PrimitiveType.Cylinder || type == PrimitiveType.Cube)
+            if (type == PrimitiveType.Cylinder || type == PrimitiveType.Cube)
                 go.transform.rotation *= Quaternion.Euler(-90, 0, 0);
 
             Object.Destroy(a);
@@ -121,6 +193,31 @@ namespace UntoldGarden
             return go;
         }
 
+        public static void MoveToBoundsCenter(this GameObject go)
+        {
+            Bounds b = go.GetBounds();
+
+            if (go.transform.parent != null)
+                go.transform.localPosition = go.transform.parent.position - b.center;
+            else
+                go.transform.position = -b.center;
+        }
+
+        /// <summary>
+        /// Sets the layer of the gameobject and all its children
+        /// </summary>
+        /// <param name="go">GameObject to set layer for</param>
+        /// <param name="layer">Layer to set</param>
+        public static void SetAllChildLayers(this GameObject go, string layer)
+        {
+            go.layer = LayerMask.NameToLayer(layer);
+            foreach (Transform child in go.transform)
+            {
+                child.gameObject.layer = LayerMask.NameToLayer(layer); ;
+                child.gameObject.SetAllChildLayers(layer);
+            }
+        }
+
     }
-    
+
 }

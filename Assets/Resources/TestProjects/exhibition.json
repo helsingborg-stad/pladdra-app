@@ -1,8 +1,8 @@
 {
-    "Id": 8,
-    "Name": "Exhibition",
+    "id": 8,
+    "name": "Exhibition",
     "allowAnyUserToInteract": false,
-    "Resources": [
+    "resources": [
         {
             "Id": 1,
             "Name": "artwork1",
@@ -18,8 +18,71 @@
         {
             "Id": 1,
             "Name": "artwork1",
-            "ModelURL": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/mammoth.glb",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/city_hall.glb",
             "Marker": "https:\/\/modul-test.helsingborg.io\/wp-content\/uploads\/sites\/42\/2022\/11\/anitakunz.jpg"
+        },
+        {
+            "Name": "Hemlig portal",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/portal.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
+        },
+        {
+            "Name": "Rostig bil",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/old_rusty_car.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
+        },
+        {
+            "Name": "Magiskt träd",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/magic_tree.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
+        },
+        {
+            "Name": "Sko",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/allbirds_my_first_object_capture.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
+        },
+        {
+            "Name": "Limpa",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/bread_object_capture.glb",
+            "Scale": {
+                "x": 0.01,
+                "y": 0.01,
+                "z": 0.01
+            }
+        },
+        {
+            "Name": "Hjortmonster",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/deer_thing.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
+        },
+        {
+            "Name": "Gul bil",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/11/van_shell.glb",
+            "Scale": {
+                "x": 0.1,
+                "y": 0.1,
+                "z": 0.1
+            }
         }
     ]
 }

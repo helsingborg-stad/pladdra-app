@@ -1,7 +1,7 @@
 .menuButton {
-    -unity-text-outline-color: rgba(0, 0, 0, 255);
-    background-color: rgba(226, 226, 226, 255);
-    color: rgba(0, 0, 0, 255);
+    -unity-text-outline-color: rgb(0, 0, 0);
+    background-color: rgb(226, 226, 226);
+    color: rgb(0, 0, 0);
     -unity-font: url('project://database/Assets/UI/Roboto/Roboto-Medium.ttf?fileID=12800000&guid=d30a10c27c59f42f8888d0df8eb9776b&type=3#Roboto-Medium');
     -unity-text-align: upper-left;
     -unity-font-style: bold;
@@ -13,12 +13,22 @@
     margin-right: 3px;
     margin-top: 3px;
     margin-bottom: 3px;
-    border-left-color: rgba(0, 0, 0, 255);
-    border-right-color: rgba(0, 0, 0, 255);
-    border-top-color: rgba(0, 0, 0, 255);
-    border-bottom-color: rgba(0, 0, 0, 255);
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
     border-left-width: 0;
     border-right-width: 0;
     border-top-width: 0;
     border-bottom-width: 0;
+    width: auto;
+}
+
+.green-background {
+    background-color: rgba(80, 129, 27, 255);
+}
+
+.grey-background {
+    background-color: rgba(229, 229, 229, 255);
+    color: rgba(0, 0, 0, 255);
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UntoldGarden
+namespace UntoldGarden.Utils
 {
     public static class RectTransformExtensions
     {

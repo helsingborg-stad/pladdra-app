@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UntoldGarden
+namespace UntoldGarden.Utils
 {
     public static class MathExtensions
     {

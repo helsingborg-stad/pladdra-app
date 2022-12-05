@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-namespace UntoldGarden
+namespace UntoldGarden.Utils
 {
     public static class MeshExtensions
     {
@@ -26,6 +27,56 @@ namespace UntoldGarden
             }
 
             return mesh;
+        }
+
+        // TODO Can we do this async?
+        public static Mesh CombineMeshesInChildren(this GameObject gameObject)
+        {
+            MeshFilter[] meshFilters = gameObject.FindDeepComponents<MeshFilter>();
+            CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+
+            for (int i = 0; i < meshFilters.Length; i++)
+            {
+                if (meshFilters[i].sharedMesh != null)
+                {
+                    combine[i].mesh = meshFilters[i].sharedMesh;
+                    combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+                }
+            }
+
+            Mesh m = new Mesh();
+            m.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            m.CombineMeshes(combine);
+
+            return m;
+        }
+
+        public static Bounds GetBounds(this GameObject go)
+        {
+            Bounds b = new Bounds(go.transform.position, Vector3.zero);
+
+            List<MeshRenderer> mrs = new List<MeshRenderer>();
+            MeshRenderer[] mrs2 = go.FindDeepComponents<MeshRenderer>();
+            if (mrs2 != null) mrs.AddRange(mrs2);
+            if (go.GetComponent<MeshRenderer>() != null) mrs.Add(go.GetComponent<MeshRenderer>());
+            if (mrs.Count > 0)
+            {
+                b = mrs[0].bounds;
+                foreach (Renderer r in mrs) { b.Encapsulate(r.bounds); }
+            }
+            else
+            {
+                List<SkinnedMeshRenderer> smrs = new List<SkinnedMeshRenderer>();
+                SkinnedMeshRenderer[] smrs2 = go.FindDeepComponents<SkinnedMeshRenderer>();
+                if (smrs2 != null) smrs.AddRange(smrs2);
+                if (go.GetComponent<SkinnedMeshRenderer>() != null) smrs.Add(go.GetComponent<SkinnedMeshRenderer>());
+                if (smrs.Count > 0)
+                {
+                    b = smrs[0].bounds;
+                    foreach (Renderer r in smrs) { b.Encapsulate(r.bounds); }
+                }
+            }
+            return b;
         }
     }
 }

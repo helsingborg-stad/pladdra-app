@@ -8,9 +8,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SceneWithScreens.unity
     guid: a408f2c3c49d94201ac0702e16211237
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SceneWithScreensWithAR.unity
     guid: e029fa8139cd847eaaa66cf54d909217
+  - enabled: 1
+    path: Assets/Scenes/Default Pladdra.unity
+    guid: 7c2157d962145f245a09dcc1a504e55e
   m_configObjects:
     AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,
       type: 2}

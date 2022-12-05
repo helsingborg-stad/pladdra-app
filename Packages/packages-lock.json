@@ -291,12 +291,29 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unityfx.outline": {
+      "version": "0.8.5",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.org"
+    },
+    "com.unityfx.outline.urp": {
+      "version": "0.5.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unityfx.outline": "0.8.5",
+        "com.unity.render-pipelines.universal": "7.0.0"
+      },
+      "url": "https://registry.npmjs.org"
+    },
     "com.yasirkula.runtimepreviewgenerator": {
       "version": "https://github.com/yasirkula/UnityRuntimePreviewGenerator.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "5c61fc5e5b60e87f916daa66c5734d393747c358"
+      "hash": "368e314a9b534d7a6263fd8eafefcd108736e5cb"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

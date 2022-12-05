@@ -1,2 +1,3 @@
+default	Error: {0}	Felmeddelande: {0}
 DownloadFailure	Failed to load data for project {0}. Errors: {1}	Misslyckades med att ladda ner data för projektet {0}. Felmeddelanden: {1}
 DownloadPartialSuccess	Project {0} failed to load some data. Do you want to continue with the data that was downloaded? Errors: {1}	Projekt {0} misslyckades med att ladda ner viss data. Vill du fortsätta? Felmeddelanden {1}

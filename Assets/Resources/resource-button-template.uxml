@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/USS/Pladdra.uss?fileID=7433441132597879392&amp;guid=23be4601da88c4269bc7a66e94733203&amp;type=3#Pladdra" />
-    <ui:Button display-tooltip-when-elided="true" name="button" class="menuButton" style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;">
-        <ui:VisualElement name="image" />
-        <ui:Label text="Label" display-tooltip-when-elided="true" name="name" style="flex-wrap: wrap;" />
-    </ui:Button>
-</ui:UXML>

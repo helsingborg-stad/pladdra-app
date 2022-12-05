@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/USS/ResourceLibrary.uss?fileID=7433441132597879392&amp;guid=29ea8876ae8c28d45a145d8bbd34aca6&amp;type=3#ResourceLibrary" />
+    <AspectRatioPanel aspect-ratio-x="1" aspect-ratio-y="1" name="button-aspect" style="position: relative; top: 0; width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 10px; padding-right: 10px; padding-top: 0; padding-bottom: 10px; opacity: 1; flex-grow: 1;">
+        <ui:Button display-tooltip-when-elided="true" name="button" class="resourceMenuButton">
+            <ui:VisualElement name="image" style="width: 75%; height: 75%; justify-content: flex-start; align-items: stretch; position: absolute; left: 12.5%; top: 6.25%;" />
+            <ui:Label text="Label" display-tooltip-when-elided="true" name="name" style="flex-wrap: wrap; position: absolute; left: auto; width: 100%; top: 70%; -unity-text-align: upper-center; color: rgb(80, 129, 27); font-size: 10%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;" />
+        </ui:Button>
+    </AspectRatioPanel>
+</ui:UXML>
