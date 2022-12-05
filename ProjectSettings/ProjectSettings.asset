@@ -162,7 +162,7 @@ PlayerSettings:
     iPhone: works.hbg.pladdra
   buildNumber:
     Standalone: 0
-    iPhone: 46
+    iPhone: 47
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
   AndroidBundleVersionCode: 1

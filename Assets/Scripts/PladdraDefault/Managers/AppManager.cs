@@ -54,6 +54,7 @@ namespace Pladdra.DefaultAbility
                 LocalTestProjectLink project = settings.testProjects.projects[i];
                 actions[i] = () =>
                 {
+                    // TODO Don't download in case it's already downloaded
                     projectManager.LoadProject(JsonUtility.FromJson<Project>(project.json.ToString()));
                     StartCoroutine(this.WaitToInitProject());
                 };

@@ -40,12 +40,6 @@ namespace Pladdra
         /// <param name="project">The project to download.</param>
         public void LoadProject(Project project)
         {
-            if (this.project != null)
-            {
-                this.project.Hide();
-                recentProjects.Add(this.project);
-            }
-            this.project = project;
             Debug.Log(string.Format("ProjectManager: Loading project {0}", project.name));
             uiManager.ShowLoading("Loading project " + project.name);
             StartCoroutine(webRequestHandler.LoadProjectResources(project, (Result result, string errors) =>
@@ -73,8 +67,15 @@ namespace Pladdra
         /// <summary>
         /// Initializes a downloaded project, shows relevant UI, and adds relevant menu items
         /// </summary>
-        public void InitProject()
+        public void InitProject(Project project)
         {
+            if (this.project != null)
+            {
+                this.project.Hide();
+                recentProjects.Add(this.project);
+            }
+            this.project = project;
+
             interactionManager.Project = project;
             project.InitProject(Origin(), proposalManager, interactionManager);
             project.InstantiateStaticResources();

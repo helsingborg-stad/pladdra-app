@@ -27,3 +27,8 @@ MonoBehaviour:
       description: "Test av funktionalitet inf\xF6r den 28e"
       image: {fileID: 0}
       json: {fileID: 4900000, guid: 415650b11a4b74062b74c2f3f006dd8c, type: 3}
+    - name: "Arkitekturf\xF6rslag"
+      url: 
+      description: 
+      image: {fileID: 0}
+      json: {fileID: 4900000, guid: 2e481e123c61647ef97e9c79b88ca38d, type: 3}
