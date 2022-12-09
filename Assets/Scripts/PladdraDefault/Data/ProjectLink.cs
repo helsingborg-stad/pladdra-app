@@ -8,6 +8,7 @@ namespace Pladdra.DefaultAbility.Data
     [System.Serializable]
     public class ProjectReference
     {
+        public string id;
         public string name;
         public string url;
         public string description;

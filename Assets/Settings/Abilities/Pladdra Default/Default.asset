@@ -51,7 +51,8 @@ MonoBehaviour:
     projects: []
   projectList:
     projects:
-    - name: Wienerplatsen
+    - id: 764
+      name: Wienerplatsen
       url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/764?acf_format=standard
       description: Liten text om projektet.
       image: {fileID: 0}

@@ -35,7 +35,7 @@ namespace Pladdra.DefaultAbility.UI
                 name = "Project List",
                 action = () =>
                 {
-                    appManager.ShowTestProjectList();
+                    appManager.ShowProjectList();
                 }
             });
             menuItems.Add(new MenuItem()

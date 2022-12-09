@@ -194,6 +194,7 @@ namespace Pladdra.DefaultAbility
         /// <param name="name">Name of proposal</param>
         public void SaveProposal(string name)
         {
+            Debug.Log($"Saving proposal {name}");
             if (proposal == null) return;
             proposal.name = name;
             projectManager.Project.AddProposal(proposal);

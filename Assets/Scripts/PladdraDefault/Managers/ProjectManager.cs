@@ -43,6 +43,11 @@ namespace Pladdra
         /// <param name="projectReference">The project link containing name and url</param>
         public void LoadProjectJSON(ProjectReference projectReference)
         {
+            if(projects.ContainsKey(projectReference.name) && projects[projectReference.name].isLoaded)
+            {
+                Debug.Log($"ProjectManager: Project {projectReference.name} is already loaded.");
+                return;
+            }
             StartCoroutine(webRequestHandler.LoadProjectJSON(projectReference.url, (Result result, string errors, WordpressData wordpressData) =>
             {
                 switch (result)
@@ -60,7 +65,7 @@ namespace Pladdra
                 }
             }));
         }
-        
+
         /// <summary>
         /// Downloads all data for a project.
         /// </summary>
@@ -97,13 +102,22 @@ namespace Pladdra
                         Debug.Log($"ProjectManager: Project {project.name} loaded successfully.");
                         break;
                 }
-                proposalManager.LoadLocalProsals(project); // TODO Move this to the project object 
-                project.InitProject(Origin(), proposalManager, uxManager);
                 projects.Add(project.name, project);
+                project.InitProject(Origin(), proposalManager, uxManager);
+                proposalManager.LoadLocalProsals(project); // TODO Move this to the project object 
 
                 Debug.Log($"ProjectManager: Project {project.name} is loaded.");
             }));
         }
+
+        // public void ClearProject()
+        // {
+        //     if(currentProject == null) return;
+        //     currentProject.Hide();
+        //     proposalManager.HideProposal(); // TODO Move to project
+        //     projects.Remove(currentProject.name);
+        //     currentProject = null;
+        // }
 
         /// <summary>
         /// Initializes a downloaded project, shows relevant UI, and adds relevant menu items
@@ -134,6 +148,5 @@ namespace Pladdra
             if (origin == null) origin = new GameObject("ProjectOrigin").transform;
             return origin;
         }
-
     }
 }

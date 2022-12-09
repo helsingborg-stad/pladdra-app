@@ -22,6 +22,7 @@ namespace Pladdra.DefaultAbility
         List<ProjectReference> publicProjects;
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         protected ProjectManager projectManager { get { return transform.parent.gameObject.GetComponentInChildren<ProjectManager>(); } }
+        protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
         bool afterStart;
         #endregion Private
 
@@ -36,67 +37,70 @@ namespace Pladdra.DefaultAbility
             // TODO Download public projects list from wordpress and populate publicProjects
             afterStart = true;
 
-            //TODO Remove the test projects functionality
-            if (settings.useTestProjects)
-            {
-                ShowTestProjectList();
-            }
-            else
-            {
-                Debug.Log("hi");
-                //TODO ProjectList should be taken from wordpress
-                ShowProjectList(settings.projectList);
-            }
+            // //TODO Remove the test projects functionality
+            // if (settings.useTestProjects)
+            // {
+            //     ShowTestProjectList();
+            // }
+            // else
+            // {
+            //TODO ProjectList should be taken from wordpress
+            ShowProjectList();
+            // }
         }
 
-        //TODO Quick fix that shows the projects from the local json file 
-        public void ShowTestProjectList()
-        {
-            if (uiManager == null)
-            {
-                Debug.Log("UIManager is null");
-                return;
-            }
+        // //TODO Quick fix that shows the projects from the local json file 
+        // public void ShowTestProjectList()
+        // {
+        //     if (uiManager == null)
+        //     {
+        //         Debug.Log("UIManager is null");
+        //         return;
+        //     }
 
-            Action[] actions = new Action[settings.localProjectList.projects.Count];
-            for (int i = 0; i < settings.localProjectList.projects.Count; i++)
-            {
-                int index = i;
-                LocalTestProjectReference project = settings.localProjectList.projects[i];
-                actions[i] = () =>
-                {
-                    projectManager.LoadProject(JsonUtility.FromJson<Project>(project.json.ToString()));
-                    StartCoroutine(this.WaitToShowProject(project.name));
-                };
-            }
+        //     Action[] actions = new Action[settings.localProjectList.projects.Count];
+        //     for (int i = 0; i < settings.localProjectList.projects.Count; i++)
+        //     {
+        //         int index = i;
+        //         LocalTestProjectReference project = settings.localProjectList.projects[i];
+        //         actions[i] = () =>
+        //         {
+        //             projectManager.LoadProject(JsonUtility.FromJson<Project>(project.json.ToString()));
+        //             StartCoroutine(this.WaitToShowProject(project.name));
+        //         };
+        //     }
 
-            uiManager.ShowUI("project-list", root =>
-            {
-                ListView listView = root.Q<ListView>("project-list");
-                listView.makeItem = () =>
-                                {
-                                    var button = uiManager.projectButtonTemplate.Instantiate();
-                                    return button;
-                                };
-                listView.bindItem = (element, i) =>
-                                {
-                                    element.Q<Button>("project-button").clicked += () => { actions[i](); };
-                                    element.Q<Label>("name").text = settings.localProjectList.projects[i].name;
-                                    element.Q<Label>("description").text = settings.localProjectList.projects[i].description;
-                                };
-                listView.fixedItemHeight = 100;
-                listView.itemsSource = settings.localProjectList.projects;
-            });
-        }
+        //     uiManager.ShowUI("project-list", root =>
+        //     {
+        //         ListView listView = root.Q<ListView>("project-list");
+        //         listView.makeItem = () =>
+        //                         {
+        //                             var button = uiManager.projectButtonTemplate.Instantiate();
+        //                             return button;
+        //                         };
+        //         listView.bindItem = (element, i) =>
+        //                         {
+        //                             element.Q<Button>("project-button").clicked += () => { actions[i](); };
+        //                             element.Q<Label>("name").text = settings.localProjectList.projects[i].name;
+        //                             element.Q<Label>("description").text = settings.localProjectList.projects[i].description;
+        //                         };
+        //         listView.fixedItemHeight = 100;
+        //         listView.itemsSource = settings.localProjectList.projects;
+        //     });
+        // }
+
+
 
         //TODO
-        public void ShowProjectList(ProjectList projectList)
+        public void ShowProjectList()
         {
             if (uiManager == null)
             {
                 Debug.LogError("UIManager is null");
                 return;
             }
+            ProjectList projectList = settings.projectList;
+
             if (projectList.projects == null || projectList.projects.Count == 0)
             {
                 Debug.Log("ProjectList is null or empty");
@@ -111,6 +115,7 @@ namespace Pladdra.DefaultAbility
                 ProjectReference project = projectList.projects[i];
                 actions[i] = () =>
                 {
+                    // projectManager.ClearProject();
                     projectManager.LoadProjectJSON(project);
                     StartCoroutine(this.WaitToShowProject(project.name));
                 };
@@ -126,12 +131,27 @@ namespace Pladdra.DefaultAbility
                                 };
                 listView.bindItem = (element, i) =>
                                 {
-                                    element.Q<Button>("project-button").clicked += () => { actions[i](); };
+                                    if (projectManager.Project != null && settings.projectList.projects[i].id == projectManager.Project.id)
+                                    {
+                                        element.Q<Button>("project-button").SetEnabled(false);
+                                    }
+                                    else
+                                    {
+                                        element.Q<Button>("project-button").clicked += () => { actions[i](); };
+                                    }
                                     element.Q<Label>("name").text = settings.projectList.projects[i].name;
                                     element.Q<Label>("description").text = settings.projectList.projects[i].description;
                                 };
                 listView.fixedItemHeight = 100;
                 listView.itemsSource = settings.projectList.projects;
+                if (projectManager.Project == null)
+                {
+                    root.Q<Button>("close").visible = false;
+                }
+                else
+                {
+                    root.Q<Button>("close").clicked += () => { uxManager.UseLastUX(); };
+                }
             });
         }
 
@@ -144,7 +164,7 @@ namespace Pladdra.DefaultAbility
             yield return null;
             while (!arSessionManager.HasARPlane() || !projectManager.Projects.ContainsKey(project) || !projectManager.Projects[project].isLoaded)
             {
-                // Debug.Log($"Waiting for project {project} to be loaded. \n ARPlane: {arSessionManager.HasARPlane()}, Project: {(projectManager.Projects != null ? projectManager.Projects.ContainsKey(project) : "No projects list.")}, Loaded: {(projectManager.Projects.ContainsKey(project) ? projectManager.Projects[project].isLoaded : "No project")}");
+                Debug.Log($"Waiting for project {project} to be loaded. \n ARPlane: {arSessionManager.HasARPlane()}, Project: {(projectManager.Projects != null ? projectManager.Projects.ContainsKey(project) : "No projects list.")}, Loaded: {(projectManager.Projects.ContainsKey(project) ? projectManager.Projects[project].isLoaded : "No project")}");
                 yield return null;
             }
             projectManager.ShowProject(project);

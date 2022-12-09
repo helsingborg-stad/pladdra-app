@@ -26,6 +26,7 @@ namespace Pladdra.DefaultAbility
 
         #region Private
         UXHandler uxHandler;
+        UXHandler pastUXHandler;
         Project project;
         public Project Project { get { return project; } set { project = value; } }
         [HideInInspector] public GameObject User { get; set; }
@@ -64,7 +65,11 @@ namespace Pladdra.DefaultAbility
         /// <param name="uxHandler"></param>
         public void UseUxHandler(UXHandler uxHandler)
         {
-            if (this.uxHandler != null) this.uxHandler.Deactivate();
+            if (this.uxHandler != null)
+            {
+                pastUXHandler = uxHandler;
+                this.uxHandler.Deactivate();
+            }
             this.uxHandler = uxHandler;
             uxHandler.Activate();
         }
@@ -89,6 +94,11 @@ namespace Pladdra.DefaultAbility
                 UXHandler ux = new AllowUserToManipulateSelectedModel(this, controller);
                 UseUxHandler(ux);
             }
+        }
+
+        public void UseLastUX()
+        {
+            UseUxHandler(pastUXHandler);
         }
     }
 }

@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/USS/Pladdra.uss?fileID=7433441132597879392&amp;guid=23be4601da88c4269bc7a66e94733203&amp;type=3#Pladdra" />
     <SafeArea>
-        <ui:VisualElement name="screen" style="flex-direction: row; justify-content: center; flex-grow: 0; width: 100%; height: 100%; align-items: center; flex-shrink: 0;">
+        <ui:VisualElement name="screen" style="flex-direction: column; justify-content: space-around; flex-grow: 0; width: 100%; height: 100%; align-items: center; flex-shrink: 0;">
             <ui:VisualElement style="align-items: center; width: 75%; height: 50%; max-width: 500px; max-height: none; min-width: auto; min-height: 500px; flex-shrink: 0;">
                 <ui:VisualElement style="width: 100%; height: 70px; background-color: rgba(255, 255, 255, 0); flex-direction: row; justify-content: space-between; align-items: flex-start; flex-shrink: 0;">
                     <ui:VisualElement style="width: 100%; height: 100%; align-items: center; justify-content: space-between; flex-direction: row; padding-bottom: 10px;">
@@ -23,4 +23,5 @@
             </ui:VisualElement>
         </ui:VisualElement>
     </SafeArea>
+    <ui:Button text="Stäng" display-tooltip-when-elided="true" name="close" />
 </ui:UXML>
