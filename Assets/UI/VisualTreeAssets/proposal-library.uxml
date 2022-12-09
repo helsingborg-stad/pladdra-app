@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UI/USS/ResourceLibrary.uss?fileID=7433441132597879392&amp;guid=29ea8876ae8c28d45a145d8bbd34aca6&amp;type=3#ResourceLibrary" />
     <ui:VisualElement style="flex-direction: column; justify-content: flex-end; flex-grow: 1; align-items: center; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px;">
         <SafeArea style="width: 100%; height: 20%; flex-direction: column-reverse; align-items: center; justify-content: center;">
-            <ui:VisualElement style="width: 75%; height: 40%; background-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px;">
+            <ui:VisualElement style="width: 75%; height: 40%; background-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-bottom-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding-left: 15px; padding-right: 15px; padding-top: 15px; padding-bottom: 15px; max-width: 550px;">
                 <ui:VisualElement style="height: 100%; margin-top: 10px;">
                     <ui:VisualElement>
                         <ui:Label text="Förslag:" display-tooltip-when-elided="true" name="Label" style="-unity-font: url(&apos;project://database/Assets/UI/Roboto/Roboto-Medium.ttf?fileID=12800000&amp;guid=d30a10c27c59f42f8888d0df8eb9776b&amp;type=3#Roboto-Medium&apos;); -unity-font-style: bold; font-size: 16px; -unity-text-align: upper-center;" />

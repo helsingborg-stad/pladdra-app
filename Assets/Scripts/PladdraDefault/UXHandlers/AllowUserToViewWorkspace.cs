@@ -10,23 +10,24 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToViewWorkspace : UXHandler
     {
-        public AllowUserToViewWorkspace(InteractionManager interactionManager)
+        public AllowUserToViewWorkspace(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            interactionManager.UIManager.ShowUI("workspace-default", root =>
+            Debug.Log("AllowUserToViewWorkspace activated");
+            uxManager.UIManager.ShowUI("workspace-default", root =>
                          {
                              root.Q<Button>("add-item").clicked += () =>
                              {
-                                 UXHandler ux = new AllowUserToViewResourceLibrary(interactionManager);
-                                 interactionManager.UseUxHandler(ux);
+                                 UXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
+                                 uxManager.UseUxHandler(ux);
                              };
                              root.Q<Button>("reposition-workspace").clicked += () =>
                              {
-                                 UXHandler ux = new AllowUserToManipulateWorkspace(interactionManager);
-                                 interactionManager.UseUxHandler(ux);
+                                 UXHandler ux = new AllowUserToManipulateWorkspace(uxManager);
+                                 uxManager.UseUxHandler(ux);
                              };
                              //  root.Q<Button>("undo").clicked += () =>
                              //  {
@@ -38,11 +39,12 @@ namespace Pladdra.DefaultAbility.UX
                              //  };
                          });
 
-            interactionManager.RaycastManager.OnHitObject.AddListener(interactionManager.SelectObject);
+            uxManager.RaycastManager.OnHitObject.AddListener(uxManager.SelectObject);
+            
         }
         public override void Deactivate()
         {
-            interactionManager.RaycastManager.OnHitObject.RemoveListener(interactionManager.SelectObject);
+            uxManager.RaycastManager.OnHitObject.RemoveListener(uxManager.SelectObject);
         }
     }
 }

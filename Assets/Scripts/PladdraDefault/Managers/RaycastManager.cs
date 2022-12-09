@@ -22,7 +22,7 @@ namespace Pladdra
         [Tooltip("Mapped to touch.y from top")]
         [SerializeField] float mapTouch_Top;
         [Tooltip("Screen Y limit below which touch is not recognized.")]
-        [SerializeField] float minTouchLimit = 100;
+        public float minTouchLimit = 100;
         [SerializeField] Camera cam;
 
         [Header("Raycast Settings")]

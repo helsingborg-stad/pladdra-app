@@ -9,8 +9,8 @@ namespace Pladdra.DefaultAbility.Data
     [System.Serializable]
     public class ProjectList
     {
-        public List<ProjectLink> projects;
-        public ProjectList(List<ProjectLink> projects)
+        public List<ProjectReference> projects;
+        public ProjectList(List<ProjectReference> projects)
         {
             this.projects = projects;
         }

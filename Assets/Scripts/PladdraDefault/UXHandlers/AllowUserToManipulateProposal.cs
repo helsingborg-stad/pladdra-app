@@ -7,13 +7,13 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToManipulateProposal : AllowUserToManipulateWorkspace
     {
-        public AllowUserToManipulateProposal(InteractionManager interactionManager) : base(interactionManager)
+        public AllowUserToManipulateProposal(UXManager uxManager) : base(uxManager)
         {
         }
         protected override void Return()
         {
-            UXHandler ux = new AllowUserToViewProposal(interactionManager);
-            interactionManager.UseUxHandler(ux);
+            UXHandler ux = new AllowUserToViewProposal(uxManager);
+            uxManager.UseUxHandler(ux);
         }
         
     }

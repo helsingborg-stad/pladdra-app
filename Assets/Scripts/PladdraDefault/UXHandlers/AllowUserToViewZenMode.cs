@@ -10,19 +10,19 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToViewZenMode : UXHandler
     {
-        public AllowUserToViewZenMode(InteractionManager interactionManager)
+        public AllowUserToViewZenMode(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            interactionManager.UIManager.MenuManager.ToggleMenuButtonVisibility(false);
-            interactionManager.UIManager.ShowUI("zen-mode", root =>
+            uxManager.UIManager.MenuManager.ToggleMenuButtonVisibility(false);
+            uxManager.UIManager.ShowUI("zen-mode", root =>
             {
                 root.Q<Button>("close").clicked += () =>
                 {
-                    interactionManager.UIManager.ShowPreviousUI();
-                    interactionManager.UIManager.MenuManager.ToggleMenuButtonVisibility(true);
+                    uxManager.UIManager.ShowPreviousUI();
+                    uxManager.UIManager.MenuManager.ToggleMenuButtonVisibility(true);
                 };
             });
 

@@ -12,7 +12,7 @@
                         </ui:VisualElement>
                         <ui:Label text="Label" display-tooltip-when-elided="true" name="rotation-label" class="unity-slider__label" style="color: rgb(80, 129, 27);" />
                         <ui:VisualElement name="FrameMiddle" style="width: 60%; height: 100%; min-width: 0; min-height: 0; justify-content: center; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0;">
-                            <ui:Slider picking-mode="Ignore" value="0.5" high-value="1" name="rotation-slider" show-input-field="false" direction="Horizontal" inverted="false" low-value="0" style="width: auto; height: 100%;" />
+                            <ui:Slider picking-mode="Ignore" value="0" high-value="180" name="rotation-slider" show-input-field="false" direction="Horizontal" inverted="false" low-value="-180" style="width: auto; height: 100%;" />
                         </ui:VisualElement>
                         <ui:VisualElement name="FrameRight" style="width: 20%; height: 100%; min-width: 0; min-height: 0;">
                             <AspectRatioPanel aspect-ratio-x="1" aspect-ratio-y="1" style="position: relative; top: 0; left: 0; bottom: 0; right: 0; flex-grow: 1; min-width: 0; min-height: 0; width: 100%; height: 100%; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">

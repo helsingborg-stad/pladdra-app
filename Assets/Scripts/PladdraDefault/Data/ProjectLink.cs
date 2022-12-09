@@ -3,9 +3,10 @@ using UnityEngine;
 namespace Pladdra.DefaultAbility.Data
 {
     /// <summary>
-    /// Reference to a project, containing link and relevant information.
+    /// Reference to a project. Contains name, url to json, description and image.
     /// </summary>
-    public class ProjectLink
+    [System.Serializable]
+    public class ProjectReference
     {
         public string name;
         public string url;

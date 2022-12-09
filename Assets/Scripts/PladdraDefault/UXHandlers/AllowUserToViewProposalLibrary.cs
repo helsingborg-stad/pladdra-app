@@ -12,24 +12,24 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToViewProposalLibrary : UXHandler
     {
-        public AllowUserToViewProposalLibrary(InteractionManager interactionManager)
+        public AllowUserToViewProposalLibrary(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
             Dictionary<Proposal, Action> actions = new Dictionary<Proposal, Action>();
-            if (interactionManager.Project.proposals != null && interactionManager.Project.proposals.Count > 0)
+            if (uxManager.Project.proposals != null && uxManager.Project.proposals.Count > 0)
             {
-                foreach (var proposal in interactionManager.Project.proposals)
+                foreach (var proposal in uxManager.Project.proposals)
                 {
                     if (proposal != null)
                     {
                         actions.Add(proposal, () =>
                         {
-                            interactionManager.ProposalManager.ShowProposal(proposal.name);
-                            UXHandler ux = new AllowUserToViewProposal(interactionManager);
-                            interactionManager.UseUxHandler(ux);
+                            uxManager.ProposalManager.ShowProposal(proposal.name);
+                            UXHandler ux = new AllowUserToViewProposal(uxManager);
+                            uxManager.UseUxHandler(ux);
                         });
                     }
                     else
@@ -39,18 +39,18 @@ namespace Pladdra.DefaultAbility.UX
                 }
             }
 
-            interactionManager.UIManager.ShowUI("proposal-library", root =>
+            uxManager.UIManager.ShowUI("proposal-library", root =>
             {
                 root.Q<Button>("continue").clicked += () =>
                 {
-                    interactionManager.ShowWorkspaceDefault();
+                    uxManager.ShowWorkspaceDefault();
                 };
-                if (interactionManager.ProposalManager.HasActiveProposal())
+                if (uxManager.ProposalManager.HasActiveProposal())
                 {
                     root.Q<Button>("new-proposal").clicked += () =>
                     {
-                        interactionManager.ProposalManager.NewProposal();
-                        interactionManager.ShowWorkspaceDefault();
+                        uxManager.ProposalManager.NewProposal();
+                        uxManager.ShowWorkspaceDefault();
                     };
                 }
                 else
@@ -64,7 +64,7 @@ namespace Pladdra.DefaultAbility.UX
                 {
                     menulist.makeItem = () =>
                     {
-                        var button = interactionManager.UIManager.proposalButtonTemplate.Instantiate();
+                        var button = uxManager.UIManager.proposalButtonTemplate.Instantiate();
                         return button;
                     };
                     menulist.bindItem = (element, i) =>

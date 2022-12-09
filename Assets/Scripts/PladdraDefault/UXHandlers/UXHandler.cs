@@ -9,8 +9,7 @@ namespace Pladdra.DefaultAbility.UX
     public abstract class UXHandler
     {
         protected Project project;
-        protected InteractionManager interactionManager;
-
+        protected UXManager uxManager;
         public abstract void Activate();
         public abstract void Deactivate();  
 

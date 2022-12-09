@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Pladdra.DefaultAbility.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,8 @@ namespace Pladdra.DefaultAbility.UI
         UIDocument uiDocument { get { return GetComponent<UIDocument>(); } }
         UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         AppManager appManager { get { return transform.parent.gameObject.GetComponentInChildren<AppManager>(); } }
+        UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
+        ViewingModeManager viewingModeManager { get { return transform.parent.gameObject.GetComponentInChildren<ViewingModeManager>(); } }
         Button menuButton;
         VisualElement menu;
         bool menuOpen;
@@ -25,7 +28,7 @@ namespace Pladdra.DefaultAbility.UI
             menu.visible = false;
 
             // Add default menu items
-            // TODO Move this to the inspector?
+            // TODO Move this to the inspector
             menuItems.Add(new MenuItem()
             {
                 id = "project-list",
@@ -53,10 +56,39 @@ namespace Pladdra.DefaultAbility.UI
                 name = "Contact",
                 action = () =>
                 {
-                    Application.OpenURL("mailto:jakob@untold.garden");
+                    Application.OpenURL("mailto:support@untold.garden");
                 }
             });
 
+            //TODO Move these... 
+            uiManager.MenuManager.AddMenuItem(new MenuItem()
+            {
+                id = "zen-mode",
+                name = "Zenmode", // TODO Change to call from UItexts
+                action = () =>
+                {
+                    UXHandler ux = new AllowUserToViewZenMode(uxManager);
+                    uxManager.UseUxHandler(ux);
+                }
+            });
+            uiManager.MenuManager.AddMenuItem(new MenuItem()
+            {
+                id = "white-mode",
+                name = "Whitemode", // TODO Change to call from UItexts
+                action = () =>
+                {
+                    viewingModeManager.ToggleWhiteSphere();
+                }
+            });
+            uiManager.MenuManager.AddMenuItem(new MenuItem()
+            {
+                id = "fade-mode",
+                name = "Fademode", // TODO Change to call from UItexts
+                action = () =>
+                {
+                    viewingModeManager.ToggleFadeMode();
+                }
+            });
             uiDocument.rootVisualElement.Q<Button>("menu-button").clicked += () =>
             {
                 ToggleMenu();
@@ -106,6 +138,11 @@ namespace Pladdra.DefaultAbility.UI
         /// <param name="item">The menu item to add</param>
         public void AddMenuItem(MenuItem item)
         {
+            if(menuItems.Find(x => x.id == item.id) != null)
+            {
+                Debug.LogWarning("Menu item with id " + item.id + " already exists");
+                return;
+            }
             menuItems.Add(item);
             PopulateMenu();
         }

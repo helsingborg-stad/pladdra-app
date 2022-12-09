@@ -10,35 +10,46 @@ using UntoldGarden.AR;
 
 namespace Pladdra.DefaultAbility
 {
+    //TODO This one is a bit of a mess atm due to the need to have local json files for testing
     public class AppManager : MonoBehaviour
     {
+        #region Public
         public PladdraDefaultSettings settings;
-        public ARSessionManager arSessionManager;
-        List<ProjectLink> publicProjects;
+        [SerializeField] ARSessionManager arSessionManager;
+        #endregion Public
+
+        #region Private
+        List<ProjectReference> publicProjects;
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         protected ProjectManager projectManager { get { return transform.parent.gameObject.GetComponentInChildren<ProjectManager>(); } }
         bool afterStart;
+        #endregion Private
 
-        //TODO Load unsaved proposal at start
+        // TODO This will move to the Pladdra lobby
         void Awake()
         {
             Application.deepLinkActivated += url => OpenDeeplink(url);
         }
+
         void Start()
         {
-            // TODO Download public projects from server and populate publicProjects
+            // TODO Download public projects list from wordpress and populate publicProjects
             afterStart = true;
 
+            //TODO Remove the test projects functionality
             if (settings.useTestProjects)
             {
                 ShowTestProjectList();
             }
             else
             {
-                ShowProjectList(new ProjectList(publicProjects));
+                Debug.Log("hi");
+                //TODO ProjectList should be taken from wordpress
+                ShowProjectList(settings.projectList);
             }
         }
 
+        //TODO Quick fix that shows the projects from the local json file 
         public void ShowTestProjectList()
         {
             if (uiManager == null)
@@ -47,18 +58,18 @@ namespace Pladdra.DefaultAbility
                 return;
             }
 
-            Action[] actions = new Action[settings.testProjects.projects.Count];
-            for (int i = 0; i < settings.testProjects.projects.Count; i++)
+            Action[] actions = new Action[settings.localProjectList.projects.Count];
+            for (int i = 0; i < settings.localProjectList.projects.Count; i++)
             {
                 int index = i;
-                LocalTestProjectLink project = settings.testProjects.projects[i];
+                LocalTestProjectReference project = settings.localProjectList.projects[i];
                 actions[i] = () =>
                 {
-                    // TODO Don't download in case it's already downloaded
                     projectManager.LoadProject(JsonUtility.FromJson<Project>(project.json.ToString()));
-                    StartCoroutine(this.WaitToInitProject());
+                    StartCoroutine(this.WaitToShowProject(project.name));
                 };
             }
+
             uiManager.ShowUI("project-list", root =>
             {
                 ListView listView = root.Q<ListView>("project-list");
@@ -70,14 +81,15 @@ namespace Pladdra.DefaultAbility
                 listView.bindItem = (element, i) =>
                                 {
                                     element.Q<Button>("project-button").clicked += () => { actions[i](); };
-                                    element.Q<Label>("name").text = settings.testProjects.projects[i].name;
-                                    element.Q<Label>("description").text = settings.testProjects.projects[i].description;
+                                    element.Q<Label>("name").text = settings.localProjectList.projects[i].name;
+                                    element.Q<Label>("description").text = settings.localProjectList.projects[i].description;
                                 };
                 listView.fixedItemHeight = 100;
-                listView.itemsSource = settings.testProjects.projects;
+                listView.itemsSource = settings.localProjectList.projects;
             });
         }
 
+        //TODO
         public void ShowProjectList(ProjectList projectList)
         {
             if (uiManager == null)
@@ -91,30 +103,60 @@ namespace Pladdra.DefaultAbility
                 // TODO
                 return;
             }
+
+            Action[] actions = new Action[projectList.projects.Count];
+            for (int i = 0; i < projectList.projects.Count; i++)
+            {
+                int index = i;
+                ProjectReference project = projectList.projects[i];
+                actions[i] = () =>
+                {
+                    projectManager.LoadProjectJSON(project);
+                    StartCoroutine(this.WaitToShowProject(project.name));
+                };
+            }
+
             uiManager.ShowUI("project-list", root =>
             {
-
+                ListView listView = root.Q<ListView>("project-list");
+                listView.makeItem = () =>
+                                {
+                                    var button = uiManager.projectButtonTemplate.Instantiate();
+                                    return button;
+                                };
+                listView.bindItem = (element, i) =>
+                                {
+                                    element.Q<Button>("project-button").clicked += () => { actions[i](); };
+                                    element.Q<Label>("name").text = settings.projectList.projects[i].name;
+                                    element.Q<Label>("description").text = settings.projectList.projects[i].description;
+                                };
+                listView.fixedItemHeight = 100;
+                listView.itemsSource = settings.projectList.projects;
             });
         }
 
         /// <summary>
-        /// Coroutine to wait until we have localized AR planes and the project is loaded with creating it
+        /// Coroutine that waits until we have an AR plane, the project is created, and the project is loaded
         /// </summary>
         /// <returns>Calls projectManager.InitProject when all criteria is met</returns>
-        IEnumerator WaitToInitProject()
+        IEnumerator WaitToShowProject(string project)
         {
-            Debug.Log("WaitToInitProject");
             yield return null;
-            while (!arSessionManager.HasARPlane() || !projectManager.Project.isLoaded)
+            while (!arSessionManager.HasARPlane() || !projectManager.Projects.ContainsKey(project) || !projectManager.Projects[project].isLoaded)
             {
+                // Debug.Log($"Waiting for project {project} to be loaded. \n ARPlane: {arSessionManager.HasARPlane()}, Project: {(projectManager.Projects != null ? projectManager.Projects.ContainsKey(project) : "No projects list.")}, Loaded: {(projectManager.Projects.ContainsKey(project) ? projectManager.Projects[project].isLoaded : "No project")}");
                 yield return null;
             }
-            projectManager.InitProject();
+            projectManager.ShowProject(project);
         }
 
+        /// <summary>
+        /// Opens a project from a deeplink
+        /// </summary>
+        /// <param name="url"></param>
         void OpenDeeplink(string url)
         {
-            // TODO Ask user to save if they have unsaved changes from previus project?
+            // TODO Ask user to save if they have unsaved changes from previus project
             if (afterStart)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);

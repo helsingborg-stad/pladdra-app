@@ -6,7 +6,7 @@ namespace Pladdra.DefaultAbility.Data
     /// For testing with a local json.
     /// </summary>
     [System.Serializable]
-    public class LocalTestProjectLink : ProjectLink
+    public class LocalTestProjectReference : ProjectReference
     {
         public TextAsset json; 
     }

@@ -49,7 +49,7 @@ namespace Pladdra.DefaultAbility.UI
         /// </summary>
         public void ShowPreviousUI()
         {
-            Debug.Log("Showing previous UI: " + previousUI);
+            // Debug.Log("Showing previous UI: " + previousUI);
             ShowUI(previousUI, previousUIAction);
         }
 
@@ -60,7 +60,7 @@ namespace Pladdra.DefaultAbility.UI
         /// <param name="bindUi">The actions to bind to the UI element</param>
         public void ShowUI(string uiName, Action<VisualElement> bindUi = null)
         {
-            Debug.Log("UIManager: ShowUI " + uiName);
+            // Debug.Log("UIManager: ShowUI " + uiName);
             if(uiName == currentUI)
             {
                 Debug.Log("UIManager: UI already shown");

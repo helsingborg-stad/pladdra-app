@@ -73,7 +73,7 @@
     width: 90%;
     height: 100%;
     position: relative;
-    align-items: center;
+    align-items: flex-start;
     padding-left: 0;
     padding-right: 0;
     padding-top: 24px;
@@ -221,15 +221,15 @@
     font-size: 12px;
     padding-right: 0;
     align-items: flex-start;
-    background-color: rgba(229, 229, 229, 255);
-    color: rgba(0, 0, 0, 255);
+    background-color: rgb(229, 229, 229);
+    color: rgb(0, 0, 0);
 }
 
 .green-background {
-    background-color: rgba(80, 129, 27, 255);
+    background-color: rgb(80, 129, 27);
 }
 
 .grey-background {
-    background-color: rgba(229, 229, 229, 255);
-    color: rgba(0, 0, 0, 255);
+    background-color: rgb(229, 229, 229);
+    color: rgb(0, 0, 0);
 }

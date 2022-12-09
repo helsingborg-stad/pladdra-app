@@ -9,6 +9,7 @@ namespace Pladdra.DefaultAbility
         public float rotationSpeed = 1f;
         public AnimationCurve scaleCurve;
         public bool useTestProjects = false;
-        public LocalTestProjectList testProjects;
+        public LocalTestProjectList localProjectList;
+        public ProjectList projectList;
     }
 }

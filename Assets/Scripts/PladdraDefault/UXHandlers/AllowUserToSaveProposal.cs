@@ -10,25 +10,25 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToSaveProposal : UXHandler
     {
-        public AllowUserToSaveProposal(InteractionManager interactionManager)
+        public AllowUserToSaveProposal(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            interactionManager.UIManager.ShowUI("save-proposal", root =>
+            uxManager.UIManager.ShowUI("save-proposal", root =>
                         {
                             root.Q<Button>("confirm-button").clicked += () =>
                             {
                                 string name = root.Q<TextField>("input-text").value;
-                                UXHandler ux = new AllowUserToChooseActionAfterSaving(interactionManager);
-                                interactionManager.UseUxHandler(ux);
+                                UXHandler ux = new AllowUserToChooseActionAfterSaving(uxManager);
+                                uxManager.UseUxHandler(ux);
                                 Debug.Log("Saving proposal with name: " + name);
-                                interactionManager.ProposalManager.SaveProposal(name);
+                                uxManager.ProposalManager.SaveProposal(name);
                             };
                             root.Q<Button>("reject-button").clicked += () =>
                             {
-                                interactionManager.UIManager.ShowPreviousUI();
+                                uxManager.UIManager.ShowPreviousUI();
                             };
                         });
         }

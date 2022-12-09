@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace UntoldGarden
 {
+    enum Axis { X, Y, Z }
     public class RotateObjectByTouch : MonoBehaviour
     {
         Vector3 startPosition;
@@ -19,15 +20,16 @@ namespace UntoldGarden
                 {
                     case TouchPhase.Began:
                         startPosition = Input.mousePosition;
-                        currentRotation = new Vector3(gameObject.transform.rotation.eulerAngles.x, 0, gameObject.transform.rotation.eulerAngles.z);
+                        currentRotation = new Vector3(0, gameObject.transform.rotation.eulerAngles.y, 0);
                         break;
                     case TouchPhase.Stationary:
                     case TouchPhase.Moved:
                         currentPosition = Input.mousePosition;
                         diffPosition = currentPosition - startPosition;
                         float xRotation = currentRotation.x + diffPosition.y / 2;
+                        float yrotation = currentRotation.y + diffPosition.x / 2;
                         float zRotation = currentRotation.z + diffPosition.x / 2;
-                        gameObject.transform.rotation = Quaternion.Euler(xRotation, 0, zRotation);
+                        gameObject.transform.rotation = Quaternion.Euler(0, yrotation, 0);
                         break;
                     case TouchPhase.Ended:
                         break;

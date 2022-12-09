@@ -28,6 +28,186 @@
                 "y": 1,
                 "z": 1
             }
+        },
+        {
+            "Name": "Gungbräda",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/gungbrada.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Glidstång",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/glidstang.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Karusell",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/karusell.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rutschkana",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rutschkana.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Bänk",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/bank.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Sol",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-sol.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Stor stjärna",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-stor-stjarna.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Liten stjärna",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-liten-stjarna.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Fullmåne",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-fullmane.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Halvmåne",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-halvmane.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Rymden - Liggande raket",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/rymden-liggande-raket.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Hamn - Kabeltrumma",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/hamn-kabeltrumma.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Cirkus - Ballonghund",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/cirkus-ballonghund.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Cirkus - Metallplatå",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/cirkus-metallplata.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Cirkus - Tält",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/cirkus-talt.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Cirkus - Blå platå",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/cirkus-bla-plata.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Liggande gummibjörn",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/godis-liggande-gummibjorn.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Stående gummibjörn",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/godis-staende-gummibjorn.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Godis - Uppåner gummibjörn",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/godis-uppaner-gummibjorn.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
+        },
+        {
+            "Name": "Bro",
+            "ModelURL": "https://modul-test.helsingborg.io/wp-content/uploads/sites/42/2022/12/bro.glb",
+            "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+            }
         }
     ],
     "marker": {

@@ -11,6 +11,8 @@ using UntoldGarden.Utils;
 
 namespace Pladdra.DefaultAbility
 {
+    //TODO This is a bad setup. 
+    //TODO This manager should be controlled by the project object to make sure to decouple projects from each other.
     public class ProposalManager : MonoBehaviour
     {
         #region Public
@@ -19,7 +21,7 @@ namespace Pladdra.DefaultAbility
 
         #region Private
         ProjectManager projectManager { get { return transform.parent.gameObject.GetComponentInChildren<ProjectManager>(); } }
-        InteractionManager interactionManager { get { return transform.parent.gameObject.GetComponentInChildren<InteractionManager>(); } }
+        UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
         UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         Proposal proposal;
         public Proposal Proposal { get => proposal; }
@@ -40,15 +42,15 @@ namespace Pladdra.DefaultAbility
         /// <param name="controller">The controller of the object</param>
         public void AddObject(PladdraResource resource, Vector3 position, out PlacedObjectController controller)
         {
-            Debug.Log($"Adding object {resource.Name}");
+            Debug.Log($"Adding object {resource.name}");
 
-            GameObject obj = Instantiate(interactionManager.ObjectPrefab, projectManager.Project.projectContainer);
-            obj.name = resource.Name;
+            GameObject obj = Instantiate(uxManager.ObjectPrefab, projectManager.Project.projectContainer);
+            obj.name = resource.name;
             obj.transform.position = position;
-            GameObject model = Instantiate(resource.Model, obj.transform);
-            if (resource.Scale != Vector3.zero) model.transform.localScale = resource.Scale;
+            GameObject model = Instantiate(resource.model, obj.transform);
+            if (resource.scale != 0) model.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
             controller = obj.GetComponent<PlacedObjectController>() ?? obj.AddComponent<PlacedObjectController>();
-            controller.Init(this, interactionManager);
+            controller.Init(this, uxManager);
             controller.Resource = resource;
             placedObjects.Add(controller);
             model.SetActive(true);
@@ -64,19 +66,19 @@ namespace Pladdra.DefaultAbility
                     name = "Spara förslag", // TODO Change to call from UItexts
                     action = () =>
                     {
-                        UXHandler ux = new AllowUserToSaveProposal(interactionManager);
-                        interactionManager.UseUxHandler(ux);
+                        UXHandler ux = new AllowUserToSaveProposal(uxManager);
+                        uxManager.UseUxHandler(ux);
                     }
                 });
             }
 
             Vector3 localPosition = model.transform.localPosition;
-            Debug.Log($"ProposalManager: Adding {resource.Name} to proposal at {localPosition}");
+            // Debug.Log($"ProposalManager: Adding {resource.name} to proposal at {localPosition}");
             proposal.placedObjects.Add(new ProposalResource()
             {
-                modelId = resource.ModelURL,
+                modelId = resource.modelURL,
                 localId = controller.Id,
-                name = resource.Name,
+                name = resource.name,
                 position = localPosition,
                 rotation = Vector3.zero,
             });
@@ -85,8 +87,8 @@ namespace Pladdra.DefaultAbility
 
         public void AddObject(ProposalResource resource, Vector3 position, Vector3 rotation)
         {
-            Debug.Log($"Adding object {resource.name} at {position} with rotation {rotation}");
-            GameObject obj = projectManager.Project.resources.Find(x => x.ModelURL == resource.modelId).Model;
+            // Debug.Log($"Adding object {resource.name} at {position} with rotation {rotation}");
+            GameObject obj = projectManager.Project.resources.Find(x => x.modelURL == resource.modelId).model;
             GameObject model = Instantiate(obj, projectManager.Project.projectContainer);
             model.transform.localPosition = position;
             model.transform.rotation = Quaternion.Euler(rotation);
@@ -129,7 +131,7 @@ namespace Pladdra.DefaultAbility
         /// <param name="currentScale">Scale of object (uniform)</param>
         public void UpdateProposal(string id, Vector3 position, float y, float currentScale)
         {
-            Debug.Log($"Updating proposal {proposal.placedObjects.Find(x => x.localId == id).name} at {position} with rotation {y} and scale {currentScale}");
+            // Debug.Log($"Updating proposal {proposal.placedObjects.Find(x => x.localId == id).name} at {position} with rotation {y} and scale {currentScale}");
             ProposalResource resource = proposal.placedObjects.Find(x => x.localId == id);
             resource.position = position;
             resource.rotation = new Vector3(0, y, 0);
@@ -149,13 +151,13 @@ namespace Pladdra.DefaultAbility
                 //TODO Double check this, should we save it here?
             }
             this.proposal = projectManager.Project.proposals.Find(p => p.name == proposal);
-            float scale = projectManager.Project.workspaceController.CurrentScale;
-            projectManager.Project.workspaceController.Scale(1);
+            float scale = projectManager.Project.WorkspaceController.CurrentScale;
+            projectManager.Project.WorkspaceController.Scale(1);
             foreach (ProposalResource resource in this.proposal.placedObjects)
             {
                 AddObject(resource, resource.position, resource.rotation);
             }
-            projectManager.Project.workspaceController.Scale(scale);
+            projectManager.Project.WorkspaceController.Scale(scale);
         }
 
         /// <summary>
@@ -169,6 +171,12 @@ namespace Pladdra.DefaultAbility
             }
             loadedProposalObjects.Clear();
             proposal = null;
+        }
+
+        //TODO
+        public void HideAllProposals()
+        {
+            HideProposal();
         }
 
         /// <summary>
@@ -188,7 +196,7 @@ namespace Pladdra.DefaultAbility
         {
             if (proposal == null) return;
             proposal.name = name;
-            projectManager.Project.proposals.Add(proposal);
+            projectManager.Project.AddProposal(proposal);
             string proposalJSON = JsonUtility.ToJson(proposal);
             OnSaveProposal.Invoke(name, proposalJSON);
             SaveProposalLocally(name, proposalJSON);
@@ -224,20 +232,20 @@ namespace Pladdra.DefaultAbility
         /// <summary>
         /// Loads all proposals from local storage
         /// </summary>
-        public void LoadLocalProsals()
+        public void LoadLocalProsals(Project project)
         {
-            if (PlayerPrefs.HasKey(projectManager.Project.name + "-proposals"))
+            if (PlayerPrefs.HasKey(project.name + "-proposals"))
             {
-                string proposals = PlayerPrefs.GetString(projectManager.Project.name + "-proposals");
+                string proposals = PlayerPrefs.GetString(project.name + "-proposals");
                 string[] proposalNames = proposals.Split(';');
                 foreach (string proposalName in proposalNames)
                 {
                     if (proposalName == "") continue;
-                    if (PlayerPrefs.HasKey(projectManager.Project.name + "-" + proposalName))
+                    if (PlayerPrefs.HasKey(project.name + "-" + proposalName))
                     {
-                        string proposalJSON = PlayerPrefs.GetString(projectManager.Project.name + "-" + proposalName);
+                        string proposalJSON = PlayerPrefs.GetString(project.name + "-" + proposalName);
                         Proposal proposal = JsonUtility.FromJson<Proposal>(proposalJSON);
-                        projectManager.Project.proposals.Add(proposal);
+                        project.AddProposal(proposal);
                         Debug.Log($"Loaded proposal {proposal.name} with json {proposalJSON}");
                     }
                     else
@@ -259,7 +267,7 @@ namespace Pladdra.DefaultAbility
                 proposal = JsonUtility.FromJson<Proposal>(proposalJSON);
                 foreach (ProposalResource resource in proposal.placedObjects)
                 {
-                    PladdraResource pladdraResource = projectManager.Project.resources.First(r => r.ModelURL == resource.modelId);
+                    PladdraResource pladdraResource = projectManager.Project.resources.First(r => r.modelURL == resource.modelId);
                     AddObject(pladdraResource, resource.position, out PlacedObjectController controller);
                     controller.transform.position = resource.position;
                     controller.transform.rotation = Quaternion.Euler(resource.rotation);

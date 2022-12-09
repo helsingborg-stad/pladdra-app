@@ -25,10 +25,29 @@ namespace Pladdra
             filePath = $"{Application.persistentDataPath}/Files/";
         }
 
+        internal IEnumerator LoadProjectJSON(string url, Action<Result, string, WordpressData> callback)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            yield return request.SendWebRequest();
+            if (request.isNetworkError || request.isHttpError)
+            {
+                Debug.LogError($"Error downloading project JSON: {request.error}");
+                callback(Result.Failure, request.error, null);
+            }
+            else
+            {
+                Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
+                WordpressData wordpressData = JsonUtility.FromJson<WordpressData>(request.downloadHandler.text);
+                callback(Result.Success, request.error, wordpressData);
+            }
+        }
+
         internal IEnumerator LoadProjectResources(Project project, Action<Result, string> callback)
         {
             Queue<PladdraResource> resourcesToDownload = new Queue<PladdraResource>(project.resources);
             project.staticResources.ForEach(resourcesToDownload.Enqueue);
+            if (project.groundPlane != null && project.groundPlane.modelURL != "")
+                resourcesToDownload.Enqueue(project.groundPlane);
 
             List<string> failedDownloads = new List<string>();
             string errors = "";
@@ -39,28 +58,28 @@ namespace Pladdra
                 if (coroutines.Count < maxCoroutines)
                 {
                     PladdraResource resource = resourcesToDownload.Dequeue();
-                    Debug.Log($"Starting coroutine for {resource.Name} with url {resource.ModelURL}");
-                    string path = GetFilePath(resource.ModelURL);
+                    Debug.Log($"Starting coroutine for {resource.name} with url {resource.modelURL}");
+                    string path = GetFilePath(resource.modelURL);
                     if (File.Exists(path))
                     {
                         Debug.Log("Found file locally, loading...");
-                        resource.Model = LoadModel(path, resource.Name);
+                        resource.model = LoadModel(path, resource.name);
                     }
                     else
                     {
-                        Debug.Log($"Downloading file from {resource.ModelURL}");
-                        Coroutine c = StartCoroutine(DownloadResource(resource.ModelURL, (UnityWebRequest req) =>
+                        Debug.Log($"Downloading file from {resource.modelURL}");
+                        Coroutine c = StartCoroutine(DownloadResource(resource.modelURL, (UnityWebRequest req) =>
                         {
                             if (req.result == UnityWebRequest.Result.ConnectionError || req.result == UnityWebRequest.Result.ProtocolError)
                             {
-                                string error = $"{req.error} : {req.downloadHandler.text}";
+                                string error = $"{(req != null ? req.error : "null")} : {(req.downloadHandler is DownloadHandlerBuffer ? req.downloadHandler.text : "string access not supported")}";
                                 Debug.Log(error);
-                                errors += $"\n Error downloading {resource.Name}: {error}";
-                                failedDownloads.Add(resource.Name);
+                                errors += $"\n Error downloading {resource.name}: {error}";
+                                failedDownloads.Add(resource.name);
                             }
                             else
                             {
-                                resource.Model = LoadModel(path, resource.Name);
+                                resource.model = LoadModel(path, resource.name);
                             }
                             coroutines.Remove(coroutines[0]);
                         }));

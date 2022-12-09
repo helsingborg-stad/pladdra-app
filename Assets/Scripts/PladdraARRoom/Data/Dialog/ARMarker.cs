@@ -1,4 +1,4 @@
-namespace Pladdra.DefaultAbility.Data
+namespace Data.Dialogs
 {
     [System.Serializable]
     public class ARMarker

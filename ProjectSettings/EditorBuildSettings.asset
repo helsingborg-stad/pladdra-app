@@ -17,6 +17,8 @@ EditorBuildSettings:
   m_configObjects:
     AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,
       type: 2}
+    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 58cf3da8af803634586563409f5d2110,
+      type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: f36e308b88a55414fbdc276aa6077726,
       type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 9ccac4b8367534c798418955425b92c6,

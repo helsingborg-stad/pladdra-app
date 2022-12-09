@@ -6,8 +6,8 @@ namespace Pladdra.DefaultAbility.Data
     [System.Serializable]
     public class LocalTestProjectList
     {
-        public List<LocalTestProjectLink> projects;
-        public LocalTestProjectList(List<LocalTestProjectLink> projects)
+        public List<LocalTestProjectReference> projects;
+        public LocalTestProjectList(List<LocalTestProjectReference> projects)
         {
             this.projects = projects;
         }

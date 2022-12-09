@@ -1,4 +1,4 @@
-using System.Collections;
+ using System.Collections;
 using System.Collections.Generic;
 using Pladdra.DefaultAbility.Data;
 using Pladdra.DefaultAbility.UI;
@@ -15,22 +15,22 @@ namespace Pladdra.DefaultAbility.UX
         PladdraResource resource;
         GameObject preview;
         Transform container;
-        public AllowUserToInspectModel(InteractionManager interactionManager, PladdraResource resource)
+        public AllowUserToInspectModel(UXManager uxManager, PladdraResource resource)
         {
-            this.interactionManager = interactionManager;
-            this.project = interactionManager.Project;
+            this.uxManager = uxManager;
+            this.project = uxManager.Project;
             this.resource = resource;
         }
         public override void Activate()
         {
-            interactionManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(true, "BlurRenderFeature");
-            Debug.Log($"Inspecting {resource.Name}");
+            uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(true, "BlurRenderFeature");
+            uxManager.Project.Hide();
 
             container = new GameObject("PreviewContainer").transform;
-            container.SetParent(interactionManager.PreviewObjectHolder.transform);
+            container.SetParent(uxManager.PreviewObjectHolder.transform);
             container.localPosition = Vector3.zero;
             
-            preview = Object.Instantiate(resource.Model, container);
+            preview = Object.Instantiate(resource.model, container);
             preview.SetAllChildLayers("ModelPreview");
             preview.MoveToBoundsCenter();
 
@@ -43,21 +43,21 @@ namespace Pladdra.DefaultAbility.UX
 
             preview.SetActive(true);
 
-            interactionManager.UIManager.ShowUI("inspect-resource", root =>
+            uxManager.UIManager.ShowUI("inspect-resource", root =>
             {
                 root.Q<Button>("close").clicked += () =>
                 {
-                    UXHandler ux = new AllowUserToViewResourceLibrary(interactionManager);
-                    interactionManager.UseUxHandler(ux);
+                    UXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
+                    uxManager.UseUxHandler(ux);
                 };
-                root.Q<Label>("name").text = resource.Name;
+                root.Q<Label>("name").text = resource.name;
                 root.Q<Button>("place").clicked += () =>
                 {
                     // TODO Get drawable layers
-                    Vector3 position = interactionManager.User.RelativeToObject(new Vector3(0, 2f, 2f), VectorExtensions.RelativeToObjectOptions.OnGroundLayers, new string[] { "Default" });
-                    interactionManager.ProposalManager.AddObject(resource, position, out PlacedObjectController controller);
-                    UXHandler ux = new AllowUserToManipulateSelectedModel(interactionManager, controller, false);
-                    interactionManager.UseUxHandler(ux);
+                    Vector3 position = uxManager.User.RelativeToObject(new Vector3(0, 2f, 2f), VectorExtensions.RelativeToObjectOptions.OnGroundLayers, new string[] { "Default" });
+                    uxManager.ProposalManager.AddObject(resource, position, out PlacedObjectController controller);
+                    UXHandler ux = new AllowUserToManipulateSelectedModel(uxManager, controller, false);
+                    uxManager.UseUxHandler(ux);
                     // Debug.Log("Placing model");
                 };
             });
@@ -66,12 +66,13 @@ namespace Pladdra.DefaultAbility.UX
         }
         public override void Deactivate()
         {
-            interactionManager.PreviewObjectHolder.transform.rotation = Quaternion.identity;
+            uxManager.PreviewObjectHolder.transform.rotation = Quaternion.identity;
             Object.Destroy(preview);
             Object.Destroy(container.gameObject);
             preview = null;
             container = null;
-            interactionManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(false, "BlurRenderFeature");
+            uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(false, "BlurRenderFeature");
+            uxManager.Project.Show();
 
             // TODO Restore screen
         }

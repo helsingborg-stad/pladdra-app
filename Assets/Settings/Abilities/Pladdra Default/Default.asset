@@ -13,21 +13,45 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   rotationSpeed: 10
-  useTestProjects: 1
-  testProjects:
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8189764
+      value: 0.3865296
+      inSlope: 1.4004569
+      outSlope: 1.4004569
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 6.274514
+      outSlope: 6.274514
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.05983339
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useTestProjects: 0
+  localProjectList:
+    projects: []
+  projectList:
     projects:
-    - name: "Arkitekturf\xF6rslag"
-      url: 
-      description: Projektbeskrivning.
+    - name: Wienerplatsen
+      url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/764?acf_format=standard
+      description: Liten text om projektet.
       image: {fileID: 0}
-      json: {fileID: 4900000, guid: 2e481e123c61647ef97e9c79b88ca38d, type: 3}
-    - name: Lekplatsdialog 1
-      url: 
-      description: Projektbeskrivning.
-      image: {fileID: 0}
-      json: {fileID: 4900000, guid: 415650b11a4b74062b74c2f3f006dd8c, type: 3}
-    - name: Lekplatsdialog 2
-      url: 
-      description: Projektbeskrivning.
-      image: {fileID: 0}
-      json: {fileID: 4900000, guid: ff33186a472124879a30c6bed8bc459f, type: 3}

@@ -8,39 +8,64 @@ namespace Pladdra.DefaultAbility.UX
     public class AllowUserToManipulateWorkspace : UXHandler
     {
         WorkspaceController controller;
-        public AllowUserToManipulateWorkspace(InteractionManager interactionManager)
+        float oldMinTouchLimit;
+
+        public AllowUserToManipulateWorkspace(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
-            this.controller = interactionManager.Project.workspaceController;
+            this.uxManager = uxManager;
+            this.controller = uxManager.Project.WorkspaceController;
         }
         public override void Activate()
         {
             controller.Select();
 
-            interactionManager.UIManager.ShowUI("workspace-manipulate", root =>
+            uxManager.UIManager.ShowUI("workspace-manipulate", root =>
             {
-                var slider = root.Q<Slider>("scale");
+                //scale slider init
+                var scaleSlider = root.Q<Slider>("scale");
                 var sliderLabel = root.Q<Label>("scale-label");
-                sliderLabel.text = $"1:{1 / slider.value}";
+                sliderLabel.text = $"1:{1 / scaleSlider.value}";
                 root.Q<Button>("one").clicked += () =>
                 {
                     controller.Scale(1f);
-                    slider.value = 1f;
-                    sliderLabel.text = $"1:{1 / slider.value}";
-                    // root.Q<Label>("current-scale").text = "1:1";
+                    scaleSlider.value = 1f;
+                    sliderLabel.text = $"1:{1 / scaleSlider.value}";
                 };
                 root.Q<Button>("hundred").clicked += () =>
                 {
                     controller.Scale(0.01f);
-                    slider.value = 0.01f;
-                    sliderLabel.text = $"1:{1 / slider.value}";
-                    // root.Q<Label>("current-scale").text = "1:100";
+                    scaleSlider.value = 0.01f;
+                    sliderLabel.text = $"1:{1 / scaleSlider.value}";
                 };
-                slider.RegisterCallback<ChangeEvent<float>>(e =>
+                scaleSlider.RegisterCallback<ChangeEvent<float>>(e =>
                 {
                     controller.Scale(e.newValue);
                     sliderLabel.text = $"1:{1 / e.newValue}";
                 });
+
+                //rotation slider init
+                var rotationSlider = root.Q<Slider>("rotation");
+                var rotationLabel = root.Q<Label>("rotation-label");
+                rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                root.Q<Button>("plusone").clicked += () =>
+                {
+                    controller.SetRotation(1f - 180f);
+                    rotationSlider.value += 1f;
+                    rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                };
+                root.Q<Button>("minusone").clicked += () =>
+                {
+                    controller.SetRotation(-1f - 180f);
+                    rotationSlider.value -= 1f;
+                    rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                };
+                rotationSlider.RegisterCallback<ChangeEvent<float>>(e =>
+                {
+                    controller.SetRotation(e.newValue - 180f);
+                    rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                });
+
+                //done button init
                 root.Q<Button>("done").clicked += () =>
                 {
                     this.Return();
@@ -48,25 +73,31 @@ namespace Pladdra.DefaultAbility.UX
             });
 
             // TODO Maybe move these to the controller?
-            interactionManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("ARMesh"));
-            interactionManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
-            interactionManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
-            interactionManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
-            interactionManager.RaycastManager.OnSecondFingerEnd.AddListener(controller.FinalizeRotation);
+            uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("ARMesh"));
+            uxManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
+            uxManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
+            uxManager.RaycastManager.OnEndTouch.AddListener(controller.FinalizeMove);
+            uxManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
+            uxManager.RaycastManager.OnSecondFingerEnd.AddListener(controller.FinalizeRotation);
+            oldMinTouchLimit = uxManager.RaycastManager.minTouchLimit;
+            uxManager.RaycastManager.minTouchLimit = 600;
         }
 
         protected virtual void Return()
         {
-            UXHandler ux = new AllowUserToViewWorkspace(interactionManager);
-            interactionManager.UseUxHandler(ux);
+            UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+            uxManager.UseUxHandler(ux);
         }
         public override void Deactivate()
         {
-            interactionManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("ARMesh"));
-            interactionManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
-            interactionManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
-            interactionManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);
-            interactionManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
+            uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("ARMesh"));
+            uxManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
+            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnEndTouch.RemoveListener(controller.FinalizeMove);
+            uxManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);
+            uxManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
+            uxManager.RaycastManager.minTouchLimit = oldMinTouchLimit;
+
 
             controller.FinalizeReposition();
 

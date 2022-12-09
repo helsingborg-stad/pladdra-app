@@ -10,25 +10,25 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToViewProposal : UXHandler
     {
-        public AllowUserToViewProposal(InteractionManager interactionManager)
+        public AllowUserToViewProposal(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            interactionManager.UIManager.ShowUI("view-proposal", root =>
+            uxManager.UIManager.ShowUI("view-proposal", root =>
             {
-                root.Q<Label>("name").text = interactionManager.ProposalManager.Proposal.name;
+                root.Q<Label>("name").text = uxManager.ProposalManager.Proposal.name;
                 root.Q<Button>("close").clicked += () =>
                 {
-                    interactionManager.ProposalManager.HideProposal();
-                    UXHandler ux = new AllowUserToViewProposalLibrary(interactionManager);
-                    interactionManager.UseUxHandler(ux);
+                    uxManager.ProposalManager.HideProposal();
+                    UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                    uxManager.UseUxHandler(ux);
                 };
                 root.Q<Button>("reposition-proposal").clicked += () =>
                              {
-                                 UXHandler ux = new AllowUserToManipulateProposal(interactionManager);
-                                 interactionManager.UseUxHandler(ux);
+                                 UXHandler ux = new AllowUserToManipulateProposal(uxManager);
+                                 uxManager.UseUxHandler(ux);
                              };
             });
         }

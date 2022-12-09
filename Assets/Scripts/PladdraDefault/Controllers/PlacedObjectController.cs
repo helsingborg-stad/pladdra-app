@@ -14,19 +14,20 @@ namespace Pladdra.DefaultAbility
         public string Id { get => id; }
 
         Coroutine updateProposal;
-        public override void Init(ProposalManager proposalManager, InteractionManager interactionManager)
+        public override void Init(ProposalManager proposalManager, UXManager uxManager)
         {
-            base.Init(proposalManager, interactionManager);
+            base.Init(proposalManager, uxManager);
             id = Guid.NewGuid().ToString();
 
             BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
 
             // TODO Move to collider extensions
             Bounds bounds = gameObject.GetBounds();
-            bounds.size = Vector3.Scale(bounds.size, transform.localScale);
-            float scaleFactor = 3f;
+            //increase bounds scale to counter the workplace scale
+            float scaleFactor = 1.2f;
+            bounds.size *= 1f/uxManager.Project.WorkspaceController.transform.localScale.x;
             bounds.size = Vector3.Scale(bounds.size, new Vector3(scaleFactor, scaleFactor, scaleFactor));
-            bounds.center -= transform.position;
+            bounds.center = bounds.center - transform.position;
             boxCollider.size = bounds.size;
             boxCollider.center = bounds.center;
         }

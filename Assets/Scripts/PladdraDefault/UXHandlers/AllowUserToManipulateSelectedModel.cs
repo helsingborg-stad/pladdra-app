@@ -12,9 +12,9 @@ namespace Pladdra.DefaultAbility.UX
     {
         PlacedObjectController controller;
         bool skipFirstEndTouch = true;
-        public AllowUserToManipulateSelectedModel(InteractionManager interactionManager, PlacedObjectController controller, bool skipFirstEndTouch = true)
+        public AllowUserToManipulateSelectedModel(UXManager uxManager, PlacedObjectController controller, bool skipFirstEndTouch = true)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
             this.controller = controller;
             this.skipFirstEndTouch = skipFirstEndTouch;
         }
@@ -22,31 +22,41 @@ namespace Pladdra.DefaultAbility.UX
         {
             controller.Select();
 
-            interactionManager.UIManager.ShowUI("workspace-with-selected-object", root =>
-                         {
+            uxManager.UIManager.ShowUI("workspace-with-selected-object", root =>
+                        {
                             Label rotationLabel = root.Q<Label>("rotation-label");
+                            controller.SetRotation(180f);
                             Slider rotationSlider = root.Q<Slider>("rotation-slider");
-                            rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y}°";
+                            rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
 
-                             root.Q<Button>("plus-ninety").clicked += () =>
-                             {
-                                 controller.SetRotation(controller.transform.rotation.eulerAngles.y + 90f);
-                                 rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y}°";
-                                 rotationSlider.value = Mathf.InverseLerp(360f, 0f, controller.transform.rotation.eulerAngles.y);
-                             };
+                            root.Q<Button>("plus-ninety").clicked += () =>
+                            {
+                                controller.SetRotation(controller.transform.rotation.eulerAngles.y - 180f + 90f);
+                                if((controller.transform.rotation.eulerAngles.y - 180f) > 180f)
+                                {
+                                    controller.SetRotation(-180f);
+                                    rotationSlider.value = -180f;
+                                }
+                                rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                                rotationSlider.value += 90f;
+                            };
 
-                             root.Q<Button>("minus-ninety").clicked += () =>
-                             {
-                                 controller.SetRotation(controller.transform.rotation.eulerAngles.y - 90f);
-                                 rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y}°";
-                                 rotationSlider.value = Mathf.InverseLerp(360f, 0f, controller.transform.rotation.eulerAngles.y);
-                             };
+                            root.Q<Button>("minus-ninety").clicked += () =>
+                            {
+                                controller.SetRotation(controller.transform.rotation.eulerAngles.y - 180f - 90f);
+                                if((controller.transform.rotation.eulerAngles.y - 180f) < -180f)
+                                {
+                                    controller.SetRotation(180f);
+                                    rotationSlider.value = 180f;
+                                }
+                                rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
+                                rotationSlider.value -= 90f;
+                            };
 
                             root.Q<Slider>("rotation-slider").RegisterValueChangedCallback(e =>
                             {
-                                float remappedValue = Mathf.Lerp(-180f, 180f, e.newValue);
-                                controller.SetRotation(remappedValue);
-                                rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y}°";
+                                controller.SetRotation(e.newValue - 180f);
+                                rotationLabel.text = $"{controller.transform.rotation.eulerAngles.y - 180f}°";
                             });
 
                             //  root.Q<Button>("undo").clicked += () =>
@@ -57,26 +67,26 @@ namespace Pladdra.DefaultAbility.UX
                             //  {
 
                             //  };
-                             root.Q<Button>("delete").clicked += () =>
-                             {
-                                 controller.Delete();
-                                 UXHandler ux = new AllowUserToViewWorkspace(interactionManager);
-                                 interactionManager.UseUxHandler(ux);
-                             };
-                             root.Q<Button>("done").clicked += () =>
-                             {
-                                 UXHandler ux = new AllowUserToViewWorkspace(interactionManager);
-                                 interactionManager.UseUxHandler(ux);
-                             };
-                         });
+                            root.Q<Button>("delete").clicked += () =>
+                            {
+                                controller.Delete();
+                                UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+                                uxManager.UseUxHandler(ux);
+                            };
+                            root.Q<Button>("done").clicked += () =>
+                            {
+                                UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+                                uxManager.UseUxHandler(ux);
+                            };
+                        });
 
             // Remove currently selected object's layer from the layermask so we don't place it on itself
-            interactionManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
+            uxManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
 
-            interactionManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
-            interactionManager.RaycastManager.OnEndTouch.AddListener(Deselect);
-            interactionManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
-            interactionManager.RaycastManager.OnSecondFingerEnd.AddListener(controller.FinalizeRotation);
+            uxManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
+            uxManager.RaycastManager.OnEndTouch.AddListener(Deselect);
+            uxManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
+            uxManager.RaycastManager.OnSecondFingerEnd.AddListener(controller.FinalizeRotation);
         }
 
         void Deselect()
@@ -87,22 +97,22 @@ namespace Pladdra.DefaultAbility.UX
                 skipFirstEndTouch = false;
                 return;
             }
-            interactionManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
-            interactionManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
-            interactionManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);
-            interactionManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
+            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
+            uxManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);
+            uxManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
 
             controller.FinalizeReposition();
 
             controller.Deselect();
-            UXHandler ux = new AllowUserToViewWorkspace(interactionManager);
-            interactionManager.UseUxHandler(ux);
+            UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+            uxManager.UseUxHandler(ux);
         }
         public override void Deactivate()
         {
             // Return the layer so we can reselect it
-            interactionManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
-            interactionManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
+            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
         }
     }
 }

@@ -10,22 +10,22 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToChooseActionAfterSaving : UXHandler
     {
-        public AllowUserToChooseActionAfterSaving(InteractionManager interactionManager)
+        public AllowUserToChooseActionAfterSaving(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            interactionManager.UIManager.ShowUI("save-confirmation", root =>
+            uxManager.UIManager.ShowUI("save-confirmation", root =>
             {
                 root.Q<Button>("continue").clicked += () =>
                 {
-                    interactionManager.ShowWorkspaceDefault();
+                    uxManager.ShowWorkspaceDefault();
                 };
                 root.Q<Button>("proposal-library").clicked += () =>
                 {
-                    UXHandler ux = new AllowUserToViewProposalLibrary(interactionManager);
-                    interactionManager.UseUxHandler(ux);
+                    UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                    uxManager.UseUxHandler(ux);
                 };
             });
         }

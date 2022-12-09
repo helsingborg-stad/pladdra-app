@@ -12,54 +12,54 @@ namespace Pladdra.DefaultAbility.UX
 {
     public class AllowUserToViewProject : UXHandler
     {
-        public AllowUserToViewProject(InteractionManager interactionManager)
+        public AllowUserToViewProject(UXManager uxManager)
         {
-            this.interactionManager = interactionManager;
+            this.uxManager = uxManager;
         }
         public override void Activate()
         {
-            Debug.Log("Init Project " + interactionManager.Project.name);
-            if (interactionManager.Project.markerRequired)
+            Debug.Log("Init Project " + uxManager.Project.name);
+            if (uxManager.Project.markerRequired)
             {
                 Debug.Log("Project requires marker");
-                interactionManager.UIManager.ShowUI("look-for-marker");
+                uxManager.UIManager.ShowUI("look-for-marker");
                 // TODO Hook up listeners to marker found event
             }
             else
             {
                 // TODO Add UITexts
                 Dictionary<string, Action> actions = new Dictionary<string, Action>();
-                if (interactionManager.Project.UserCanInteract())
+                if (uxManager.Project.UserCanInteract())
                 {
                     actions.Add("Börja bygga", () =>
                     {
-                        interactionManager.ShowWorkspaceDefault();
+                        uxManager.ShowWorkspaceDefault();
                     });
                 }
-                if (interactionManager.Project.HasProposals())
+                if (uxManager.Project.HasProposals())
                 {
                     actions.Add("Se förslag", () =>
                     {
-                        UXHandler ux = new AllowUserToViewProposalLibrary(interactionManager);
-                        interactionManager.UseUxHandler(ux);
+                        UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                        uxManager.UseUxHandler(ux);
                     });
                 }
-                interactionManager.UIManager.ShowUI("project-info", root =>
+                uxManager.UIManager.ShowUI("project-info", root =>
                         {
-                            root.Q<Label>("Name").text = interactionManager.Project.name;
-                            root.Q<Label>("Description").text = interactionManager.Project.description;
+                            root.Q<Label>("Name").text = uxManager.Project.name;
+                            root.Q<Label>("Description").text = uxManager.Project.description;
 
                             Button start = root.Q<Button>("start");
                             start.clicked += () => 
                             {
-                                interactionManager.ShowWorkspaceDefault();
+                                uxManager.ShowWorkspaceDefault();
                             };
 
                             Button suggestions = root.Q<Button>("suggestions");
                             suggestions.clicked += () =>
                             {
-                                UXHandler ux = new AllowUserToViewProposalLibrary(interactionManager);
-                                interactionManager.UseUxHandler(ux);
+                                UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                                uxManager.UseUxHandler(ux);
                             };
                             
                         }
