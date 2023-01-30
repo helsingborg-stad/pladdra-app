@@ -70,7 +70,7 @@ namespace Pladdra.QuizAbility
                         case Result.Success:
                             if (quizCollection == null)
                             {
-                                uiManager.ShowError($"Frågespelet {quizProject.name} går inte att ladda.");
+                                uiManager.ShowError($"Frågespelet {quizProject.name} går inte att ladda. Felmeddelande: {errors}");
                                 return;
                             }
                             quizzes.Add(quizProject.name, quizCollection);

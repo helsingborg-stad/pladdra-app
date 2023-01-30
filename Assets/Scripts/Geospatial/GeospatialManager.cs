@@ -30,7 +30,7 @@ namespace Pladdra
         [Header("Events")]
         public UnityEvent OnLowLocalizationAccuracy;
         public UnityEvent OnLocalizationSuccessful;
-        public UnityEvent OnLocalizationUnuccessful;
+        public UnityEvent OnLocalizationUnsuccessful;
 
         private Dictionary<string, GameObject> anchors = new Dictionary<string, GameObject>();
 
@@ -153,12 +153,9 @@ namespace Pladdra
             // _anchorObjects.Clear();
         }
 
-
         void Update()
         {
 #if UNITY_IOS || UNITY_ANDROID
-            if (!_isInARView)
-                return;
 
             UpdateDebugInfo();
 
@@ -259,7 +256,7 @@ namespace Pladdra
                 {
                     Debug.LogError("Geospatial sample localization passed timeout.");
                     ReturnWithReason(_localizationFailureMessage);
-                    OnLocalizationUnuccessful.Invoke();
+                    OnLocalizationUnsuccessful.Invoke();
 
                 }
                 else
@@ -570,15 +567,20 @@ namespace Pladdra
         // Place anchor at lat long with camera altitude
         public async void PlaceGeoAnchorAtLocation(string id, double latitude, double longitude, Quaternion rotation, Action<bool, string, GameObject> callback)
         {
-#if !UNITY_IOS && !UNITY_ANDROID
+            Debug.Log("Placing anchor at location");
+#if UNITY_EDITOR
             callback?.Invoke(false, "Not mobile player.", null);
+            return;
 #endif
-
+            bool debugLocalisation = true;
             while (!isLocalized)
             {
+                if (debugLocalisation) Debug.Log("Waiting for localization");
+                debugLocalisation = false;
                 await Task.Yield();
             }
 
+            Debug.Log("Is localized");
             var anchor = AnchorManager.AddAnchor(latitude, longitude, EarthManager.CameraGeospatialPose.Altitude, rotation);
             if (anchor == null)
             {

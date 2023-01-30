@@ -11,8 +11,9 @@ namespace Pladdra.QuizAbility.Data
     {
         public Acf acf;
 
-        public QuizCollection MakeQuizCollection()
+        public QuizCollection MakeQuizCollection(out string error)
         {
+            error = "";
             QuizCollection quizCollection = new QuizCollection(id, acf.settings.name, acf.settings.description, acf.information.title, acf.information.information);
             foreach (WordpressData_QuizGroup quizGroup in acf.quizzes)
             {
@@ -40,7 +41,10 @@ namespace Pladdra.QuizAbility.Data
                 quizCollection.quizzes.Add(quiz);
             }
             if (quizCollection.quizzes.Count == 0)
+            {
+                error = "No quizzez";
                 return null;
+            }
             else
                 return quizCollection;
         }

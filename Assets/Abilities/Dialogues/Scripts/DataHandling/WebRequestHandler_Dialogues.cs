@@ -14,7 +14,7 @@ namespace Pladdra.DialogueAbility
 {
     public class WebRequestHandler_Dialogues : WebRequestHandler
     {
-       internal IEnumerator LoadDialogueProject(string url, Action<Result, string, Project> callback)
+        internal IEnumerator LoadDialogueProject(string url, Action<Result, string, Project> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
@@ -50,16 +50,16 @@ namespace Pladdra.DialogueAbility
                         Debug.Log($"No url for {resource.name}, skipping");
                         continue;
                     }
-                    Debug.Log($"Starting coroutine for {resource.name} with url {resource.url}");
                     string path = GetFilePath(resource.url);
                     if (File.Exists(path))
                     {
-                        Debug.Log("Found file locally, loading...");
+                        // Debug.Log($"Found {resource.name} locally, loading...");
                         resource.gameObject = LoadModel(path, resource.name);
+                        yield return null;
                     }
                     else
                     {
-                        Debug.Log($"Downloading file from {resource.url}");
+                        // Debug.Log($"Starting download for {resource.name} from url {resource.url}");
                         Coroutine c = StartCoroutine(DownloadResource(resource.url, (UnityWebRequest req) =>
                         {
                             if (req.result == UnityWebRequest.Result.ConnectionError || req.result == UnityWebRequest.Result.ProtocolError)
@@ -77,7 +77,9 @@ namespace Pladdra.DialogueAbility
                             coroutines.Remove(coroutines[0]);
                         }));
                         coroutines.Add(c);
+                        yield return null;
                     }
+                    yield return null;
                 }
                 yield return null;
             }
@@ -90,10 +92,10 @@ namespace Pladdra.DialogueAbility
 
             // download texture2d from markerURL
             //TODO Make this into it's own coroutine
-            if (project.markerURL.IsNullOrEmptyOrFalse())
+            if (project.marker.url.IsNullOrEmptyOrFalse())
             {
-                Debug.Log($"Downloading file from {project.markerURL}");
-                UnityWebRequest www = UnityWebRequestTexture.GetTexture(project.markerURL);
+                Debug.Log($"Downloading file from {project.marker.url}");
+                UnityWebRequest www = UnityWebRequestTexture.GetTexture(project.marker.url);
                 yield return www.SendWebRequest();
 
                 if (www.result != UnityWebRequest.Result.Success)
@@ -102,7 +104,7 @@ namespace Pladdra.DialogueAbility
                 }
                 else
                 {
-                    project.marker = ((DownloadHandlerTexture)www.downloadHandler).texture;
+                    project.marker.image = ((DownloadHandlerTexture)www.downloadHandler).texture;
                 }
                 www.Dispose();
             }

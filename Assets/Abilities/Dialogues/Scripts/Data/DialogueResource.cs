@@ -24,7 +24,6 @@ namespace Pladdra.DialogueAbility.Data
         public Vector3 rotation = Vector3.zero;
         public float scale = 0;
         public bool disable;
-        public string markerURL;
-        public Texture2D marker;
+        public (string url, float width) marker;
     }
 }

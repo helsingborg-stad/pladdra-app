@@ -15,7 +15,7 @@ namespace Pladdra.QuizAbility
 {
     public class WebRequestHandler_Quiz : WebRequestHandler
     {
-       internal IEnumerator LoadQuizCollection(string url, Action<Result, string, QuizCollection> callback)
+        internal IEnumerator LoadQuizCollection(string url, Action<Result, string, QuizCollection> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(url);
             yield return request.SendWebRequest();
@@ -27,7 +27,8 @@ namespace Pladdra.QuizAbility
             {
                 Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
                 WordpressData_QuizCollection wordpressData = JsonUtility.FromJson<WordpressData_QuizCollection>(request.downloadHandler.text);
-                callback(Result.Success, request.error, wordpressData.MakeQuizCollection());
+                QuizCollection collection = wordpressData.MakeQuizCollection(out string error);
+                callback(Result.Success, error, collection);
             }
             request.Dispose();
         }

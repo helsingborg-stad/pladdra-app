@@ -23,10 +23,9 @@ namespace Pladdra.DialogueAbility.Data
         public List<DialogueResource> resources;
         public List<Proposal> proposals;
         public Proposal currentProposal;
-        public string markerURL;
-        public Texture2D marker;
-        public bool markerRequired;
-        public (double, double) location;
+        // public Texture2D markerImage;
+        public (string url, bool required, float width, Texture2D image) marker;
+        public (double lat, double lon, float rotation) location;
         public Transform origin;
         public Transform projectOrigin;
         public Transform scalePivot;
@@ -93,13 +92,11 @@ namespace Pladdra.DialogueAbility.Data
             workspaceController.Init(this);
 
             proposalHandler = projectOrigin.gameObject.AddComponent<ProposalHandler>(); // Doesn't have to be a MonoBehaviour but keeping it as such in case we need to check debug vars
-            // proposalHandler = new ProposalHandler();
             proposalHandler.Init(this);
             proposalHandler.LoadLocalProsals();
             // workspaceController.Scale(startScale);
 
-            // TODO Get user object properly
-            projectOrigin.localPosition = Camera.main.gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
+            projectOrigin.localPosition = RequiresGeolocation() ? Vector3.zero : uxManager.AppManager.ARSessionManager.GetUser().gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
                 VectorExtensions.RelativeToObjectOptions.OnGroundLayers,
                 uxManager.RaycastManager.GetLayerMask("ARMesh"))
                 + startPosition;
@@ -179,12 +176,14 @@ namespace Pladdra.DialogueAbility.Data
             staticResourcesContainer.gameObject.SetAllChildLayers("StaticResources");
             staticResourcesContainer.SetParent(projectContainer);
             staticResourcesContainer.localPosition = Vector3.zero;
+            staticResourcesContainer.localRotation = Quaternion.identity;
 
             if (HasInteractiveResources())
             {
                 interactiveResourcesContainer = new GameObject("InteractiveResources").transform;
                 interactiveResourcesContainer.SetParent(projectContainer);
                 interactiveResourcesContainer.localPosition = Vector3.zero;
+                interactiveResourcesContainer.localRotation = Quaternion.identity;
             }
 
             // Create all static and interactive resources
@@ -205,9 +204,28 @@ namespace Pladdra.DialogueAbility.Data
 
                     resource.gameObject.SetActive(true);
 
-                    if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
-                    if (resource.position != Vector3.zero) resource.gameObject.transform.localPosition = resource.position;
-                    if (resource.rotation != Vector3.zero) resource.gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
+                    if (resource.scale != 0)
+                    {
+                        resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
+                    }
+
+                    if (resource.position != Vector3.zero)
+                    {
+                        resource.gameObject.transform.localPosition = resource.position;
+                    }
+                    else
+                    {
+                        resource.gameObject.transform.localPosition = Vector3.zero;
+                    }
+
+                    if (resource.rotation != Vector3.zero)
+                    {
+                        resource.gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
+                    }
+                    else
+                    {
+                        resource.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
+                    }
                 }
                 else
                 {
@@ -302,24 +320,28 @@ namespace Pladdra.DialogueAbility.Data
         internal void SetGeoAnchor(GameObject anchor)
         {
             geoAnchor = anchor.transform;
+
+            Vector3 pos = geoAnchor.position;
+            pos.y = uxManager.AppManager.ARSessionManager.GetDefaultPlaneY();
+            projectOrigin.transform.position = pos;
+
+            var euler = geoAnchor.rotation.eulerAngles;
+            float y = euler.y + location.rotation;
+            projectOrigin.transform.rotation = Quaternion.Euler(0, y, 0);
+
             UnityEngine.Object.FindObjectOfType<Pladdra.ARDebug.PlaneVisualiser>().AddARObject(geoAnchor.gameObject); //Temporary solution for AR viz
-            AlignToGeoAnchor();
         }
 
         /// <summary>
-        /// Alings the project to the geo anchor.
+        /// Realigns the project to the geo anchor.
         /// </summary>
         internal void AlignToGeoAnchor()
         {
-            Vector3 pos = geoAnchor.position;
-            pos.y = uxManager.AppManager.ARSessionManager.GetDefaultPlaneY(); // To make sure the model is placed on the ground, as the geoanchor quite often is a bit off
-            pivotController.MoveWithoutOffset(pos);
-            var euler = geoAnchor.rotation.eulerAngles;
-            pivotController.SetRotation(euler.y);
+            throw new NotImplementedException();
         }
         #endregion Alignment
 
-        /// <summary>
+        /// <summary>   
         /// Creates 1x1 textures for all materials that have no texture.
         /// This is a solution for glb export since color-only materials are not exported.
         /// </summary>
@@ -361,6 +383,12 @@ namespace Pladdra.DialogueAbility.Data
         {
             return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0;
         }
+
+        internal bool RequiresGeolocation()
+        {
+            return location.lat != 0 && location.lon != 0;
+        }
+
         #endregion Booleans
     }
 }

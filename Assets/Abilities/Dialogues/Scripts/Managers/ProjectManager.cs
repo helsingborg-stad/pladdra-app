@@ -115,7 +115,7 @@ namespace Pladdra.DialogueAbility
                 // Listens to Project.OnSaveProposal to save proposal to whatever backend is hooked up
                 project.OnSaveProposal.AddListener((string proposalName, string proposalData) => OnSaveProposal.Invoke(proposalName, proposalData));
 
-                if (project.marker != null) uxManager.ARReferenceImageHandler.AddReferenceImage(project.marker,project.name,1); //TODO Add width
+                if (project.marker.image != null) uxManager.ARReferenceImageHandler.AddReferenceImage(project.marker.image, project.name, project.marker.width);
 
                 Debug.Log($"ProjectManager: Project {project.name} is loaded.");
             }));

@@ -110,13 +110,12 @@ namespace Pladdra
                 req.downloadHandler = new DownloadHandlerFile(GetFilePath(url));
                 yield return req.SendWebRequest();
                 callback(req);
-                req.Dispose();
             }
         }
 
         protected GameObject LoadModel(string path, string name)
         {
-            Debug.Log($"Loading model from {path} with name {name}");
+            // Debug.Log($"Loading model {name} from {path}");
             try
             {
                 ImportSettings settings = new ImportSettings();

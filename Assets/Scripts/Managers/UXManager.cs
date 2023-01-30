@@ -48,7 +48,7 @@ namespace Pladdra.UX
 
         protected virtual void Start()
         {
-            User = Camera.main.transform.gameObject; // TODO Set this from ARSessionOrigin
+            User = AppManager.ARSessionManager.GetUser().gameObject; // TODO Set this from ARSessionOrigin
             // PreviewObjectHolder = User.transform.Find("PreviewObjectHolder").gameObject; //TODO Move to inherited class
         }
 
@@ -73,12 +73,14 @@ namespace Pladdra.UX
         /// </summary>
         public void SetUXToNull()
         {
-            Debug.Log("UXManager: Setting UX to null");
             if (uxHandler != null)
                 uxHandler.Deactivate();
             uxHandler = null;
         }
 
+        /// <summary>
+        /// Uses the last used UXHandler
+        /// </summary>
         public void UseLastUX()
         {
             if (pastUXHandler != null)

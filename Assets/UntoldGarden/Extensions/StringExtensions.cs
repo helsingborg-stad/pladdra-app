@@ -1,18 +1,61 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace UntoldGarden.Utils
 {
-public static class StringExtensions 
-{
-    public static bool IsNullOrEmptyOrFalse(this string s)
+    public static class StringExtensions
     {
-        if (string.IsNullOrEmpty(s) || s == "false")
+        public static bool IsNullOrEmptyOrFalse(this string s)
         {
-            return true;
+            if (string.IsNullOrEmpty(s) || s == "false")
+            {
+                return true;
+            }
+            return false;
         }
-        return false;
+
+        public static bool TryConvertToBoolean(this string s, string errorRef = "")
+        {
+            bool b = false;
+            try
+            {
+                b = (s != "") ? Convert.ToBoolean(s) : false;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+            }
+            return b;
+        }
+
+        public static double TryConvertToDouble(this string s, string errorRef = "")
+        {
+            double b = 0;
+            try
+            {
+                b = (s != "") ? Convert.ToDouble(s) : 0;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+            }
+            return b;
+        }
+
+        public static float TryConvertToSingle(this string s, string errorRef = "")
+        {
+            float b = 0;
+            try
+            {
+                b = (s != "") ? Convert.ToSingle(s) : 0;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+            }
+            return b;
+        }   
     }
-}
 }

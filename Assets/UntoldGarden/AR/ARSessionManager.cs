@@ -213,18 +213,14 @@ hasPlane  = planeManager != null && planeManager.trackables != null && planeMana
         }
 
         // TODO Update to XROrigin
-        // Get the user transform from the SessionManager
-// This transform is the parent of the user object
-// This function is used in the ARSessionManager script
-
-public Transform GetUser()
+        public Transform GetUser()
         {
             if (!user)
                 user = transform.GetChild(0);
-            if (user)
-                UntoldGarden.AR.Logger.Log("SessionManager get user " + user.name);
-            else
-                UntoldGarden.AR.Logger.Log("No user!");
+
+            if (user == null)
+                Debug.LogError("No user!");
+                
             return user;
         }
 

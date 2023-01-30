@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Pladdra.Data;
+using UntoldGarden.Utils;
 
 namespace Pladdra.DialogueAbility.Data
 {
@@ -21,21 +22,13 @@ namespace Pladdra.DialogueAbility.Data
         internal Project MakeProject()
         {
             name = title.rendered;
-            Debug.Log("Making project from wordpress data: " + name);
 
-            float startScale = 1;
-            try { startScale = (acf.settings.scale != "") ? (float)Convert.ToSingle(acf.settings.scale) : 1; }
-            catch (Exception e) { Debug.Log("Error converting scale to float: " + e.Message); }
-
-            (double, double) location = (0, 0);
-            try { location.Item1 = (acf.settings.geolocation.latitude != "") ? Convert.ToDouble(acf.settings.geolocation.latitude) : 0; }
-            catch (Exception e) { Debug.Log("Error converting location lat to double: " + e.Message); }
-            try { location.Item2 = (acf.settings.geolocation.longitude != "") ? Convert.ToDouble(acf.settings.geolocation.longitude) : 0; }
-            catch (Exception e) { Debug.Log("Error converting location lng to double: " + e.Message); }
-
-            bool markerRequired = false;
-            try { markerRequired = (acf.settings.marker.required != "") ? Convert.ToBoolean(acf.settings.marker.required) : false; }
-            catch (Exception e) { Debug.Log("Error converting marker required to bool: " + e.Message); }
+            float startScale = acf.settings.scale.TryConvertToSingle($"project {name}");
+            double lat = acf.settings.geolocation.latitude.TryConvertToDouble($"project {name}");
+            double lon = acf.settings.geolocation.longitude.TryConvertToDouble($"project {name}");
+            float rotation = acf.settings.geolocation.rotation.TryConvertToSingle($"project {name}");
+            bool markerRequired = acf.settings.marker.required.TryConvertToBoolean("marker required in " + name);
+            float markerWidth = acf.settings.marker.width.TryConvertToSingle($"project {name}");
 
             Project project = new Project()
             {
@@ -43,13 +36,10 @@ namespace Pladdra.DialogueAbility.Data
                 name = name,
                 description = acf.settings.description,
                 startScale = startScale,
-                markerURL = acf.settings.marker.image,
-                markerRequired = markerRequired,
-                location = location,
+                marker = (acf.settings.marker.image, markerRequired, markerWidth, null),
+                location = (lat,lon,rotation),
             };
-
-            Debug.Log("Adding groundplane");
-
+            
             // Add our groundplane if we have one
             if (acf.settings.groundplane != "")
             {
@@ -59,8 +49,8 @@ namespace Pladdra.DialogueAbility.Data
                     url = acf.settings.groundplane,
                 };
             }
-            Debug.Log("Adding resources");
 
+            // Add resources
             if (acf.models != null)
             {
                 project.resources = new List<DialogueResource>();
@@ -70,28 +60,14 @@ namespace Pladdra.DialogueAbility.Data
                     if (item.source == "" || item.source == "false")
                         continue;
 
-                    //TODO There is a better way to do this
-                    float scale = 1;
-                    float posx = 0;
-                    float posy = 0;
-                    float posz = 0;
-                    float rotx = 0;
-                    float roty = 0;
-                    float rotz = 0;
-                    try { scale = (item.transform.scale != "") ? (float)Convert.ToSingle(item.transform.scale) : 1; }
-                    catch (Exception e) { Debug.Log($"Error converting scale to float for model {item.name}, error {e.Message}"); }
-                    try { posx = (item.transform.position.x != "") ? (float)Convert.ToSingle(item.transform.position.x) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting position x to float for model {item.name}, error {e.Message}"); }
-                    try { posy = (item.transform.position.y != "") ? (float)Convert.ToSingle(item.transform.position.y) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting position y to float for model {item.name}, error {e.Message}"); }
-                    try { posz = (item.transform.position.z != "") ? (float)Convert.ToSingle(item.transform.position.z) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting position z to float for model {item.name}, error {e.Message}"); }
-                    try { rotx = (item.transform.rotation.x != "") ? (float)Convert.ToSingle(item.transform.rotation.x) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting rotation x to float for model {item.name}, error {e.Message}"); }
-                    try { roty = (item.transform.rotation.y != "") ? (float)Convert.ToSingle(item.transform.rotation.y) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting rotation y to float for model {item.name}, error {e.Message}"); }
-                    try { rotz = (item.transform.rotation.z != "") ? (float)Convert.ToSingle(item.transform.rotation.z) : 0; }
-                    catch (Exception e) { Debug.Log($"Error converting rotation z to float for model {item.name}, error {e.Message}"); }
+                    float scale = item.transform.scale.TryConvertToSingle($"model {item.name}");
+                    float posx = item.transform.position.x.TryConvertToSingle($"model {item.name}");
+                    float posy = item.transform.position.y.TryConvertToSingle($"model {item.name}");
+                    float posz = item.transform.position.z.TryConvertToSingle($"model {item.name}");
+                    float rotx = item.transform.rotation.x.TryConvertToSingle($"model {item.name}");
+                    float roty = item.transform.rotation.y.TryConvertToSingle($"model {item.name}");
+                    float rotz = item.transform.rotation.z.TryConvertToSingle($"model {item.name}");
+                    
 
                     ResourceDisplayRules rule = ResourceDisplayRules.Static;
                     switch (item.rules)
@@ -110,6 +86,8 @@ namespace Pladdra.DialogueAbility.Data
                             break;
                     }
 
+                    float width = item.marker.width.TryConvertToSingle($"model {item.name}");
+
                     project.resources.Add(new DialogueResource()
                     {
                         name = item.name,
@@ -118,12 +96,10 @@ namespace Pladdra.DialogueAbility.Data
                         scale = scale,
                         position = new Vector3(posx, posy, posz),
                         rotation = new Vector3(rotx, roty, rotz),
-                        markerURL = item.marker,
+                        marker = (item.marker.image, width),
                     });
                 }
             }
-
-            Debug.Log("Adding proposals");
 
             // Add our proposals if we have any
             if (acf.proposals != null)
@@ -134,7 +110,6 @@ namespace Pladdra.DialogueAbility.Data
                     project.proposals.Add(JsonUtility.FromJson<Proposal>(item.json));
                 }
             }
-            Debug.Log("Created project from wordpress data: " + project.name);
             return project;
         }
     }
@@ -163,6 +138,7 @@ namespace Pladdra.DialogueAbility.Data
     {
         public string image;
         public string required;
+        public string width;
     }
 
     [System.Serializable]
@@ -170,6 +146,7 @@ namespace Pladdra.DialogueAbility.Data
     {
         public string latitude;
         public string longitude;
+        public string rotation;
     }
 
     [System.Serializable]
@@ -178,7 +155,7 @@ namespace Pladdra.DialogueAbility.Data
         public string name;
         public string source;
         public string rules;
-        public string marker;
+        public Marker marker;
         public ModelTransform transform;
     }
 

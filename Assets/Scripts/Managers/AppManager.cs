@@ -91,7 +91,7 @@ namespace Pladdra
                                     uiManager.ShowError("DownloadFailure", new string[] { string.Join(", ", urls), errors });
                                     return;
                                 case Result.Success:
-                                    Debug.Log($"AppManager: Project list with {projects.Count} loaded successfully.");
+                                    Debug.Log($"AppManager: Loaded {projects.Count} projects.");
                                     DisplayProjectList(projects, onReturn, collectionName, collectionInfo);
                                     break;
                             }

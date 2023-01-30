@@ -17,7 +17,7 @@ namespace Pladdra.DialogueAbility.UX
         {
             Debug.Log("Init Project " + uxManager.Project.name);
 
-            if (uxManager.Project.location.Item1 != 0 && uxManager.Project.location.Item2 != 0)
+            if (uxManager.Project.RequiresGeolocation())
             {
                 uxManager.UIManager.DisplayUI("prompt", root =>
                 {
@@ -25,10 +25,10 @@ namespace Pladdra.DialogueAbility.UX
                 });
                 Debug.Log("Project requires location to be displayed.");
                 Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
-                uxManager.GeospatialManager.OnLocalizationUnuccessful.AddListener(GeolocationUnsuccessful);
+                uxManager.GeospatialManager.OnLocalizationUnsuccessful.AddListener(GeolocationUnsuccessful);
                 uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.Item1, uxManager.Project.location.Item2, Quaternion.identity, placedObject);
             }
-            else if (uxManager.Project.markerRequired)
+            else if (uxManager.Project.marker.required)
             {
                 Debug.Log("Project requires marker to be displayed.");
                 uxManager.UIManager.DisplayUI("look-for-marker");
@@ -42,23 +42,28 @@ namespace Pladdra.DialogueAbility.UX
 
         void SetGeoAnchorAndDisplayProject(bool b, string s, GameObject anchor)
         {
-            Debug.Log(s);
+            Debug.Log("SetGeoAnchorAndDisplayProject: " + s);
             if (!b)
             {
-                GeolocationUnsuccessful();
+                // GeolocationUnsuccessful();
+
+                //TODO TESTING
+                uxManager.Project.SetGeoAnchor(UnityEngine.GameObject.Find("Capsule"));
+                DisplayProject();
+
             }
             else
             {
                 uxManager.Project.SetGeoAnchor(anchor);
-                uxManager.UIManager.MenuManager.AddMenuItem(new MenuItem()
-                    {
-                        id = "alignToGeoAnchor",
-                        name = "Geolocalisera",
-                        action = () =>
-                        {
-                            uxManager.Project.AlignToGeoAnchor();
-                        }
-                    });
+                // uxManager.UIManager.MenuManager.AddMenuItem(new MenuItem()
+                // {
+                //     id = "alignToGeoAnchor",
+                //     name = "Geolocalisera",
+                //     action = () =>
+                //     {
+                //         uxManager.Project.AlignToGeoAnchor();
+                //     }
+                // });
                 DisplayProject();
             }
         }
@@ -79,6 +84,7 @@ namespace Pladdra.DialogueAbility.UX
 
         void DisplayProject()
         {
+            Debug.Log("Display project");
             uxManager.Project.DisplayResources();
             uxManager.Project.DisplayWorkingProposal();
 
@@ -97,7 +103,7 @@ namespace Pladdra.DialogueAbility.UX
                         }
                         else
                         {
-                            start.visible = false;
+                            start.style.visibility = Visibility.Hidden;
                         }
 
                         Button proposals = root.Q<Button>("proposals");
@@ -111,7 +117,7 @@ namespace Pladdra.DialogueAbility.UX
                         }
                         else
                         {
-                            proposals.visible = false;
+                            proposals.style.visibility = Visibility.Hidden;
                         }
 
                     }

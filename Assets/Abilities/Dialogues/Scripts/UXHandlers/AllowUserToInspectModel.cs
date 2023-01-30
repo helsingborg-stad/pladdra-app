@@ -56,12 +56,10 @@ namespace Pladdra.DialogueAbility.UX
                     uxManager.Project.ProposalHandler.AddObject(resource, position, out PlacedObjectController controller);
                     UXHandler ux = new AllowUserToManipulateSelectedModel(uxManager, controller, false);
                     uxManager.UseUxHandler(ux);
-                    // Debug.Log("Placing model");
                 };
             });
-
-            // TODO Darken screen
         }
+
         public override void Deactivate()
         {
             uxManager.PreviewObjectHolder.transform.rotation = Quaternion.identity;
@@ -71,8 +69,6 @@ namespace Pladdra.DialogueAbility.UX
             container = null;
             uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(false, "BlurRenderFeature");
             uxManager.Project.Show();
-
-            // TODO Restore screen
         }
     }
 }
