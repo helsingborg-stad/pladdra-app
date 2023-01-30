@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/USS/Pladdra.uss?fileID=7433441132597879392&amp;guid=23be4601da88c4269bc7a66e94733203&amp;type=3#Pladdra" />
+    <ui:VisualElement style="flex-direction: column; justify-content: center; flex-grow: 1; align-items: center;">
+        <ui:VisualElement style="width: 50%; height: 50%; align-items: flex-start;">
+            <ui:Button display-tooltip-when-elided="true" name="close" class="menuButton" style="width: 50px; height: 50px; background-image: url(&apos;project://database/Assets/UI/Icons/x-01.png?fileID=2800000&amp;guid=650d3ffe98dbd48d9b0970aaa483ea2f&amp;type=3#x-01&apos;); -unity-background-image-tint-color: rgb(255, 255, 255); margin-left: 5px; margin-right: 5px; margin-top: 5px; margin-bottom: 5px; background-color: rgba(226, 226, 226, 0);" />
+            <ui:VisualElement picking-mode="Ignore" class="card" style="justify-content: center; background-color: rgb(255, 255, 255); width: 100%; height: 100%; align-items: center; padding-left: 7px; padding-right: 7px; padding-top: 7px; padding-bottom: 7px; border-top-left-radius: 5px; border-bottom-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; -unity-font: url(&apos;project://database/Assets/UI/Roboto/Roboto-Medium.ttf?fileID=12800000&amp;guid=d30a10c27c59f42f8888d0df8eb9776b&amp;type=3#Roboto-Medium&apos;); color: rgb(0, 0, 0); -unity-font-style: bold; white-space: normal; flex-direction: column; margin-left: 5px; margin-right: 5px; margin-top: 5px; margin-bottom: 5px;">
+                <ui:Label text="Något gick fel! :(" display-tooltip-when-elided="true" name="error-label" style="-unity-text-align: upper-center; white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

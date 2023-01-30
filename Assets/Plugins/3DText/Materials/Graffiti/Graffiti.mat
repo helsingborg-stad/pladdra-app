@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6048295816406484658
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Graffiti
+  m_Shader: {fileID: -6465566751694194690, guid: d820914c78cc48644b2dc2f3cba42922,
+    type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Vector1_050ef49a05a14511bbeef9ba3b35b44b: 63
+    - Vector1_294afff4b1864aadbeefc0a947f0f186: 9.99
+    - Vector1_31e6c70540d54eb79669bfc49cc00a62: 30
+    - Vector1_3bf7f1547ebd4d72b54f19cc14b563b0: 6.01
+    - Vector1_41ce51a2d6454af38c6ac4af8220c908: 54.4
+    - Vector1_4c914893ac424e55ac8acba6ff9c97e3: 0
+    - Vector1_4f6f6f0e61af46849fa06785f96ac6f9: 31
+    - Vector1_88eb884acfe0477d8dd6c196a0467c49: 4.33
+    - Vector1_959f3cdd4a7b489bb84ab9f4be746eae: 12
+    - Vector1_ed6bac273be84b94a4bc68fdfc6a39a4: 0
+    - Vector1_fd1ef9b47a8848699286f630aebb0041: 0.01
+    m_Colors:
+    - Color_05e51de058b14556af729e079fff4294: {r: 0.972549, g: 0.38737932, b: 0, a: 0}
+    - Color_202e2294a9e74e0d9a331f226fd80bce: {r: 0.8962264, g: 0.11414198, b: 0.11414198,
+        a: 0}
+    - Color_2a3045af65bb42b4a1b4782e5607c531: {r: 0, g: 0, b: 0, a: 0}
+    - Color_73ae60b89c36482980f215c8559ae0b5: {r: 0, g: 0, b: 0, a: 0}
+    - Color_a025099bf3ef40bca28273d14c5bf2bc: {r: 0.8396226, g: 0.8396226, b: 0.8396226,
+        a: 0}
+    - Color_ec99b8cecf4b4988ba3f67ef99aac3a7: {r: 0.11764705, g: 1, b: 0.12957731,
+        a: 0}
+    - Vector2_6bcde9977cbe47e0b080b2e934ca9a0d: {r: 0, g: 2, b: 0, a: 0}
+    - Vector2_77be61f7817c472389987993548bc46e: {r: 0, g: -154, b: 0, a: 0}
+    - Vector2_fea92252de75448a9cb4fc304e087cac: {r: 20, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []

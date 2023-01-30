@@ -36,7 +36,7 @@ namespace UntoldGarden.Utils
         /// OnGroundLayersAndNavMesh does both of the above.</param>
         /// <param name="layers">The GroundLayers to look for RaycastHit's on.</param>
         /// <returns></returns>
-        public static Vector3 RelativeToObject(this GameObject origin, Vector3? offset, RelativeToObjectOptions args, string[] layers = null)
+        public static Vector3 RelativeToObjectOnGround(this GameObject origin, Vector3? offset, RelativeToObjectOptions args, LayerMask layerMask = default)
         {
 
             Vector3 pos = origin.transform.position;
@@ -47,19 +47,16 @@ namespace UntoldGarden.Utils
 
             if (args == RelativeToObjectOptions.OnGroundLayers || args == RelativeToObjectOptions.OnGroundLayersAndNavMesh)
             {
-                if (layers == null)
-                {
-                    layers = new string[] { "Default" };
-                }
-
                 RaycastHit hit;
-                if (Physics.Raycast(pos, -origin.transform.up, out hit, Mathf.Infinity, LayerMask.GetMask(layers)))
+                if (Physics.Raycast(pos, Vector3.down, out hit, 100, layerMask))
                 {
                     pos = hit.point;
                 }
                 else
                 {
-                    Debug.Log("No floor hit!");
+                    Debug.Log("VectorExtensions.RelativeToUser could not get RaycastHit!");
+                    // gets closest point on all meshes within layermask
+                    
                 }
             }
 
@@ -72,6 +69,7 @@ namespace UntoldGarden.Utils
                 else
                 {
                     Debug.Log("VectorExtensions.RelativeToUser could not get NavMesh hit!");
+                    // TODO Continue until you get one
                 }
             }
             return pos;
@@ -379,11 +377,12 @@ namespace UntoldGarden.Utils
 
         #region Vector2
 
-        public static Vector2 CalculateScreenBounds(this Bounds bounds) {
+        public static Vector2 CalculateScreenBounds(this Bounds bounds)
+        {
             Vector3 c = bounds.center;
             Vector3 e = bounds.extents;
-    
-            Vector3[] worldCorners = new [] {
+
+            Vector3[] worldCorners = new[] {
                 new Vector3( c.x + e.x, c.y + e.y, c.z + e.z ),
                 new Vector3( c.x + e.x, c.y + e.y, c.z - e.z ),
                 new Vector3( c.x + e.x, c.y - e.y, c.z + e.z ),
@@ -404,17 +403,22 @@ namespace UntoldGarden.Utils
             float max_x = worldCorners[0].x;
             float max_y = worldCorners[0].y;
 
-            for (int i = 1; i < 8; i++) {
-                if(worldCorners[i].x < min_x) {
+            for (int i = 1; i < 8; i++)
+            {
+                if (worldCorners[i].x < min_x)
+                {
                     min_x = worldCorners[i].x;
                 }
-                if(worldCorners[i].y < min_y) {
+                if (worldCorners[i].y < min_y)
+                {
                     min_y = worldCorners[i].y;
                 }
-                if(worldCorners[i].x > max_x) {
+                if (worldCorners[i].x > max_x)
+                {
                     max_x = worldCorners[i].x;
                 }
-                if(worldCorners[i].y > max_y) {
+                if (worldCorners[i].y > max_y)
+                {
                     max_y = worldCorners[i].y;
                 }
             }

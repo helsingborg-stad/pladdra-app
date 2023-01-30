@@ -3,7 +3,7 @@
     <ui:VisualElement style="flex-direction: column; justify-content: space-around; flex-grow: 1; align-items: center;">
         <ui:Button display-tooltip-when-elided="true" name="project-button" class="menuButton">
             <ui:Label text="Label" display-tooltip-when-elided="true" name="name" style="flex-wrap: wrap;" />
-            <ui:Label text="Label" display-tooltip-when-elided="true" name="description" style="-unity-font-style: normal; flex-wrap: wrap; overflow: hidden;" />
+            <ui:Label text="Label" display-tooltip-when-elided="true" name="description" style="-unity-font-style: normal; flex-wrap: wrap; overflow: hidden; white-space: normal;" />
         </ui:Button>
     </ui:VisualElement>
 </ui:UXML>

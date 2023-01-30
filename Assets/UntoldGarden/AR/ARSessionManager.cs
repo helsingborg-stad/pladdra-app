@@ -6,12 +6,9 @@ using UnityEngine.Events;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-/// <summary>
-/// ADDING A TEXT
-/// </summary>
-
 namespace UntoldGarden.AR
 {
+    // TODO clean this the fuck up
     [DisallowMultipleComponent]
     [RequireComponent(typeof(ARSessionOrigin))]
     public class ARSessionManager : MonoBehaviour
@@ -22,13 +19,14 @@ namespace UntoldGarden.AR
         [SerializeField] bool checkTrackingState;
         [SerializeField] float pauseCheckAfterWarning = 10f;
         [Header("Default plane")]
-        [SerializeField] GameObject defaultPlane;
+        [SerializeField] GameObject defaultPlanePrefab;
         [SerializeField] bool updateDefaultPlane;
         [SerializeField] bool disableMeshRendererInBuild;
 
         #endregion Public
 
         #region Private
+        GameObject defaultPlane;
         ARAnchorManager anchorManager;
         ARPlaneManager planeManager;
         Transform user;
@@ -66,9 +64,9 @@ namespace UntoldGarden.AR
                 anchorManager.anchorsChanged += AddAnchor;
             }
 
-            if (defaultPlane)
+            if (defaultPlanePrefab)
             {
-                Instantiate(defaultPlane, new Vector3(0, -1, 0), Quaternion.identity);
+                defaultPlane = Instantiate(defaultPlanePrefab, new Vector3(0, -1, 0), Quaternion.identity);
                 defaultPlane.GetComponent<DefaultPlaneController>().Initialize(gameObject.GetComponent<ARPlaneManager>() ?? gameObject.AddComponent<ARPlaneManager>(), disableMeshRendererInBuild, updateDefaultPlane);
             }
             planeManager = GetComponent<ARPlaneManager>();
@@ -215,7 +213,11 @@ hasPlane  = planeManager != null && planeManager.trackables != null && planeMana
         }
 
         // TODO Update to XROrigin
-        public Transform GetUser()
+        // Get the user transform from the SessionManager
+// This transform is the parent of the user object
+// This function is used in the ARSessionManager script
+
+public Transform GetUser()
         {
             if (!user)
                 user = transform.GetChild(0);
@@ -235,6 +237,11 @@ hasPlane  = planeManager != null && planeManager.trackables != null && planeMana
         {
             UntoldGarden.AR.Logger.Log("Reset AR session");
             session.Reset();
+        }
+
+        public float GetDefaultPlaneY()
+        {
+            return defaultPlane.transform.position.y;
         }
 
         #endregion

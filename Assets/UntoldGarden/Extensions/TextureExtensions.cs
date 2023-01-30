@@ -6,6 +6,18 @@ namespace UntoldGarden.Utils
 {
     public static class TextureExtensions
     {
+        public static Texture2D ChangeFormat(this Texture2D oldTexture, TextureFormat newFormat)
+        {
+            //Create new empty Texture
+            Texture2D newTex = new Texture2D(oldTexture.width, oldTexture.height, newFormat, false);
+            //Copy old texture pixels into new one
+            newTex.SetPixels(oldTexture.GetPixels());
+            //Apply
+            newTex.Apply();
+            newTex.name = oldTexture.name;
+
+            return newTex;
+        }
         public static Texture2D BuildAtlas(this Texture2D[] textures, int width, int height, out int _width, out int _height)
         {
             if (textures.Length == 0)
@@ -249,6 +261,18 @@ namespace UntoldGarden.Utils
             float sample = Mathf.PerlinNoise(xSample, ySample);
 
             return new Color(sample, sample, sample);
+        }
+
+        /// <summary>
+        /// Creates a new texture from the material's color and applies it to the material's main texture
+        /// </summary>
+        /// <param name="material"></param>
+        public static void ColorToTexture(this Material material)
+        {
+            Texture2D texture = new Texture2D(1, 1);
+            texture.SetPixel(0, 0, material.color);
+            texture.Apply();
+            material.mainTexture = texture;
         }
     }
 }

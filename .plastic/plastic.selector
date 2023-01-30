@@ -1,4 +1,3 @@
-repository "pladdra@untoldgarden@cloud"
+rep "pladdra@untoldgarden@cloud"
   path "/"
-    br "/main"
-    co "/main"
+    smartbranch "/main/MergeGeospatial"

@@ -74,6 +74,7 @@ crashlytics-build.properties
 # misc
 .DS_Store
 .vscode
+.plastic
 UserSettings
 
 ios/
@@ -83,3 +84,5 @@ ARFoundationRemoteInstaller
 
 # Development files
 deeplink.dev
+password.txt
+password.txt.meta

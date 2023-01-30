@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ac4f17ae29bd42a7976a861d1645561, type: 3}
+  m_Name: DefaultProjectList
+  m_EditorClassIdentifier: 
+  projects:
+  - id: 764
+    name: Wienerplatsen
+    description: 
+    url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/764?acf_format=standard
+    json: {fileID: 0}
+    image: {fileID: 0}
+  - id: 896
+    name: Lekplatsen Rutan
+    description: Stadens rutigaste lekplats
+    url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/896?acf_format=standard
+    json: {fileID: 0}
+    image: {fileID: 0}
+  - id: 889
+    name: Animation test
+    description: Test av animationer.
+    url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/889?acf_format=standard
+    json: {fileID: 0}
+    image: {fileID: 0}
+  - id: 943
+    name: Schackspelet
+    description: 
+    url: https://modul-test.helsingborg.io/helsingborgsrummet/wp-json/wp/v2/untoldgarden/943?acf_format=standard
+    json: {fileID: 0}
+    image: {fileID: 0}

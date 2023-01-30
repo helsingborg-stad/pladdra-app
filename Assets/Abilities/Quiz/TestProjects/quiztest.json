@@ -1,0 +1,443 @@
+{
+    "id": 723,
+    "name": "Mattepladdra",
+    "description": "Ett frågespel för att öva på matte.",
+    "title": "Mattepladdra",
+    "info": "Välj vilken tabell du vill öva på:",
+    "quizzes": [
+        {
+            "name": "Treans tabell",
+            "description": "Lär dig räkna treans tabell",
+            "questions": [
+                {
+                    "text": "3 * 1 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 2 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 3 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "9",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        }
+                    ]
+                        
+                },
+                {
+                    "text": "3 * 4 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "12",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 5 =",
+                    "answers": [
+                        {
+                            "text": "13",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "14",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "15",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 6 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "14",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "18",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 7 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "21",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 8 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "21",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 9 =",
+                    "answers": [
+                        {
+                            "text": "33",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "27",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 10 =",
+                    "answers": [
+                        {
+                            "text": "33",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "30",
+                            "isCorrect": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sjuans tabell",
+            "description": "Lär dig räkna sjuans tabell",
+            "questions": [
+                {
+                    "text": "3 * 1 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 2 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 3 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "4",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "9",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        }
+                    ]
+                        
+                },
+                {
+                    "text": "3 * 4 =",
+                    "answers": [
+                        {
+                            "text": "3",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "12",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "5",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "6",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 5 =",
+                    "answers": [
+                        {
+                            "text": "13",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "14",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "15",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 6 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "14",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "18",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 7 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "16",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "21",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 8 =",
+                    "answers": [
+                        {
+                            "text": "19",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": true
+                        },
+                        {
+                            "text": "21",
+                            "isCorrect": false
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 9 =",
+                    "answers": [
+                        {
+                            "text": "33",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "27",
+                            "isCorrect": true
+                        }
+                    ]
+                },
+                {
+                    "text": "3 * 10 =",
+                    "answers": [
+                        {
+                            "text": "33",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "28",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "24",
+                            "isCorrect": false
+                        },
+                        {
+                            "text": "30",
+                            "isCorrect": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

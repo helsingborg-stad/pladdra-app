@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50fee2cf83e359c44a24352cf4d21efb, type: 3}
+  m_Name: Magneto
+  m_EditorClassIdentifier: 
+  A: {fileID: -7930593553164834265, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  B: {fileID: 3711364819048603441, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  C: {fileID: 7813672867804218427, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  D: {fileID: 4569618835581689552, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  E: {fileID: -8643591642514422614, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  F: {fileID: -2764473456445863827, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  G: {fileID: 8508209894393149939, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  H: {fileID: -8420228717151484371, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  I: {fileID: -991178477788375160, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  J: {fileID: 3627964624254331256, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  K: {fileID: -6989953395792270533, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  L: {fileID: 8826312226860137785, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  M: {fileID: 3462366001562596068, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  N: {fileID: -3784938394042503804, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  O: {fileID: -8468670031520465916, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  P: {fileID: 1388778396204428083, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  Q: {fileID: -9015741865561365743, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  R: {fileID: 7190522008791208678, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  S: {fileID: -2392161618446555675, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  T: {fileID: -7325691925390425640, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  U: {fileID: 2761556615958684371, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  V: {fileID: 2201487966250705017, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  W: {fileID: 1134641362658147782, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  X: {fileID: -5473381192124681104, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  Y: {fileID: 3324940165512432308, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  Z: {fileID: 7791094313991023423, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  a: {fileID: 342671800660457263, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  b: {fileID: -3006003068307074598, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  c: {fileID: -4034337874168020006, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  d: {fileID: 6824003410738058006, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  e: {fileID: -7707605441178569337, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  f: {fileID: 2846958560574397846, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  g: {fileID: -1682166679516323709, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  h: {fileID: 6230310175212485279, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  i: {fileID: 2298318873451804285, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  j: {fileID: 4840500603840080711, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  k: {fileID: -4177573132304504217, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  l: {fileID: -6037461305286282027, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  m: {fileID: 2276333748677028663, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  n: {fileID: 4334292199232040506, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  o: {fileID: -6111851279120159, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  p: {fileID: 2515763751962859075, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  q: {fileID: 9194763940732123120, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  r: {fileID: -4938376848283113194, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  s: {fileID: -8986598487097995822, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  t: {fileID: -2402127424393737597, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  u: {fileID: -6209366467058660390, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  v: {fileID: 888908734644790412, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  w: {fileID: -6161431145961336185, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  x: {fileID: 8560867036642235964, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  y: {fileID: -3608466996725018372, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  z: {fileID: 8831685895531813512, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  zero: {fileID: 2435331085535433659, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  one: {fileID: 8589856224888607417, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  two: {fileID: -2409610839406106545, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  three: {fileID: 8658543413444234247, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  four: {fileID: 6041670614654629332, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  five: {fileID: 2579761928363818130, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  six: {fileID: 8349048239924242115, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  seven: {fileID: 1690840792633637514, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  eight: {fileID: -1831254221795821288, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  nine: {fileID: 8221988993397872894, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  exclamation: {fileID: 4648445714117002268, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  quote: {fileID: -3701589373104978474, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  pound: {fileID: -4877145821268610815, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  dollar: {fileID: 6599080695418247786, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  percent: {fileID: -275989891733122670, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  uparrow: {fileID: 3316589739689163617, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  ampersand: {fileID: -6578117283623245729, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  astrix: {fileID: -7154163018385246087, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  openbracket: {fileID: 2820224238262160796, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  closebracket: {fileID: -7695304846914415487, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  minus: {fileID: -5057064668541466979, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  underscore: {fileID: -7792489237045426110, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  add: {fileID: 2870464355828716367, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  equals: {fileID: -756178168900299361, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  opencurlybracket: {fileID: -8109724250145816543, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  closecurlybracket: {fileID: -909659706897049170, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  opensquarebracket: {fileID: -6181799717838048632, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  closesquarebracket: {fileID: 3236257381155427250, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  colon: {fileID: -3452522586146197771, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  semicolon: {fileID: -596181603728180727, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  apostrophe: {fileID: -7918050288903370894, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  at: {fileID: -7835563266246514900, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  openpointybracket: {fileID: -2403277137448743296, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  closepointybracket: {fileID: -6643458044721797989, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  comma: {fileID: -7288590673663224629, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  fullstop: {fileID: 6556212159923338170, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  question: {fileID: -4261427456428170769, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  slash: {fileID: -8766204341098868649, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  backslash: {fileID: 2829663680706080662, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  seperator: {fileID: -458678263153923041, guid: f249ad7dd97cff44eb3474e717114791, type: 3}
+  space: {fileID: 6489958236816157266, guid: b8ff27cf3783a2b4eb7c1b497468d517, type: 3}

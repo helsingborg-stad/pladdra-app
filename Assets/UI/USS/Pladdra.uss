@@ -54,3 +54,6 @@
     border-bottom-width: 0;
     width: auto;
 }
+
+.blockRaycast {
+}

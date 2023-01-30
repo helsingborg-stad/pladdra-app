@@ -210,5 +210,8 @@
 }
 
 .green-background {
-    background-color: rgba(80, 129, 27, 255);
+    background-color: rgb(80, 129, 27);
+}
+
+.blockRaycast {
 }
