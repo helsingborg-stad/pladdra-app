@@ -175,6 +175,9 @@ MonoBehaviour:
   - name: project-button-template
     visualTreeAsset: {fileID: 9197481963319205126, guid: 754a47f89443d43d2918ee5bdd4f48c1,
       type: 3}
+  - name: error
+    visualTreeAsset: {fileID: 9197481963319205126, guid: 59e96ee11ba714affbac360d9fb19dae,
+      type: 3}
   uiTextAsset: {fileID: 4900000, guid: 41ff86a9b140e4ed8b935f0d57feaebb, type: 3}
   useSwedishLanguage: 0
   onUpdatedUI:
@@ -199,6 +202,52 @@ MonoBehaviour:
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
   m_SortingOrder: 0
+--- !u!1 &171125278
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 171125280}
+  - component: {fileID: 171125279}
+  m_Layer: 0
+  m_Name: TestDeeplink
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &171125279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171125278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 143736c17467146aba8ddc41220627ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilityManager: {fileID: 2049301693}
+  deeplink: pladdra://dialogues/287
+--- !u!4 &171125280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171125278}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -16.545536, y: -4.0510893, z: -3.6275954}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1009507415
 GameObject:
   m_ObjectHideFlags: 0
@@ -627,4 +676,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cb7b6340cb3640c68662df1755396b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2049301692
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2049301694}
+  - component: {fileID: 2049301693}
+  m_Layer: 0
+  m_Name: AbilityManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2049301693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049301692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0026311b0b9884aad9113e9130fcf16e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   abilityList: {fileID: 11400000, guid: a5c10eb11163f40e3b2542850bd98153, type: 2}
+  lobbyManager: {fileID: 1709848999}
+  uiManager: {fileID: 154726829}
+--- !u!4 &2049301694
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049301692}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -16.545536, y: -4.0510893, z: -3.6275954}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

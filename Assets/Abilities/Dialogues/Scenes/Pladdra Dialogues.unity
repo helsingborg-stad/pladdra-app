@@ -215,7 +215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f362da204ced47b9a58eeddef8e4716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLogLength: 500
+  maxLogLength: 50
   maxLogDisplayLength: 8000
   menuManager: {fileID: 1263072919}
   uiManager: {fileID: 1844812294}
@@ -223,8 +223,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 499424762}
-        m_TargetAssemblyTypeName: UnityEngine.Component, UnityEngine
-        m_MethodName: SendMessage
+        m_TargetAssemblyTypeName: UntoldGarden.EmailHandler, Pladdra
+        m_MethodName: SendEmail
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1184,13 +1184,14 @@ GameObject:
   - component: {fileID: 1276461455}
   - component: {fileID: 1276461454}
   - component: {fileID: 1276461453}
+  - component: {fileID: 1276461457}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1276461453
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1271,6 +1272,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 13, z: 0}
+--- !u!114 &1276461457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276461452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b781fe673a5534e91b1e802df4b9362e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  importSettings:
+    nodeNameMethod: 0
+    animationMethod: 1
+    generateMipMaps: 0
+    defaultMinFilterMode: 9729
+    defaultMagFilterMode: 9729
+    anisotropicFilterLevel: 1
+  url: 
+  loadOnStartup: 1
+  sceneId: -1
+  playAutomatically: 1
+  streamingAsset: 0
+  instantiationSettings:
+    mask: -1
+    layer: 0
+    skinUpdateWhenOffscreen: 1
+    lightIntensityFactor: 1
+    sceneObjectCreation: 2
 --- !u!1 &1485604904
 GameObject:
   m_ObjectHideFlags: 0
@@ -1518,25 +1549,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96a594762b15a8e4a891d14aca70f19f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pivotPrefab: {fileID: 8199141691925870112, guid: 754590260d35f46a1916dd7bc0618713,
-    type: 3}
   currentProject:
     id: 
     name: 
     description: 
     startScale: 1
     startPosition: {x: 0, y: 0, z: 0}
-    groundPlane:
-      name: 
-      type: 
-      url: 
-      displayRule: 0
-      gameObject: {fileID: 0}
-      thumbnail: {fileID: 0}
-      position: {x: 0, y: 0, z: 0}
-      rotation: {x: 0, y: 0, z: 0}
-      scale: 0
-      disable: 0
     resources: []
     proposals: []
     currentProposal:
@@ -1549,8 +1567,6 @@ MonoBehaviour:
     staticResourcesContainer: {fileID: 0}
     interactiveResourcesContainer: {fileID: 0}
     placedResourcesContainer: {fileID: 0}
-    isLoadedAndInit: 0
-    createdResources: 0
     OnSaveProposal:
       m_PersistentCalls:
         m_Calls: []
@@ -1735,7 +1751,7 @@ MonoBehaviour:
     visualTreeAsset: {fileID: 9197481963319205126, guid: 684844fd9e81d4b5b911fee46aab876b,
       type: 3}
   - name: prompt
-    visualTreeAsset: {fileID: 9197481963319205126, guid: 73bb2d55581e8476d85f137f79d967a1,
+    visualTreeAsset: {fileID: 9197481963319205126, guid: 9043809b53f704744930ef179c4b1f4d,
       type: 3}
   uiTextAsset: {fileID: 4900000, guid: 41ff86a9b140e4ed8b935f0d57feaebb, type: 3}
   useSwedishLanguage: 1
@@ -1935,7 +1951,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 738f118aa214360489366338953cfd32, type: 2}
+  - {fileID: 2100000, guid: a7c2868437eddf248a6deb329de23d8e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2226,7 +2242,7 @@ MonoBehaviour:
   - name: allowUserToManipulateSelectedModel
     layerMask:
       serializedVersion: 2
-      m_Bits: 3326
+      m_Bits: 2048
   - name: allowUserToManipulatePivot
     layerMask:
       serializedVersion: 2

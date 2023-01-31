@@ -5,9 +5,11 @@ using Pladdra.DialogueAbility.Data;
 using System.Linq;
 using System;
 using UntoldGarden.Utils;
+using GLTFast;
 
 namespace Pladdra.DialogueAbility
 {
+    // TODO Clean
     [DisallowMultipleComponent]
     public class ProposalHandler : MonoBehaviour
     {
@@ -35,19 +37,21 @@ namespace Pladdra.DialogueAbility
         /// <param name="controller">The controller of the object</param>
         public void AddObject(DialogueResource resource, Vector3 position, out PlacedObjectController controller, bool save = true)
         {
-            Debug.Log($"Adding object {resource.name}, placed object count {placedObjects.Count}");
+            if (resource == null)
+            {
+                Debug.Log("Resource is null");
+                controller = null;
+                return;
+            }
 
             GameObject obj = GameObject.Instantiate(project.UXManager.settings.objectPrefab, project.placedResourcesContainer);
             obj.transform.SetParent(project.placedResourcesContainer);
             obj.name = resource.name;
             obj.transform.position = position;
 
-            GameObject model = GameObject.Instantiate(resource.gameObject, obj.transform);
-            if (resource.scale != 0) model.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
             controller = obj.GetComponent<PlacedObjectController>() ?? obj.AddComponent<PlacedObjectController>();
             controller.Init(project, resource);
             placedObjects.Add(controller);
-            model.SetActive(true);
 
             // Create a new proposal 
             if (proposal == null)
@@ -66,8 +70,8 @@ namespace Pladdra.DialogueAbility
 
             proposal.placedObjects.Add(new ProposalResource()
             {
-                modelId = resource.url,
-                localId = controller.Id,
+                path = resource.path,
+                id = controller.Id,
                 name = resource.name,
                 position = obj.transform.localPosition,
                 rotation = Vector3.zero,
@@ -88,9 +92,13 @@ namespace Pladdra.DialogueAbility
             GameObject modelContainer = new GameObject(resource.name);
             modelContainer.transform.SetParent(project.placedResourcesContainer);
 
-            GameObject obj = project.resources.Find(x => x.url == resource.modelId).gameObject;
-            GameObject model = GameObject.Instantiate(obj, modelContainer.transform);
-            model.SetActive(true);
+            // GameObject obj = project.resources.Find(x => x.url == resource.modelId).gameObject;
+            // GameObject model = GameObject.Instantiate(obj, modelContainer.transform);
+            // model.SetActive(true);
+
+            GameObject model = new GameObject("Model");
+            model.transform.SetParent(modelContainer.transform);
+            model.AddComponent<GltfAsset>().Url = resource.path;
 
             modelContainer.transform.localPosition = position;
             modelContainer.transform.rotation = Quaternion.Euler(rotation);
@@ -105,7 +113,7 @@ namespace Pladdra.DialogueAbility
         {
             Debug.Log($"Removing object {placedObjectController.resource.name}");
             placedObjects.Remove(placedObjectController);
-            proposal.placedObjects.Remove(proposal.placedObjects.Find(x => x.localId == placedObjectController.Id));
+            proposal.placedObjects.Remove(proposal.placedObjects.Find(x => x.id == placedObjectController.Id));
             SaveWorkingProposalLocally();
         }
 
@@ -134,8 +142,8 @@ namespace Pladdra.DialogueAbility
         /// <param name="currentScale">Scale of object (uniform)</param>
         public void UpdateProposal(string id, Vector3 position, float y, float currentScale)
         {
-            Debug.Log($"Updating proposal {proposal.placedObjects.Find(x => x.localId == id).name} at {position} with rotation {y} and scale {currentScale}");
-            ProposalResource resource = proposal.placedObjects.Find(x => x.localId == id);
+            Debug.Log($"Updating proposal {proposal.placedObjects.Find(x => x.id == id).name} at {position} with rotation {y} and scale {currentScale}");
+            ProposalResource resource = proposal.placedObjects.Find(x => x.id == id);
             resource.position = position;
             resource.rotation = new Vector3(0, y, 0);
             resource.scale = currentScale;
@@ -280,7 +288,7 @@ namespace Pladdra.DialogueAbility
 
                 foreach (ProposalResource resource in resources)
                 {
-                    DialogueResource DialogueResource = project.resources.Find(x => x.url == resource.modelId);
+                    DialogueResource DialogueResource = project.resources.Find(x => x.path == resource.path);
                     AddObject(DialogueResource, resource.position.MakeGlobal(project.projectContainer), out PlacedObjectController controller, false);
                     controller.SetRotation(resource.rotation.y);
                     controller.StopAllCoroutines(); //To avoid updating the proposal after placing initial resources.

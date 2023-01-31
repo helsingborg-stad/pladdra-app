@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Pladdra.Data;
 
 namespace Pladdra.DialogueAbility.Data
 {
@@ -12,18 +13,14 @@ namespace Pladdra.DialogueAbility.Data
     }
 
     [System.Serializable]
-    public class DialogueResource
+    public class DialogueResource : Resource
     {
-        public string name;
-        public string type;
-        public string url; // This doubles as the local storage ID
         public ResourceDisplayRules displayRule;
         public GameObject gameObject;
         public Texture2D thumbnail;
         public Vector3 position = Vector3.zero;
         public Vector3 rotation = Vector3.zero;
         public float scale = 0;
-        public bool disable;
         public (string url, float width) marker;
     }
 }

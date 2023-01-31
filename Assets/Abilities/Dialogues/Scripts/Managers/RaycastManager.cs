@@ -88,6 +88,7 @@ namespace Pladdra
             screenHeight = Screen.height;
         }
 
+        // float f = 0;
         void Update()
         {
             if (!cam || !enableTouch)
@@ -128,6 +129,8 @@ namespace Pladdra
                     //     lineRenderer.SetPosition(0, rayOrigin.origin);
                     //     lineRenderer.SetPosition(1, hit.point);
                     // }
+                    // if (f % 100 == 0) Debug.Log("Hit object " + hitObject.name);
+                    // f++;
                     OnHitPoint.Invoke(hit.point);
                     OnHitObject.Invoke(hitObject);
                     OnHitPointAndObject.Invoke(hit.point, hitObject);

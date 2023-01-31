@@ -47,5 +47,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   previewObjectDistance: 1
+  pivotPrefab: {fileID: 8199141691925870112, guid: 754590260d35f46a1916dd7bc0618713,
+    type: 3}
   objectPrefab: {fileID: 3437291741436630927, guid: 61520c64081f441f49094b1594461599,
     type: 3}

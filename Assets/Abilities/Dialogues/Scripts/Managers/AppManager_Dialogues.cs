@@ -32,11 +32,11 @@ namespace Pladdra.DialogueAbility
         {
             yield return null;
             float f = 0;
-            while (!arSessionManager.HasARPlane() || !projectManager.Projects.ContainsKey(project) || !projectManager.Projects[project].isLoadedAndInit)
+            while (!arSessionManager.HasARPlane() || !projectManager.Projects.ContainsKey(project))// || !projectManager.Projects[project].isLoadedAndInit)
             {
                 if (f > 10)
                 {
-                    Debug.Log($"Waiting for project {project} to be loaded. \n ARPlane: {arSessionManager.HasARPlane()}, Project: {(projectManager.Projects != null ? projectManager.Projects.ContainsKey(project) : "No projects list.")}, Loaded: {(projectManager.Projects.ContainsKey(project) ? projectManager.Projects[project].isLoadedAndInit : "No project")}, project count is {projectManager.Projects.Count}");
+                    Debug.Log($"Waiting for project {project} to be loaded. \n ARPlane: {arSessionManager.HasARPlane()}, Project: {(projectManager.Projects != null ? projectManager.Projects.ContainsKey(project) : "No projects list.")}, project count is {projectManager.Projects.Count}");
                     f = 0;
                 }
                 f += Time.deltaTime;

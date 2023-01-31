@@ -12,6 +12,9 @@ using UnityEngine.SceneManagement;
 
 namespace Deeplinks
 {
+    /// <summary>
+    /// Deprecated. Use <see cref="AbilityManager"/> instead.
+    /// </summary>
     public class DeeplinkManager : MonoBehaviour
     {
         protected bool afterStart;

@@ -24,7 +24,7 @@ EditorBuildSettings:
     path: Assets/Scenes/ARImageTest.unity
     guid: e94f452a269a74b92ba6cd32dcf108e6
   - enabled: 0
-    path: Assets/Scenes/Default Pladdra - Geospatial.unity
+    path: Assets/Abilities/Dialogues/Scenes/Default Pladdra - Geospatial.unity
     guid: 74e6453efc0694e6f8ee20ae07853d36
   m_configObjects:
     AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,

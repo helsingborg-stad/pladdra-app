@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Abilities;
-using Pladdra.UX;
-using Pladdra.Workspace;
 using UnityEngine;
 using UnityEngine.Events;
 using UntoldGarden.Utils;
+using Pladdra.UX;
+using GLTFast;
+using System.Threading.Tasks;
 
 namespace Pladdra.DialogueAbility.Data
 {
@@ -19,7 +19,6 @@ namespace Pladdra.DialogueAbility.Data
         public string description;
         public float startScale = 1f;
         public Vector3 startPosition = Vector3.zero;
-        public DialogueResource groundPlane;
         public List<DialogueResource> resources;
         public List<Proposal> proposals;
         public Proposal currentProposal;
@@ -33,9 +32,18 @@ namespace Pladdra.DialogueAbility.Data
         public Transform staticResourcesContainer;
         public Transform interactiveResourcesContainer;
         public Transform placedResourcesContainer;
-        public bool isLoadedAndInit;
-        public bool createdResources;
         #endregion Project variables
+
+        #region Project state
+        // internal bool isLoadedAndInit;
+        internal bool isCreated;
+        internal bool overrideGeolocation;
+        internal bool hasProposals { get { return proposals != null && proposals.Count > 0; } }
+        internal bool hasLibraryResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Library).Count() > 0; } }
+        internal bool hasInteractiveResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Interactive).Count() > 0; } }
+        internal bool hasMarkerResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0; } }
+        internal bool requiresGeolocation { get { return location.lat != 0 && location.lon != 0 && !overrideGeolocation; } }
+        #endregion Project state
 
         #region Scene References
         WorkspaceController workspaceController;
@@ -49,6 +57,8 @@ namespace Pladdra.DialogueAbility.Data
         Transform geoAnchor;
         #endregion Scene References
 
+
+
         #region Events
         public UnityEvent<string, string> OnSaveProposal = new UnityEvent<string, string>();
         #endregion Events
@@ -60,22 +70,40 @@ namespace Pladdra.DialogueAbility.Data
         /// <param name="origin">Main projects origin</param>
         /// <param name="uxManager">UXManager</param>
         /// <param name="pivotPrefab">Prefab for scale pivot</param>
-        internal void InitProject(Transform origin, UXManager uxManager, GameObject pivotPrefab)
+        internal void Init(Transform origin, UXManager uxManager)
         {
-            if (isLoadedAndInit)
-            {
-                Debug.LogError("Project already initialized");
-                return;
-            }
             this.origin = origin;
             this.uxManager = uxManager;
+        }
 
+        internal async Task CreateProject()
+        {
+            if (isCreated)
+            {
+                Show();
+            }
+            else
+            {
+                CreateProjectContainers();
+                PlaceProject();
+                await CreateStaticAndInteractiveResources();
+                if (hasLibraryResources) await CreateLibraryResources();
+                if (hasMarkerResources) CreateMarkerResources();
+                LoadProposals();
+                DisplayWorkingProposal();
+
+                isCreated = true;
+            }
+        }
+
+        void CreateProjectContainers()
+        {
             // Create containers
             projectOrigin = new GameObject(name).transform;
             projectOrigin.SetParent(origin);
 
             //scale pivot container
-            scalePivot = GameObject.Instantiate(pivotPrefab).transform;
+            scalePivot = GameObject.Instantiate(uxManager.settings.pivotPrefab).transform;
             scalePivot.SetParent(projectOrigin);
             pivotController = scalePivot.GetComponent<PivotController>();
             pivotController.Init(this);
@@ -88,20 +116,15 @@ namespace Pladdra.DialogueAbility.Data
             //adding an offset to avoid raycast conflicts between the static resources and the ground plane
             Vector3 raycastOffset = new Vector3(0, 0.01f, 0);
             projectContainer.localPosition += raycastOffset;
-            workspaceController = projectContainer.gameObject.AddComponent<WorkspaceController>();
+            workspaceController = projectContainer.gameObject.AddComponent<WorkspaceController>(); //TODO Don't add if not needed
             workspaceController.Init(this);
-
-            proposalHandler = projectOrigin.gameObject.AddComponent<ProposalHandler>(); // Doesn't have to be a MonoBehaviour but keeping it as such in case we need to check debug vars
-            proposalHandler.Init(this);
-            proposalHandler.LoadLocalProsals();
-            // workspaceController.Scale(startScale);
-
-            projectOrigin.localPosition = RequiresGeolocation() ? Vector3.zero : uxManager.AppManager.ARSessionManager.GetUser().gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
+        }
+        void PlaceProject()
+        {
+            projectOrigin.localPosition = requiresGeolocation ? Vector3.zero : uxManager.AppManager.ARSessionManager.GetUser().gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
                 VectorExtensions.RelativeToObjectOptions.OnGroundLayers,
                 uxManager.RaycastManager.GetLayerMask("ARMesh"))
                 + startPosition;
-
-            isLoadedAndInit = true;
         }
 
         /// <summary>
@@ -109,7 +132,10 @@ namespace Pladdra.DialogueAbility.Data
         /// </summary>
         internal void Hide()
         {
-            projectOrigin.gameObject.SetActive(false);
+            if (projectOrigin != null)
+                projectOrigin.gameObject.SetActive(false);
+            else
+                Debug.Log("Project origin is null in project " + name);
         }
 
         /// <summary>
@@ -117,36 +143,42 @@ namespace Pladdra.DialogueAbility.Data
         /// </summary>
         internal void Show()
         {
-            projectOrigin.gameObject.SetActive(true);
+            if (projectOrigin != null)
+                projectOrigin.gameObject.SetActive(true);
+            else
+                Debug.Log("Project origin is null in project " + name);
         }
         #endregion Project
 
         #region Resources
-        /// <summary>
-        /// Shows all resources with display rule Static or Interactive
-        /// </summary>
-        internal void DisplayResources()
-        {
-            if (createdResources)
-            {
-                Show();
-            }
-            else
-            {
-                CreateStaticAndInteractiveResources();
-                if (HasLibraryResources()) CreateLibraryResources();
-                if (HasMarkerResources()) CreateMarkerResources();
-                createdResources = true;
-            }
-        }
+        // /// <summary>
+        // /// Shows all resources with display rule Static or Interactive
+        // /// </summary>
+        // internal void DisplayResources()
+        // {
+        //     if (createdResources)
+        //     {
+        //         Show();
+        //     }
+        //     else
+        //     {
+        //         CreateStaticAndInteractiveResources();
+        //         if (HasLibraryResources()) CreateLibraryResources();
+        //         if (HasMarkerResources()) CreateMarkerResources();
+        //         createdResources = true;
+        //     }
+        // }
 
         /// <summary>
         /// Creates all static and interactive resources, all resources that are displayed when the project is shown.
         /// </summary>
-        void CreateStaticAndInteractiveResources()
+        async Task CreateStaticAndInteractiveResources()
         {
-            List<DialogueResource> resourcesToDisplay = resources.Where(r => r.displayRule == ResourceDisplayRules.Static || r.displayRule == ResourceDisplayRules.Interactive).ToList();
 
+            List<DialogueResource> resourcesToDisplay = resources.Where(r => r.displayRule == ResourceDisplayRules.Static || r.displayRule == ResourceDisplayRules.Interactive).ToList();
+            Debug.Log("CreateStaticAndInteractiveResources, count " + resourcesToDisplay.Count);
+
+            DialogueResource groundPlane = resourcesToDisplay.FirstOrDefault(r => r.name == "GroundPlane");
             if (groundPlane != null && groundPlane.gameObject != null)
             {
                 groundPlane.gameObject.SetActive(true);
@@ -171,6 +203,8 @@ namespace Pladdra.DialogueAbility.Data
             // Zero the projectorigin while creating resources to avoid issues with meshCollider generation and other positioning issues
             Vector3 pos = projectOrigin.localPosition;
             projectOrigin.localPosition = Vector3.zero;
+            Vector3 rot = projectOrigin.localRotation.eulerAngles;
+            projectOrigin.localRotation = Quaternion.Euler(Vector3.zero);
 
             staticResourcesContainer = new GameObject("StaticResources").transform;
             staticResourcesContainer.gameObject.SetAllChildLayers("StaticResources");
@@ -178,7 +212,7 @@ namespace Pladdra.DialogueAbility.Data
             staticResourcesContainer.localPosition = Vector3.zero;
             staticResourcesContainer.localRotation = Quaternion.identity;
 
-            if (HasInteractiveResources())
+            if (hasInteractiveResources)
             {
                 interactiveResourcesContainer = new GameObject("InteractiveResources").transform;
                 interactiveResourcesContainer.SetParent(projectContainer);
@@ -189,49 +223,30 @@ namespace Pladdra.DialogueAbility.Data
             // Create all static and interactive resources
             foreach (var resource in resourcesToDisplay)
             {
-                if (resource.gameObject != null)
+                resource.gameObject = new GameObject(resource.name);
+                resource.gameObject.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+
+                Debug.Log($"Project: Creating static resource {resource.name} with display rule {resource.displayRule}");
+
+                if (resource.displayRule == ResourceDisplayRules.Static)
                 {
-                    if (resource.displayRule == ResourceDisplayRules.Static)
-                    {
-                        resource.gameObject.transform.parent = staticResourcesContainer;
-                        resource.gameObject.SetAllChildLayers("StaticResources");
-                    }
-                    else if (resource.displayRule == ResourceDisplayRules.Interactive)
-                    {
-                        resource.gameObject.transform.parent = interactiveResourcesContainer;
-                        resource.gameObject.AddComponent<InteractiveObjectController>().Init(this, resource);
-                    }
-
-                    resource.gameObject.SetActive(true);
-
-                    if (resource.scale != 0)
-                    {
-                        resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
-                    }
-
-                    if (resource.position != Vector3.zero)
-                    {
-                        resource.gameObject.transform.localPosition = resource.position;
-                    }
-                    else
-                    {
-                        resource.gameObject.transform.localPosition = Vector3.zero;
-                    }
-
-                    if (resource.rotation != Vector3.zero)
-                    {
-                        resource.gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
-                    }
-                    else
-                    {
-                        resource.gameObject.transform.localRotation = Quaternion.Euler(Vector3.zero);
-                    }
+                    resource.gameObject.transform.parent = staticResourcesContainer;
+                    resource.gameObject.SetAllChildLayers("StaticResources");
                 }
-                else
+                else if (resource.displayRule == ResourceDisplayRules.Interactive)
                 {
-                    Debug.LogWarning($"Project: Could not create static resource {resource.name} because it has no model");
-                    // TODO Try redownload model
+                    resource.gameObject.transform.parent = interactiveResourcesContainer;
+                    resource.gameObject.AddComponent<InteractiveObjectController>().Init(this, resource);
                 }
+
+                if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
+                resource.gameObject.transform.localPosition = resource.position;
+                resource.gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
+            }
+
+            while (staticResourcesContainer.gameObject.GetComponentsInChildren<GltfAsset>().Any(g => g.SceneInstance == null))
+            {
+                await Task.Yield();
             }
 
             // Create collider for static resources
@@ -240,27 +255,32 @@ namespace Pladdra.DialogueAbility.Data
             staticResourcesContainer.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.mesh;
 
             projectOrigin.localPosition = pos;
+            projectOrigin.localRotation = Quaternion.Euler(rot);
         }
 
-        void CreateLibraryResources()
+        async Task CreateLibraryResources()
         {
+            Debug.Log("CreateLibraryResources");
             placedResourcesContainer = new GameObject("PlacedResources").transform;
             placedResourcesContainer.SetParent(projectContainer);
             placedResourcesContainer.localPosition = Vector3.zero;
 
-            // Create thumbnails for all library resources
+            // // Create thumbnails for all library resources
             RuntimePreviewGenerator.BackgroundColor = Color.clear;
             RuntimePreviewGenerator.MarkTextureNonReadable = false;
             foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Library))
             {
-                if (resource.gameObject != null)
+                GameObject go = new GameObject();
+                go.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+                while (go.GetComponent<GltfAsset>().SceneInstance == null)
                 {
-                    resource.thumbnail = RuntimePreviewGenerator.GenerateModelPreview(resource.gameObject.transform, 256, 256);
+                    await Task.Yield();
                 }
-            }
+                resource.thumbnail = RuntimePreviewGenerator.GenerateModelPreview(go.transform, 256, 256);
+                UnityEngine.Object.Destroy(go);
 
-            // Create GLB safe textures in case we need to export them
-            CreateGLBSafeTextures();
+                await Task.Yield();
+            }
         }
 
         void CreateMarkerResources()
@@ -275,9 +295,19 @@ namespace Pladdra.DialogueAbility.Data
 
         #region Proposals
 
+        internal void LoadProposals()
+        {
+            proposalHandler = projectOrigin.gameObject.AddComponent<ProposalHandler>(); // Doesn't have to be a MonoBehaviour but keeping it as such in case we need to check debug vars
+            proposalHandler.Init(this);
+            proposalHandler.LoadLocalProsals();
+        }
+
         internal void HideProposals()
         {
-            proposalHandler.HideAllProposals();
+            if (proposalHandler != null)
+                proposalHandler.HideAllProposals();
+            else
+                Debug.Log("No proposal handler found in project " + name);
         }
 
         internal void AddProposal(Proposal proposal)
@@ -345,50 +375,20 @@ namespace Pladdra.DialogueAbility.Data
         /// Creates 1x1 textures for all materials that have no texture.
         /// This is a solution for glb export since color-only materials are not exported.
         /// </summary>
-        private void CreateGLBSafeTextures()
+        public void CreateGLBSafeTextures()
         {
             foreach (var resource in resources)
             {
-                if (resource.gameObject == null)
+                if (resource.gameObject != null)
                 {
-                    Debug.LogError($"Project: Could not create texture for {resource.name} because it has no gameobject");
-                    continue;
-                }
-                Material[] materials = resource.gameObject.GetComponentsInChildren<MeshRenderer>().SelectMany(mr => mr.sharedMaterials).ToArray();
-                foreach (Material material in materials)
-                {
-                    if (material.mainTexture == null)
-                        material.ColorToTexture();
+                    Material[] materials = resource.gameObject.GetComponentsInChildren<MeshRenderer>().SelectMany(mr => mr.sharedMaterials).ToArray();
+                    foreach (Material material in materials)
+                    {
+                        if (material.mainTexture == null)
+                            material.ColorToTexture();
+                    }
                 }
             }
         }
-
-        #region Booleans
-        internal bool HasProposals()
-        {
-            return proposals != null && proposals.Count > 0;
-        }
-
-        internal bool HasLibraryResources()
-        {
-            return resources.Where(r => r.displayRule == ResourceDisplayRules.Library).Count() > 0;
-        }
-
-        internal bool HasInteractiveResources()
-        {
-            return resources.Where(r => r.displayRule == ResourceDisplayRules.Interactive).Count() > 0;
-        }
-
-        internal bool HasMarkerResources()
-        {
-            return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0;
-        }
-
-        internal bool RequiresGeolocation()
-        {
-            return location.lat != 0 && location.lon != 0;
-        }
-
-        #endregion Booleans
     }
 }

@@ -16,7 +16,7 @@ namespace Pladdra.DialogueAbility.UX
             uxManager.UIManager.DisplayUI("workspace-default", root =>
                          {
 
-                             if (uxManager.Project.HasLibraryResources())
+                             if (uxManager.Project.hasLibraryResources)
                              {
                                  root.Q<Button>("add-item").clicked += () =>
                                  {

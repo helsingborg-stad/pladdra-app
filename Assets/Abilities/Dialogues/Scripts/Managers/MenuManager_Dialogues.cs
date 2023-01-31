@@ -64,6 +64,7 @@ namespace Pladdra.DialogueAbility
                 action = () =>
                 {
                     //TODO Disable button while exporting
+                    uxManager.Project.CreateGLBSafeTextures();
                     ExportGLB.AdvancedExport(uxManager.Project.projectOrigin.gameObject, Application.persistentDataPath + "/" + uxManager.Project.ProposalHandler.Proposal.name + ".glb");
                 }
             });

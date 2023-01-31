@@ -17,11 +17,17 @@ namespace Pladdra.DialogueAbility.UX
         {
             Debug.Log("Init Project " + uxManager.Project.name);
 
-            if (uxManager.Project.RequiresGeolocation())
+            if (uxManager.Project.requiresGeolocation)
             {
                 uxManager.UIManager.DisplayUI("prompt", root =>
                 {
                     root.Q<Label>("prompt").text = "Titta dig omkring för att lokalisera AR.";
+                    root.Q<Button>("option-one").clicked += () =>
+                    {
+                        uxManager.Project.overrideGeolocation = true;
+                        DisplayProject();
+                    };
+                    root.Q<Button>("option-one").text = "Skippa geolokalisering";
                 });
                 Debug.Log("Project requires location to be displayed.");
                 Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
@@ -45,12 +51,11 @@ namespace Pladdra.DialogueAbility.UX
             Debug.Log("SetGeoAnchorAndDisplayProject: " + s);
             if (!b)
             {
-                // GeolocationUnsuccessful();
+                GeolocationUnsuccessful();
 
                 //TODO TESTING
-                uxManager.Project.SetGeoAnchor(UnityEngine.GameObject.Find("Capsule"));
-                DisplayProject();
-
+                // uxManager.Project.SetGeoAnchor(UnityEngine.GameObject.Find("Capsule"));
+                // DisplayProject();
             }
             else
             {
@@ -72,7 +77,11 @@ namespace Pladdra.DialogueAbility.UX
             uxManager.UIManager.DisplayUI("warning-with-options", root =>
             {
                 root.Q<Label>("warning").text = "Det gick inte att geolokalisera!";
-                root.Q<Button>("option-one").clicked += () => { DisplayProject(); };
+                root.Q<Button>("option-one").clicked += () =>
+                {
+                    uxManager.Project.overrideGeolocation = true;
+                    DisplayProject();
+                };
                 root.Q<Button>("option-one").text = "Visa projektet ändå";
                 root.Q<Button>("option-two").clicked += () =>
                 {
@@ -82,19 +91,22 @@ namespace Pladdra.DialogueAbility.UX
             });
         }
 
-        void DisplayProject()
+        async void DisplayProject()
         {
             Debug.Log("Display project");
-            uxManager.Project.DisplayResources();
-            uxManager.Project.DisplayWorkingProposal();
-
+            uxManager.UIManager.ShowLoading("Skapar projekt...");
+            await uxManager.Project.CreateProject();
+            DisplayProjectInfo();
+        }
+        void DisplayProjectInfo()
+        {
             uxManager.UIManager.DisplayUI("project-info", root =>
                     {
                         root.Q<Label>("Name").text = uxManager.Project.name;
                         root.Q<Label>("Description").text = uxManager.Project.description;
 
                         Button start = root.Q<Button>("start");
-                        if (uxManager.Project.HasLibraryResources() || uxManager.Project.HasInteractiveResources())
+                        if (uxManager.Project.hasLibraryResources || uxManager.Project.hasInteractiveResources)
                         {
                             start.clicked += () =>
                             {
@@ -104,10 +116,11 @@ namespace Pladdra.DialogueAbility.UX
                         else
                         {
                             start.style.visibility = Visibility.Hidden;
+                            Debug.Log($"Project has library resources {uxManager.Project.hasLibraryResources} and interactive resources {uxManager.Project.hasInteractiveResources}.");
                         }
 
                         Button proposals = root.Q<Button>("proposals");
-                        if (uxManager.Project.HasProposals())
+                        if (uxManager.Project.hasProposals)
                         {
                             proposals.clicked += () =>
                             {
@@ -118,6 +131,7 @@ namespace Pladdra.DialogueAbility.UX
                         else
                         {
                             proposals.style.visibility = Visibility.Hidden;
+                            Debug.Log($"Project has proposals {uxManager.Project.hasProposals}.");
                         }
 
                     }

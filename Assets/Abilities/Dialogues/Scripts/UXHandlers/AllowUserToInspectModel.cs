@@ -3,6 +3,7 @@ using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UntoldGarden.Utils;
+using GLTFast;
 
 namespace Pladdra.DialogueAbility.UX
 {
@@ -25,8 +26,23 @@ namespace Pladdra.DialogueAbility.UX
             container = new GameObject("PreviewContainer").transform;
             container.SetParent(uxManager.PreviewObjectHolder.transform);
             container.localPosition = Vector3.zero;
+            CreatePreview();
+        }
 
-            preview = Object.Instantiate(resource.gameObject, container);
+        async void CreatePreview()
+        {
+
+            preview = new GameObject("Preview");
+            preview.transform.SetParent(container);
+            preview.transform.position = new Vector3(0, 100, 0);
+            preview.AddComponent<GltfAsset>().Url = resource.path;
+
+            while(preview.GetComponent<GltfAsset>().SceneInstance == null)
+            {
+                await System.Threading.Tasks.Task.Delay(100);
+            }
+
+            preview.transform.localPosition = Vector3.zero;
             preview.SetAllChildLayers("ModelPreview");
             preview.MoveToBoundsCenter();
 
@@ -36,7 +52,6 @@ namespace Pladdra.DialogueAbility.UX
             float largestDimension = screenBounds.x > screenBounds.y ? screenBounds.x : screenBounds.y;
             float scale = optimalDimension / largestDimension;
             container.transform.localScale = new Vector3(scale, scale, scale);
-
             preview.SetActive(true);
 
             uxManager.UIManager.DisplayUI("inspect-resource", root =>

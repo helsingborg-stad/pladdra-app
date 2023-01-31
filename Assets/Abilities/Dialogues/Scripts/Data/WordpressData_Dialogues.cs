@@ -37,23 +37,24 @@ namespace Pladdra.DialogueAbility.Data
                 description = acf.settings.description,
                 startScale = startScale,
                 marker = (acf.settings.marker.image, markerRequired, markerWidth, null),
-                location = (lat,lon,rotation),
+                location = (lat, lon, rotation),
             };
-            
+
+            project.resources = new List<DialogueResource>();
+
             // Add our groundplane if we have one
-            if (acf.settings.groundplane != "")
+            if (!acf.settings.groundplane.IsNullOrEmptyOrFalse())
             {
-                project.groundPlane = new DialogueResource()
+                project.resources.Add(new DialogueResource()
                 {
                     name = "groundplane",
                     url = acf.settings.groundplane,
-                };
+                });
             }
 
             // Add resources
             if (acf.models != null)
             {
-                project.resources = new List<DialogueResource>();
 
                 foreach (var item in acf.models)
                 {
@@ -67,7 +68,7 @@ namespace Pladdra.DialogueAbility.Data
                     float rotx = item.transform.rotation.x.TryConvertToSingle($"model {item.name}");
                     float roty = item.transform.rotation.y.TryConvertToSingle($"model {item.name}");
                     float rotz = item.transform.rotation.z.TryConvertToSingle($"model {item.name}");
-                    
+
 
                     ResourceDisplayRules rule = ResourceDisplayRules.Static;
                     switch (item.rules)

@@ -17,16 +17,15 @@ namespace Pladdra.DialogueAbility
     public class ProjectManager : MonoBehaviour
     {
         #region Public
-        public GameObject pivotPrefab;
         [Header("Debug")]
-        [GrayOut][SerializeField] Project currentProject;
+        [GrayOut][SerializeField] Project currentProject = null;
         public Project Project { get => currentProject; }
         #endregion Public
 
         #region Scene References
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
-        protected WebRequestHandler_Dialogues webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler_Dialogues>(); } }
-        public WebRequestHandler_Dialogues WebRequestHandler { get { return webRequestHandler; } }
+        protected WebRequestHandler webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler>(); } }
+        public WebRequestHandler WebRequestHandler { get { return webRequestHandler; } }
         protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
         protected ViewingModeManager viewingModeManager { get { return transform.parent.gameObject.GetComponentInChildren<ViewingModeManager>(); } }
         protected RaycastManager raycastManager { get { return transform.parent.gameObject.GetComponentInChildren<RaycastManager>(); } }
@@ -50,13 +49,13 @@ namespace Pladdra.DialogueAbility
 
             uiManager.ShowLoading("Laddar projekt " + projectReference.name + "\n Titta dig omkring för att stabilisera AR!");
 
-            if (projects.ContainsKey(projectReference.name) && projects[projectReference.name].isLoadedAndInit)
+            if (projects.ContainsKey(projectReference.name))// && projects[projectReference.name].isLoadedAndInit)
             {
                 Debug.Log($"ProjectManager: Project JSON {projectReference.name} is already loaded.");
                 return;
             }
 
-            StartCoroutine(webRequestHandler.LoadDialogueProject(projectReference.url, (Result result, string errors, Project project) =>
+            StartCoroutine(webRequestHandler.LoadText(projectReference.url, (Result result, string errors, string json) =>
             {
                 switch (result)
                 {
@@ -67,7 +66,9 @@ namespace Pladdra.DialogueAbility
                         return;
                     case Result.Success:
                         Debug.Log($"ProjectManager: Project {projectReference.name} JSON loaded successfully.");
-                        LoadProject(project);
+                        // Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
+                        // WordpressData_Dialogues wordpressData = JsonUtility.FromJson<WordpressData_Dialogues>(json);
+                        LoadProject(JsonUtility.FromJson<WordpressData_Dialogues>(json).MakeProject());
                         break;
                 }
             }));
@@ -85,15 +86,21 @@ namespace Pladdra.DialogueAbility
                 return;
             }
 
-            if (projects.ContainsKey(project.name) && projects[project.name].isLoadedAndInit)
+            if (projects.ContainsKey(project.name))// && projects[project.name].isLoadedAndInit)
             {
                 Debug.Log($"ProjectManager: Project {project.name} is already loaded.");
                 return;
             }
 
             Debug.Log("ProjectManager: Loading project data: " + project.name);
-            // uiManager.ShowLoading("Laddar projekt " + project.name + "\n Titta dig omkring för att stabilisera AR!");
-            StartCoroutine(webRequestHandler.LoadDialogueProjectResources(project, (Result result, string errors) =>
+            //TODO This should probably move to the project class, and be done after geospatial implementation
+            List<(string name, string url)> resourcesToLoad = new List<(string name, string url)>();
+            foreach (var resource in project.resources)
+            {
+                resourcesToLoad.Add((resource.name, resource.url));
+            }
+
+            StartCoroutine(webRequestHandler.LoadFiles(resourcesToLoad, (Result result, string errors, List<(string name, string path)> files) =>
             {
                 switch (result)
                 {
@@ -109,13 +116,18 @@ namespace Pladdra.DialogueAbility
                         Debug.Log($"ProjectManager: Project {project.name} loaded successfully.");
                         break;
                 }
+                foreach (var file in files)
+                {
+                    project.resources.Find(x => x.name == file.name).path = file.path;
+                }
+
                 projects.Add(project.name, project);
-                project.InitProject(Origin(), uxManager, pivotPrefab);
+                project.Init(Origin(), uxManager);
 
                 // Listens to Project.OnSaveProposal to save proposal to whatever backend is hooked up
                 project.OnSaveProposal.AddListener((string proposalName, string proposalData) => OnSaveProposal.Invoke(proposalName, proposalData));
 
-                if (project.marker.image != null) uxManager.ARReferenceImageHandler.AddReferenceImage(project.marker.image, project.name, project.marker.width);
+                // if (project.marker.image != null) uxManager.ARReferenceImageHandler.AddReferenceImage(project.marker.image, project.name, project.marker.width);
 
                 Debug.Log($"ProjectManager: Project {project.name} is loaded.");
             }));
@@ -126,10 +138,11 @@ namespace Pladdra.DialogueAbility
         /// </summary>
         public void ShowProject(string projectName)
         {
+            Debug.Log($"ProjectManager: Showing project {projectName}");
             // Remove all layers that have been added throughout the previous project.
             raycastManager.CleanLayerMasksFromlayersToRemove();
 
-            if (this.currentProject != null && this.currentProject.isLoadedAndInit)
+            if (this.currentProject != null && this.currentProject.isCreated)
             {
                 this.currentProject.Hide();
                 this.currentProject.HideProposals();
