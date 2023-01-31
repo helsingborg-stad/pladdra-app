@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilityManager: {fileID: 2049301693}
-  deeplink: pladdra://dialogues/204
+  deeplink: pladdra://ar-dialogue-room-admin/eyJlbmRwb2ludCI6Imh0dHBzOi8vbW9kdWwtdGVzdC5oZWxzaW5nYm9yZy5pby9oZWxzaW5nYm9yZ3NydW1tZXQvd3AtanNvbi93cC92Mi9hci1kaWFsb2d1ZS1yb29tLzU5Mj9hY2ZfZm9ybWF0PXN0YW5kYXJkIiwiaGVhZGVycyI6eyJBdXRob3JpemF0aW9uIjoiYUdWc2MybHVaMkp2Y21kemNuVnRiV1YwT2tGd1ZqZGthMDVEVFdsMGF6QjVhbUZJZVd4R1RrUlJRUT09In19
 --- !u!4 &171125280
 Transform:
   m_ObjectHideFlags: 0

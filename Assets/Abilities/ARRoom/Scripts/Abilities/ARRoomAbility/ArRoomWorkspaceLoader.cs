@@ -30,7 +30,7 @@ namespace Abilities.ARRoomAbility
         public IEnumerator LoadWorkspace(Action<WorkspaceConfiguration> callback)
         {
             yield return null;
-            // ! Issue with assembly def not recognising DistinctBY in linq
+            // ! DistinctBy doesn't seem to be available in Unity?
             /*
             DialogProject project = null;
             yield return LogTask("Nu hämtar vi definitioner från servern!",

@@ -10,12 +10,9 @@ using Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Deeplinks
+namespace Pladdra.ARRoomAbility.Deeplinks
 {
-    /// <summary>
-    /// Deprecated. Use <see cref="AbilityManager"/> instead.
-    /// </summary>
-    public class DeeplinkManager : MonoBehaviour
+    public class DeeplinkManager : MonoBehaviour, IDeepLinkHandler
     {
         protected bool afterStart;
         private void Awake()
@@ -28,6 +25,11 @@ namespace Deeplinks
         private void Start()
         {
             afterStart = true;
+        }
+
+        public void OpenDeepLink(string url)
+        {
+            TryNavigateDeeplink(url);
         }
 
         private bool TryNavigateDeeplink(string url)
