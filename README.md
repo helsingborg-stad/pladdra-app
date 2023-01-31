@@ -1,5 +1,7 @@
 # Pladdra
 
+# Setting up your environment 
+
 ## Downloading Unity
 
 Unity can be downloaded [here](https://store.unity.com/download)
@@ -35,9 +37,51 @@ Using the [`Debugger for unity`](https://marketplace.visualstudio.com/items?item
 
 In order for the debugger to attach, you have to start the project in Unity as well.
 
-## Testing abilities/deeplinks
-Create a file named `deeplink.dev` with contents like
-```sh
-# visitor mode
-pladdra://ar-dialogue-room/...
-```
+# Abilities
+
+Pladdra is structured in abilities, each of which is a specific AR use case with its own functionality.
+
+## Creating an Ability
+
+1.  Create a new folder in `Assets/Abilities` with the name of your ability.
+2.  Add your Ability in `Assets/Settings/Abilities/AbilityList`.
+
+### Settings
+
+-   `name`: name of your ability.
+-   `description`: description of your ability.
+-   `deepLinkIdentifiers`: unique identifiers for this ability. Any deep link specifying these identifiers will open this ability.
+-   `showInList`: if set to false, this ability will not be shown in the list of abilities shown on app start.
+-   `scene`: the start scene of this ability.
+
+3.  Add your scene to the build settings.
+
+## Deeplinks
+
+Deeplinks are handled by `AbilityManager` in the Lobby scene.
+
+1.  Make sure the Lobby scene is added to the build settings and is the first scene in the list.
+2.  When a deeplink is opened, `AbilityManager` will open the ability with the corresponding `deepLinkIdentifiers`.
+3.  In your ability, create a script that implements `IDeepLinkHandler` to handle deeplink parsing.
+
+### Testing Deeplinks
+
+1.  Add your deeplink in `DeepLinkTester.deeplink` in the Lobby scene.
+2.  Press play.
+
+# Assembly
+
+If you add new assemblies you need to add them to `Assets/Pladdra.asmdef` for them to be included.
+`Assets/Pladdra.asmdef` is auto referenced.
+
+# Building
+
+The app uses cocoapods for Google ARCore Extensions, which is used for geolocation with Google visual positioning system.
+
+1.  After building an Xcode project, open the Xcode project file called `Unity-iPhone.xcworkspace`, NOT `Unity-iPhone.xcodeproj`.
+2.  Define the team in two places:
+
+-   `Unity-iPhone` > `signing and capabilities`.
+-   `Pods` > `ARCore-ARCoreResources` > `signing and capabilities`.
+
+3.  Build to device.
