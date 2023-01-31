@@ -15,7 +15,8 @@ namespace Pladdra.DialogueAbility
 
         void Start()
         {
-            LoadProjectCollections();
+            if (!openingDeepLink)
+                LoadProjectCollections();
         }
         protected override void LoadProject(ProjectReference project)
         {

@@ -203,6 +203,23 @@ namespace Pladdra
             callback(Result.Success, error, projects);
         }
 
+        internal IEnumerator LoadProjectFromID(string id, string projectBaseUrl, Action<Result, string, ProjectReference> callback)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(string.Format(projectBaseUrl, id));
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                callback(Result.Failure, request.error, null);
+            }
+            else
+            {
+                Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
+                WordpressData_ProjectReference wordpressData = JsonUtility.FromJson<WordpressData_ProjectReference>(request.downloadHandler.text);
+                callback(Result.Success, request.error, wordpressData.MakeProjectReference(projectBaseUrl));
+            }
+            request.Dispose();
+        }
+
         internal IEnumerator LoadProjectsFromURL(string url, string projectBaseUrl, Action<Result, string, List<ProjectReference>> callback)
         {
 

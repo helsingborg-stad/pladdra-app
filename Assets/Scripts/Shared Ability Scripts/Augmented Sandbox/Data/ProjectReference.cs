@@ -15,6 +15,11 @@ namespace Pladdra.Data
             this.description = description;
             this.url = url;
         }
+        public ProjectReference(string id,  string url)
+        {
+            this.id = id;
+            this.url = url;
+        }
         public string id;
         public string name;
         public string description;

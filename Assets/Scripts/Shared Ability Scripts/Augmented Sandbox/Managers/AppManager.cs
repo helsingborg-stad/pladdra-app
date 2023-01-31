@@ -45,19 +45,36 @@ namespace Pladdra
 
         #region Private
         List<ProjectReference> recentProjectList = new List<ProjectReference>();
+        protected bool openingDeepLink = false;
         #endregion Private
+
+
         public void OpenDeepLink(string deeplink)
         {
-            // Handled in derived classes
-            Debug.Log("Deepdeeplink: " + deeplink);
+            openingDeepLink = true;
+            Debug.Log($"AppManager: OpenDeepLink: {deeplink}");
+            if (deeplink.Contains("dialogues"))
+            {
+                // get the last part of deeplink after the final / in one line
+                string projectId = deeplink.Split('/').Last();
+
+                Debug.Log($"AppManager: OpenDeepLink: ProjectId: {projectId}");
+
+                LoadProjectFromID(projectId);
+            }
+            else if (deeplink.Contains("collection"))
+            {
+                string collectionId = deeplink.Split('/').Last();
+                Debug.Log($"AppManager: OpenDeepLink: CollectionId: {collectionId}");
+                LoadProjectCollection(collectionId);
+            }
         }
 
         #region Deeplink
 
-
         #endregion Deeplink
 
-        #region Loading from wordpress
+        #region Loading Collections
 
         /// <summary>
         /// Loads all ProjectCollections from collectionsUrl
@@ -74,11 +91,29 @@ namespace Pladdra
                                     return;
                                 case Result.Success:
                                     Debug.Log($"AppManager_Dialogues: Loaded DialogueCollections list with {projectCollections.Count} loaded successfully.");
-                                    DisplayProjectCollections(projectCollections);
+                                    if (!openingDeepLink)
+                                        DisplayProjectCollections(projectCollections);
                                     break;
                             }
                         }));
         }
+
+        /// <summary>
+        /// Loads a project collection from a collection id.
+        /// </summary>
+        /// <param name="id">Id of the collection.</param>
+        public void LoadProjectCollection(string id)
+        {
+            LoadProjectListFromURL(
+                string.Format(collectionUrlBase, id),
+                projectUrlBase,
+                () => { UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby"); }
+                );
+        }
+
+        #endregion Loading Collections
+
+        #region Loading Project lists
 
         /// <summary>
         /// Load all projects from a list of project ids.
@@ -112,7 +147,7 @@ namespace Pladdra
         /// Load all projects at a public url.
         /// </summary>
         /// <param name="ids">Ids for projects to load.</param>
-        protected void LoadProjectListFromURL(string url, string urlBase, Action onReturn)
+        protected void LoadProjectListFromURL(string url, string urlBase, Action onClose)
         {
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(urlBase))
             {
@@ -129,13 +164,35 @@ namespace Pladdra
                                     return;
                                 case Result.Success:
                                     Debug.Log($"AppManager: Project list with {projects.Count} loaded successfully.");
-                                    DisplayProjectList(projects, onReturn);
+                                    DisplayProjectList(projects, onClose);
                                     break;
                             }
                         }));
         }
 
-        #endregion Loading from wordpress
+        #endregion Loading Project lists
+
+        #region Loading Projects
+
+        public void LoadProjectFromID(string id)
+        {
+            StartCoroutine(webRequestHandler.LoadProjectFromID(id, projectUrlBase, (Result result, string errors, ProjectReference project) =>
+                        {
+                            switch (result)
+                            {
+                                case Result.PartialSuccess:
+                                case Result.Failure:
+                                    uiManager.ShowError("DownloadFailure", new string[] { string.Format(projectUrlBase, id), errors });
+                                    return;
+                                case Result.Success:
+                                    Debug.Log($"AppManager: Project {project.name} loaded successfully.");
+                                    LoadProject(project);
+                                    break;
+                            }
+                        }));
+        }
+
+        #endregion Loading Projects
 
         #region UI
 
