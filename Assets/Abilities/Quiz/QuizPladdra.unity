@@ -152,8 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b2ad7328f9ab4785b60a9048ff921f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugMat: {fileID: 0}
   arPlaneManager: {fileID: 1193469039}
   menuManager: {fileID: 790826284}
+  randomizeColor: 1
 --- !u!4 &186520968
 Transform:
   m_ObjectHideFlags: 0
@@ -232,7 +234,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 207425852}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76e4ca98d4d5c46b2bd7edb54798280c, type: 3}
+  m_Script: {fileID: 11500000, guid: 0bf1356a923a043c18adc1bea5eba8c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxCoroutines: 3
@@ -762,7 +764,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 950946208}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &790826283
 MonoBehaviour:
@@ -826,7 +828,6 @@ Transform:
   - {fileID: 207425853}
   - {fileID: 1000345902}
   - {fileID: 523192216}
-  - {fileID: 1974154497}
   - {fileID: 790826281}
   - {fileID: 1107250311}
   m_Father: {fileID: 0}
@@ -876,14 +877,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21531e1eaffc54c2d80b1e7f4cb71fb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  answerPrefab: {fileID: 5954976005361137845, guid: 8d0d4c42702dd49b2999566351d8d234,
-    type: 3}
-  answerParent: {fileID: 1622782025}
-  wrongAnswer: {fileID: 2100000, guid: 1106a2674a9254bcd9795265bd8cc1fb, type: 2}
-  correctAnswer: {fileID: 2100000, guid: 1ebe310e2b3cd42f68b19aed7ce922ed, type: 2}
-  disabledAnswer: {fileID: 2100000, guid: cf18a442b0d9f488a863be79bc79f532, type: 2}
-  distance: 2
-  range: 1
+  settings: {fileID: 11400000, guid: 79049c5d08b3244709ba03697d09537e, type: 2}
   currentQuizCollection:
     id: 
     name: 
@@ -901,6 +895,7 @@ MonoBehaviour:
     response: 
     answers: []
     answered: 0
+  arSessionManager: {fileID: 1193469038}
 --- !u!1 &1107250310
 GameObject:
   m_ObjectHideFlags: 0
@@ -931,7 +926,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 950946208}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1107250312
 MonoBehaviour:
@@ -1096,6 +1091,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f362da204ced47b9a58eeddef8e4716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxLogLength: 100
+  maxLogDisplayLength: 400
   menuManager: {fileID: 790826284}
   uiManager: {fileID: 523192217}
   onSendLog:
@@ -1159,48 +1156,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1974154496
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1974154497}
-  - component: {fileID: 1974154498}
-  m_Layer: 0
-  m_Name: UXManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1974154497
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974154496}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 950946208}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1974154498
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974154496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c1bc53a0f80542279eef2b7a325ee1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  settings: {fileID: 0}

@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Abilities/Dialogues/Scenes/Default Pladdra - Geospatial.unity
     guid: 74e6453efc0694e6f8ee20ae07853d36
+  - enabled: 1
+    path: "Assets/Abilities/Tjurfa\u0308ktning/Tjurfa\u0308ktning.unity"
+    guid: 8be7668c689a64e7194f3a89e9cb9e82
   m_configObjects:
     AR Foundation RemoteARFoundationRemoteLoaderSettings: {fileID: 11400000, guid: 9d49b8011914a439f9211f6de38f2402,
       type: 2}

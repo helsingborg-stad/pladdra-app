@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 using UntoldGarden.Utils;
 using System.Threading.Tasks;
 using GLTFast;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     /// <summary>
     /// Controller for interactive objects in the scene.
@@ -25,9 +25,15 @@ namespace Pladdra.DialogueAbility
             this.resource = resource;
             id = Guid.NewGuid().ToString();
 
-            CreateModel();
+            try
+            {
+                CreateModel();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Eror creating model:" + e);
+            }
         }
-
         async void CreateModel()
         {
             GameObject model = new GameObject("Model");

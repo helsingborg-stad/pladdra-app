@@ -1864,6 +1864,7 @@ MonoBehaviour:
   debugMat: {fileID: 2100000, guid: 738f118aa214360489366338953cfd32, type: 2}
   arPlaneManager: {fileID: 1079597708}
   menuManager: {fileID: 1263072919}
+  randomizeColor: 1
 --- !u!4 &1928686794
 Transform:
   m_ObjectHideFlags: 0
@@ -2138,6 +2139,7 @@ MonoBehaviour:
   InfoText: {fileID: 0}
   SnackBarText: {fileID: 0}
   DebugText: {fileID: 0}
+  geospatialEnabled: 0
 --- !u!1 &314218461484836149
 GameObject:
   m_ObjectHideFlags: 0

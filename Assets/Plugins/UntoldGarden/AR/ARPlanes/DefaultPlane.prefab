@@ -69,8 +69,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89356db36f49b4fd9b7eaba3d1be959a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initOnStart: 0
   update: 1
+  arPlanePrefab: {fileID: 0}
   disableMeshRenderInBuild: 0
+  debugLog: 0
 --- !u!23 &1963816372516933216
 MeshRenderer:
   m_ObjectHideFlags: 0

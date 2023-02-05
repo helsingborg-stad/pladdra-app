@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c10cd2d18bd340a595e3f1a3fc47670, type: 3}
+  m_Name: QuizDefaultSettings
+  m_EditorClassIdentifier: 
+  answerPrefab: {fileID: 5954976005361137845, guid: 8d0d4c42702dd49b2999566351d8d234,
+    type: 3}
+  wrongAnswer: {fileID: 2100000, guid: 1106a2674a9254bcd9795265bd8cc1fb, type: 2}
+  correctAnswer: {fileID: 2100000, guid: 1ebe310e2b3cd42f68b19aed7ce922ed, type: 2}
+  disabledAnswer: {fileID: 2100000, guid: cf18a442b0d9f488a863be79bc79f532, type: 2}
+  distance: 2
+  range: 1

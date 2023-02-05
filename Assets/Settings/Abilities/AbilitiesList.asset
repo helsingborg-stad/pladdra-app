@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AbilitiesList
   m_EditorClassIdentifier: 
   abilities:
-  - name: Statsdialoger
+  - name: Stadsdialoger
     description: Plus andra interaktiva upplevelser.
     deepLinkIdentifiers:
     - dialogues
@@ -33,3 +33,9 @@ MonoBehaviour:
     - ar-dialogue-room
     showInList: 1
     scene: SceneWithScreensWithAR
+  - name: "Tjurf\xE4ktning"
+    description: Inte okej.
+    deepLinkIdentifiers:
+    - bull
+    showInList: 1
+    scene: "Tjurfa\u0308ktning"

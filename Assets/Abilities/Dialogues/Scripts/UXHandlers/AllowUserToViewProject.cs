@@ -5,11 +5,11 @@ using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewProject : UXHandler
+    public class AllowUserToViewProject : DialoguesUXHandler
     {
-        public AllowUserToViewProject(UXManager uxManager)
+        public AllowUserToViewProject(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -17,6 +17,7 @@ namespace Pladdra.DialogueAbility.UX
         {
             Debug.Log("Init Project " + uxManager.Project.name);
 
+            //TODO Not sure if this is the right place for this logic. 
             if (uxManager.Project.requiresGeolocation)
             {
                 uxManager.UIManager.DisplayUI("prompt", root =>
@@ -31,18 +32,24 @@ namespace Pladdra.DialogueAbility.UX
                 });
                 Debug.Log("Project requires location to be displayed.");
                 Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
+                uxManager.GeospatialManager.GeospatialEnabled = true;
                 uxManager.GeospatialManager.OnLocalizationUnsuccessful.AddListener(GeolocationUnsuccessful);
-                uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.Item1, uxManager.Project.location.Item2, Quaternion.identity, placedObject);
-            }
-            else if (uxManager.Project.marker.required)
-            {
-                Debug.Log("Project requires marker to be displayed.");
-                uxManager.UIManager.DisplayUI("look-for-marker");
-                // TODO Hook up listeners to marker found event
+                uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.lat, uxManager.Project.location.lon, Quaternion.identity, placedObject);
             }
             else
             {
-                DisplayProject();
+                uxManager.GeospatialManager.GeospatialEnabled = false;
+                uxManager.GeospatialManager.OnLocalizationUnsuccessful.RemoveAllListeners();
+                if (uxManager.Project.marker.required)
+                {
+                    Debug.Log("Project requires marker to be displayed.");
+                    uxManager.UIManager.DisplayUI("look-for-marker");
+                    // TODO Hook up listeners to marker found event
+                }
+                else
+                {
+                    DisplayProject();
+                }
             }
         }
 
@@ -52,10 +59,6 @@ namespace Pladdra.DialogueAbility.UX
             if (!b)
             {
                 GeolocationUnsuccessful();
-
-                //TODO TESTING
-                // uxManager.Project.SetGeoAnchor(UnityEngine.GameObject.Find("Capsule"));
-                // DisplayProject();
             }
             else
             {
@@ -94,9 +97,25 @@ namespace Pladdra.DialogueAbility.UX
         async void DisplayProject()
         {
             Debug.Log("Display project");
-            uxManager.UIManager.ShowLoading("Skapar projekt...");
-            await uxManager.Project.CreateProject();
-            DisplayProjectInfo();
+            try
+            {
+                uxManager.UIManager.ShowLoading("Skapar projekt...");
+                await uxManager.Project.CreateProject();
+                DisplayProjectInfo();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Exception: " + e.Message);
+                uxManager.UIManager.DisplayUI("warning-with-options", root =>
+                {
+                    root.Q<Label>("warning").text = "Det gick inte att skapa projektet!";
+                    root.Q<Button>("option-one").clicked += () =>
+                    {
+                        uxManager.AppManager.DisplayRecentProjectList(() => { uxManager.AppManager.LoadProjectCollections(); });
+                    };
+                    root.Q<Button>("option-one").text = "Återgå till projektmenyn";
+                });
+            }
         }
         void DisplayProjectInfo()
         {
@@ -124,7 +143,7 @@ namespace Pladdra.DialogueAbility.UX
                         {
                             proposals.clicked += () =>
                             {
-                                UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                                IUXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
                                 uxManager.UseUxHandler(ux);
                             };
                         }

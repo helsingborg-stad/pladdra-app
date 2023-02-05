@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Pladdra.QuizAbility.Data
+namespace Pladdra.ARSandbox.Quizzes.Data
 {
     [System.Serializable]
     public class User

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     /// <summary>
     /// Manages render features in the render settings.

@@ -3,14 +3,15 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Pladdra.Data;
-using Pladdra.QuizAbility.Data;
+using Pladdra.ARSandbox.Quizzes.Data;
 using Pladdra.UI;
-using Pladdra.UX;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 using UntoldGarden.Utils;
+using UntoldGarden.AR;
 
-namespace Pladdra.QuizAbility
+namespace Pladdra.ARSandbox.Quizzes
 {
     // TODO Clean up
     // TODO Update to UI calls
@@ -18,13 +19,7 @@ namespace Pladdra.QuizAbility
     {
         #region Public
         //TODO Move to settings
-        public GameObject answerPrefab;
-        public Transform answerParent;
-        public Material wrongAnswer;
-        public Material correctAnswer;
-        public Material disabledAnswer;
-        public float distance;
-        public float range;
+        public QuizAbilitySettings settings;
 
         [Header("Debug")]
         [GrayOut] public QuizCollection currentQuizCollection;
@@ -34,20 +29,27 @@ namespace Pladdra.QuizAbility
         #endregion Public
 
         #region Scene References
+        [Header("Scene References")]
+        [SerializeField] protected ARSessionManager arSessionManager;
+        public ARSessionManager ARSessionManager { get => arSessionManager; }
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
-        protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
-        public UXManager UXManager { get => uxManager; }
         protected QuizUserManager quizUserManager { get { return transform.parent.gameObject.GetComponentInChildren<QuizUserManager>(); } }
-        protected AppManager_Quiz appManager { get { return transform.parent.gameObject.GetComponentInChildren<AppManager_Quiz>(); } }
-        protected WebRequestHandler_Quiz webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler_Quiz>(); } }
+        protected QuizAppManager appManager { get { return transform.parent.gameObject.GetComponentInChildren<QuizAppManager>(); } }
+        protected WebRequestHandler webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler>(); } }
         #endregion Scene References
 
         #region Private
         protected Dictionary<string, QuizCollection> quizzes = new Dictionary<string, QuizCollection>();
         public Dictionary<string, QuizCollection> Quizzes { get => quizzes; }
         protected List<AnswerController> answerControllers = new List<AnswerController>();
+        Transform answerParent;
         bool firstQuestion = true;
         #endregion
+
+        void Start()
+        {
+            answerParent = new GameObject("AnswerParent").transform;
+        }
 
         public void LoadQuizCollection(ProjectReference quizProject)
         {
@@ -59,7 +61,7 @@ namespace Pladdra.QuizAbility
 
             if (quizProject.url != "")
             {
-                StartCoroutine(webRequestHandler.LoadQuizCollection(quizProject.url, (Result result, string errors, QuizCollection quizCollection) =>
+                StartCoroutine(webRequestHandler.LoadText(quizProject.url, (Result result, string errors, string json) =>
                 {
                     switch (result)
                     {
@@ -68,13 +70,15 @@ namespace Pladdra.QuizAbility
                             uiManager.ShowError("DownloadFailure", new string[] { quizProject.url, errors });
                             return;
                         case Result.Success:
-                            if (quizCollection == null)
+                            WordpressData_QuizCollection wordpressData = JsonUtility.FromJson<WordpressData_QuizCollection>(json);
+                            QuizCollection collection = wordpressData.MakeQuizCollection(out string error);
+                            if (collection == null)
                             {
-                                uiManager.ShowError($"Frågespelet {quizProject.name} går inte att ladda. Felmeddelande: {errors}");
+                                uiManager.ShowError($"Frågespelet {quizProject.name} går inte att ladda. Felmeddelande: {error}");
                                 return;
                             }
-                            quizzes.Add(quizProject.name, quizCollection);
-                            currentQuizCollection = quizCollection;
+                            quizzes.Add(quizProject.name, collection);
+                            currentQuizCollection = collection;
                             currentQuizCollection.isLoadedAndInit = true;
                             ShowQuizCollection();
                             break;
@@ -225,12 +229,12 @@ namespace Pladdra.QuizAbility
                 }
                 else
                 {
-                    offset = new Vector3(RandomWithinDistance(distance, range), 2, RandomWithinDistance(distance, range));
+                    offset = new Vector3(RandomWithinDistance(settings.distance, settings.range), 2, RandomWithinDistance(settings.distance, settings.range));
                 }
-                Vector3 pos = uxManager.User.RelativeToObjectOnGround(offset, VectorExtensions.RelativeToObjectOptions.OnGroundLayers);
+                Vector3 pos = arSessionManager.GetUser().gameObject.RelativeToObjectOnGround(offset, VectorExtensions.RelativeToObjectOptions.OnGroundLayers);
                 pos.y = 2;
 
-                GameObject go = Instantiate(answerPrefab, pos, Quaternion.identity);
+                GameObject go = Instantiate(settings.answerPrefab, pos, Quaternion.identity);
                 go.transform.SetParent(answerParent);
 
                 AnswerController controller = go.GetComponent<AnswerController>();

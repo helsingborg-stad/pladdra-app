@@ -44,7 +44,9 @@ Pladdra is structured in abilities, each of which is a specific AR use case with
 ## Creating an Ability
 
 1.  Create a new folder in `Assets/Abilities` with the name of your ability.
-2.  Add your Ability in `Assets/Settings/Abilities/AbilityList`.
+2.  Create a new scene in your ability folder.
+3.  Add your scene to the build settings.
+4.  Add your Ability in `Assets/Settings/Abilities/AbilityList`.
 
 ### Settings
 
@@ -54,7 +56,7 @@ Pladdra is structured in abilities, each of which is a specific AR use case with
 -   `showInList`: if set to false, this ability will not be shown in the list of abilities shown on app start.
 -   `scene`: the start scene of this ability.
 
-3.  Add your scene to the build settings.
+5.  Your ability will be displayed in the list of abilities shown on app start, and be triggered by deeplinks pointing to your `deepLinkIdentifiers`.
 
 ## Deeplinks
 

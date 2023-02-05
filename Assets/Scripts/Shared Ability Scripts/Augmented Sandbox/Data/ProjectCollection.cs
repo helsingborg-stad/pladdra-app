@@ -60,6 +60,23 @@ namespace Pladdra.Data
     {
         public Title title;
         public DialogueCollection_Acf acf;
+
+        public ProjectCollection MakeProjectCollection()
+        {
+            List<int> projectIds = new List<int>();
+            foreach (DialogueCollection_Projects project in acf.projects)
+            {
+                try
+                {
+                    projectIds.Add(Int32.Parse(project.id));
+                }
+                catch (FormatException e)
+                {
+                    Debug.Log($"Could not parse {project.id} to int, error: {e.Message}");
+                }
+            }
+            return new ProjectCollection(title.rendered, acf.description, null, projectIds);
+        }
     }
 
     [System.Serializable]

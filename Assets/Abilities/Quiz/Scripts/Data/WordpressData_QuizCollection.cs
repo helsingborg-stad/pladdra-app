@@ -4,7 +4,7 @@ using UnityEngine;
 using Pladdra.Data;
 using System;
 
-namespace Pladdra.QuizAbility.Data
+namespace Pladdra.ARSandbox.Quizzes.Data
 {
     [System.Serializable]
     public class WordpressData_QuizCollection : WordpressData

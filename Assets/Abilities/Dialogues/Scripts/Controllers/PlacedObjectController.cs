@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 using UntoldGarden.Utils;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     /// <summary>
     /// Controller for interactive objects that the user has placed in the scene.

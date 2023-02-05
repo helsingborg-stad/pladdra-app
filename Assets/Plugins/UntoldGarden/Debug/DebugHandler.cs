@@ -35,8 +35,7 @@ namespace Pladdra
         static string myLog = "";
         private string output;
         private string stack;
-        bool storeLog;
-        bool sentReport;
+        bool storeLog = false;
         List<LogEntry> logEntries = new List<LogEntry>();
         #endregion Private
 
@@ -66,8 +65,9 @@ namespace Pladdra
 
         void Update()
         {
-            if (!sentReport)
-            {// Send crash report on startup
+            if (!storeLog)
+            {
+                // Check for saved log and send it on startup
                 if (PlayerPrefs.HasKey("log"))
                 {
                     var reports = CrashReport.reports;
@@ -77,7 +77,7 @@ namespace Pladdra
                         crashReport += report.time + "---" + report.text + "<br>\n";
                     }
 
-                    onSendLog.Invoke("Crash Report", DeviceInfo() + "<br>\nCrash report:<br>\n" + crashReport + "<br>\nLog:<br>\n" + FormatLog());
+                    onSendLog.Invoke("Crash Report", DeviceInfo() + "<br>\nCrash report:<br>\n" + crashReport + "<br>\nLog:<br>\n" + PlayerPrefs.GetString("log"));
 
                     foreach (var report in reports)
                     {
@@ -85,7 +85,6 @@ namespace Pladdra
                     }
 
                     PlayerPrefs.DeleteKey("log");
-                    sentReport = true;
                 }
                 PlayerPrefs.SetString("log", "");
                 storeLog = true;

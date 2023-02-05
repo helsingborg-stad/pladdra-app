@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using System.Linq;
 using System;
 using UntoldGarden.Utils;
 using GLTFast;
+using Pladdra.ARSandbox.Dialogues.UX;
+using Pladdra.UX;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     // TODO Clean
     [DisallowMultipleComponent]
@@ -88,7 +90,7 @@ namespace Pladdra.DialogueAbility
         /// <param name="rotation">The rotation of the object</param>
         public void AddObject(ProposalResource resource, Vector3 position, Vector3 rotation)
         {
-            Debug.Log($"Adding object {resource.name} at {position} with rotation {rotation}");
+            Debug.Log($"Adding object {resource.name} at {position} with rotation {rotation} and path {resource.path}");
             GameObject modelContainer = new GameObject(resource.name);
             modelContainer.transform.SetParent(project.placedResourcesContainer);
 
@@ -142,8 +144,13 @@ namespace Pladdra.DialogueAbility
         /// <param name="currentScale">Scale of object (uniform)</param>
         public void UpdateProposal(string id, Vector3 position, float y, float currentScale)
         {
-            Debug.Log($"Updating proposal {proposal.placedObjects.Find(x => x.id == id).name} at {position} with rotation {y} and scale {currentScale}");
             ProposalResource resource = proposal.placedObjects.Find(x => x.id == id);
+            if(resource == null)
+            {
+                Debug.LogError($"Could not find proposal resource with id {id}");
+                return;
+            }
+            Debug.Log($"Updating proposal {resource.name} at {position} with rotation {y} and scale {currentScale}");
             resource.position = position;
             resource.rotation = new Vector3(0, y, 0);
             resource.scale = currentScale;
@@ -290,6 +297,10 @@ namespace Pladdra.DialogueAbility
                 {
                     DialogueResource DialogueResource = project.resources.Find(x => x.path == resource.path);
                     AddObject(DialogueResource, resource.position.MakeGlobal(project.projectContainer), out PlacedObjectController controller, false);
+                    
+                    if (controller == null)
+                        continue;
+
                     controller.SetRotation(resource.rotation.y);
                     controller.StopAllCoroutines(); //To avoid updating the proposal after placing initial resources.
                 }
@@ -330,7 +341,7 @@ namespace Pladdra.DialogueAbility
                 name = "Spara förslag", // TODO Change to call from UItexts
                 action = () =>
                 {
-                    Pladdra.UX.UXHandler ux = new Pladdra.DialogueAbility.UX.AllowUserToSaveProposal(project.UXManager);
+                    IUXHandler ux = new AllowUserToSaveProposal(project.UXManager);
                     project.UXManager.UseUxHandler(ux);
                 }
             });

@@ -1,12 +1,13 @@
+
 using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewWorkspace : UXHandler
+    public class AllowUserToViewWorkspace: DialoguesUXHandler
     {
-        public AllowUserToViewWorkspace(UXManager uxManager)
+        public AllowUserToViewWorkspace(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -20,7 +21,7 @@ namespace Pladdra.DialogueAbility.UX
                              {
                                  root.Q<Button>("add-item").clicked += () =>
                                  {
-                                     UXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
+                                     IUXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
                                      uxManager.UseUxHandler(ux);
                                  };
                              }
@@ -30,7 +31,7 @@ namespace Pladdra.DialogueAbility.UX
                              }
                              root.Q<Button>("reposition-workspace").clicked += () =>
                              {
-                                 UXHandler ux = new AllowUserToManipulateWorkspace(uxManager);
+                                 IUXHandler ux = new AllowUserToManipulateWorkspace(uxManager);
                                  uxManager.UseUxHandler(ux);
                              };
                          });

@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Pladdra.QuizAbility.Data;
+using Pladdra.ARSandbox.Quizzes.Data;
 using UnityEngine;
 using UntoldGarden.Utils;
 
-namespace Pladdra.QuizAbility
+namespace Pladdra.ARSandbox.Quizzes
 {
     public class AnswerController : MonoBehaviour
     {
@@ -56,7 +56,7 @@ namespace Pladdra.QuizAbility
         {
             if (quizManager != null && !disabled)
             {
-                var lookPos = quizManager.UXManager.User.transform.position - transform.position;
+                var lookPos = quizManager.ARSessionManager.GetUser().transform.position - transform.position;
                 lookPos.y = 0;
                 var rotation = Quaternion.LookRotation(lookPos);
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * damping);
@@ -90,11 +90,11 @@ namespace Pladdra.QuizAbility
             if (isCorrect)
             {
                 quizManager.CorrectAnswer(answer);
-                SetMeshRenderersMaterial(quizManager.correctAnswer);
+                SetMeshRenderersMaterial(quizManager.settings.correctAnswer);
             }
             else
             {
-                SetMeshRenderersMaterial(quizManager.wrongAnswer);
+                SetMeshRenderersMaterial(quizManager.settings.wrongAnswer);
             }
             disabled = true;
         }
@@ -109,8 +109,7 @@ namespace Pladdra.QuizAbility
 
         public void HideAnswer()
         {
-            // Destroy(this);
-            SetMeshRenderersMaterial(quizManager.disabledAnswer);
+            SetMeshRenderersMaterial(quizManager.settings.disabledAnswer);
             disabled = true;
         }
 

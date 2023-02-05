@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Pladdra.Data;
 
-namespace Pladdra.DialogueAbility.Data
+namespace Pladdra.ARSandbox.Dialogues.Data
 {
     public enum ResourceDisplayRules
     {

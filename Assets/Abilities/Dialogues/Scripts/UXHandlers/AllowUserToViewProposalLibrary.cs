@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using Pladdra.UX;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewProposalLibrary : UXHandler
+    public class AllowUserToViewProposalLibrary: DialoguesUXHandler
     {
-        public AllowUserToViewProposalLibrary(UXManager uxManager)
+        public AllowUserToViewProposalLibrary(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -26,7 +27,7 @@ namespace Pladdra.DialogueAbility.UX
                         actions.Add(proposal, () =>
                         {
                             uxManager.Project.ProposalHandler.ShowProposal(proposal.name);
-                            UXHandler ux = new AllowUserToViewProposal(uxManager);
+                            IUXHandler ux = new AllowUserToViewProposal(uxManager);
                             uxManager.UseUxHandler(ux);
                         });
                     }
@@ -59,14 +60,19 @@ namespace Pladdra.DialogueAbility.UX
                     menulist.makeItem = () =>
                     {
                         var button = uxManager.UIManager.uiAssets.Find(x => x.name == "proposal-button-template").visualTreeAsset.Instantiate();
-
+                        button.Q<Button>("proposal-button").clicked += () =>
+                        {
+                            int i = (int)button.Q<Button>("proposal-button").userData;
+                            actions[actions.Keys.ToArray()[i]]();
+                        };
                         return button;
                     };
                     menulist.bindItem = (element, i) =>
                     {
                         Button button = element.Q<Button>();
                         button.text = actions.Keys.ToArray()[i].name;
-                        button.clicked += () => { actions[actions.Keys.ToArray()[i]](); };
+                        button.userData = i;
+                        // button.clicked += () => { actions[actions.Keys.ToArray()[i]](); };
                     };
                     menulist.fixedItemHeight = 50;
                     menulist.itemsSource = actions.Keys.ToArray();

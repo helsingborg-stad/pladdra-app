@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pladdra.DialogueAbility.Data
+namespace Pladdra.ARSandbox.Dialogues.Data
 {
     [System.Serializable]
     public class Proposal

@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     [DisallowMultipleComponent]
     public class PivotController : SceneObjectController

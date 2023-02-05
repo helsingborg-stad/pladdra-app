@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Pladdra.UI;
 using UnityEngine;
-using Pladdra;
+using Pladdra.ARSandbox;
 public class TestGeospatial : MonoBehaviour
 {
     public GeospatialManager geospatialManager;

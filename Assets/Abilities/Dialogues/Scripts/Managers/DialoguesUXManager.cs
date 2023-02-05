@@ -1,27 +1,21 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using Pladdra.DialogueAbility.UX;
+using Pladdra.ARSandbox.Dialogues.UX;
 using Pladdra;
 using Pladdra.UI;
-using Pladdra.DialogueAbility;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues;
+using Pladdra.ARSandbox.Dialogues.Data;
+using Pladdra.ARSandbox;
+using Pladdra.UX;
 
-namespace Pladdra.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
     /// <summary>
     /// Manages UXHandlers.
     /// </summary>
-    public class UXManager : MonoBehaviour
+    public class DialoguesUXManager : MonoBehaviour, IUXManager
     {
-        #region Private
-        protected UXHandler uxHandler;
-        protected UXHandler pastUXHandler;
-        [HideInInspector] public GameObject User { get; set; }
-        UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
-        public UIManager UIManager { get { return uiManager; } }
-        #endregion Private
 
-        //TODO Move below to inherited class
         #region Public
         public DialogueAbilitySettings settings;
         #endregion Public
@@ -36,13 +30,19 @@ namespace Pladdra.UX
         public RenderManager RenderManager { get { return renderManager; } }
         GeospatialManager geospatialManager { get { return transform.parent.gameObject.GetComponentInChildren<GeospatialManager>(); } }
         public GeospatialManager GeospatialManager { get { return geospatialManager; } }
-        AppManager_Dialogues appManager { get { return transform.parent.gameObject.GetComponentInChildren<AppManager_Dialogues>(); } }
-        public AppManager_Dialogues AppManager { get { return appManager; } }
+        DialoguesAppManager appManager { get { return transform.parent.gameObject.GetComponentInChildren<DialoguesAppManager>(); } }
+        public DialoguesAppManager AppManager { get { return appManager; } }
         protected ARReferenceImageHandler arReferenceImageHandler { get { return transform.parent.gameObject.GetComponentInChildren<ARReferenceImageHandler>(); } }
         public ARReferenceImageHandler ARReferenceImageHandler { get { return arReferenceImageHandler; } }
-
+        UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
+        public UIManager UIManager { get { return uiManager; } }
 
         public float ObjectRotationSpeed { get { return settings.rotationSpeed; } } // TODO Move to global config
+
+        public GameObject User { get; set; }
+        public IUXHandler uxHandler { get; set; }
+        public IUXHandler pastUXHandler { get; set; }
+
         #endregion Private
 
         protected virtual void Start()
@@ -51,12 +51,13 @@ namespace Pladdra.UX
             // PreviewObjectHolder = User.transform.Find("PreviewObjectHolder").gameObject; //TODO Move to inherited class
         }
 
+
         /// <summary>
         /// Sets our UXHandler, that deals with all currently displayed UI and user-accessible functionality
         /// There can only be one UXHandler at a time, this is a simple state machine
         /// </summary>
         /// <param name="uxHandler"></param>
-        public void UseUxHandler(UXHandler uxHandler)
+        public void UseUxHandler(IUXHandler uxHandler)
         {
             if (this.uxHandler != null)
             {
@@ -94,7 +95,7 @@ namespace Pladdra.UX
         /// </summary>
         public void ShowWorkspaceDefault()
         {
-            UXHandler ux = new AllowUserToViewWorkspace(this);
+            IUXHandler ux = new AllowUserToViewWorkspace(this);
             UseUxHandler(ux);
         }
 

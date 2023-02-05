@@ -8,6 +8,9 @@ namespace Pladdra.Data
     [System.Serializable]
     public class ProjectReference
     {
+        public ProjectReference()
+        {
+        }
         public ProjectReference(string id, string name, string description, string url)
         {
             this.id = id;

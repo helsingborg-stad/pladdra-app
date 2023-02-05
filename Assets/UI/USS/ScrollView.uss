@@ -1,0 +1,113 @@
+.unity-scroller--vertical {
+    align-self: center;
+    height: 100%;
+    right: auto;
+    min-width: 8px;
+    max-width: 30px;
+    width: 2%;
+    margin-right: 3%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-right: 0;
+    border-left-color: rgba(255, 255, 255, 0);
+    border-right-color: rgba(255, 255, 255, 0);
+    border-top-color: rgba(255, 255, 255, 0);
+    border-bottom-color: rgba(255, 255, 255, 0);
+}
+
+.unity-scroller__low-button {
+    opacity: 0;
+    display: none;
+    visibility: hidden;
+}
+
+.unity-scroller__high-button {
+    opacity: 0;
+    display: none;
+    visibility: hidden;
+}
+
+#unity-slider {
+    width: 100%;
+    min-width: 8px;
+    max-width: none;
+    max-height: none;
+    background-color: rgb(255, 255, 255);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.unity-base-slider--vertical {
+    width: 100%;
+    min-width: 8px;
+    max-width: none;
+    max-height: none;
+}
+
+#unity-drag-container {
+    width: 100%;
+    min-width: 8px;
+    max-width: none;
+    max-height: none;
+}
+
+#unity-tracker {
+    opacity: 0;
+    width: 100%;
+    min-width: 8px;
+}
+
+#unity-dragger {
+    background-color: rgb(80, 129, 27);
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    left: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    width: 100%;
+    min-width: 8px;
+    max-width: none;
+    max-height: none;
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+    height: auto;
+}
+
+#unity-dragger-border {
+    opacity: 0;
+    min-width: 8px;
+}
+
+#unity-content-and-vertical-scroll-container {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 5%;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.green-background {
+    background-color: rgb(80, 129, 27);
+}
+
+.grey-background {
+    background-color: rgb(229, 229, 229);
+    color: rgb(0, 0, 0);
+}

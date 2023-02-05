@@ -5,22 +5,51 @@ using Pladdra.UI;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
-
 namespace Pladdra.ARDebug
 {
     /// <summary>
-    /// Enables and disables the mesh renderer on all planes in the scene.
-    /// Adds a menu item to toggle the planes.
+    /// The `PlaneVisualiser` class manages the visualization of AR planes in the AR Foundation framework.
     /// </summary>
     public class PlaneVisualiser : MonoBehaviour
     {
+        #region Public
+        /// <summary>
+        /// The Material that is used to visualize the AR planes.
+        /// </summary>
         public Material debugMat;
+
+        /// <summary>
+        /// The `ARPlaneManager` component that manages the AR planes in the scene.
+        /// </summary>
         public ARPlaneManager arPlaneManager;
+
+        /// <summary>
+        /// The `MenuManager` component that manages the user interface.
+        /// </summary>
         public MenuManager menuManager;
+        public bool randomizeColor = true;
+
+        #endregion Public
+
+        #region Private
+
+        /// <summary>
+        /// A list of all the AR objects in the scene, including the AR planes.
+        /// </summary>
         List<GameObject> arObjects = new List<GameObject>();
 
+        /// <summary>
+        /// A flag that indicates whether the AR planes are currently shown.
+        /// </summary>
         bool shown;
-        // Start is called before the first frame update
+
+        Color[] colors = new Color[] { Color.red, Color.green, Color.blue, Color.yellow, Color.cyan, Color.magenta };
+
+        #endregion Private
+
+        /// <summary>
+        /// The Start method is called before the first frame update.
+        /// </summary>
         void Start()
         {
             if (arPlaneManager)
@@ -38,21 +67,35 @@ namespace Pladdra.ARDebug
                     }
                 });
             }
+
+            // Set alpha to .5 for all colors in colors array
+            for (int i = 0; i < colors.Length; i++)
+            {
+                colors[i].a = .5f;
+            }
         }
 
+        /// <summary>
+        /// Adds a given GameObject to the list of AR objects.
+        /// </summary>
+        /// <param name="go">The GameObject to be added to the list of AR objects.</param>
         public void AddARObject(GameObject go)
         {
             arObjects.Add(go);
         }
 
+        /// <summary>
+        /// Updates the list of AR objects with new AR planes that have been added or removed.
+        /// </summary>
+        /// <param name="args">The ARPlanesChangedEventArgs that contain information about the added and removed AR planes.</param>
         void UpdatePlaneList(ARPlanesChangedEventArgs args)
         {
-            //add all new planes to list
+            // Add all new planes to the list
             foreach (ARPlane plane in args.added)
             {
                 arObjects.Add(plane.gameObject);
             }
-            //remove all removed planes from list
+            // Remove all removed planes from the list
             foreach (ARPlane plane in args.removed)
             {
                 arObjects.Remove(plane.gameObject);
@@ -60,7 +103,7 @@ namespace Pladdra.ARDebug
         }
 
         /// <summary>
-        /// Toggles ar debug material on all objects
+        /// Toggles the visualization of the AR planes.
         /// </summary>
         void TogglePlanes()
         {
@@ -69,6 +112,7 @@ namespace Pladdra.ARDebug
                 foreach (GameObject go in arObjects)
                 {
                     List<Material> mats = go.GetComponent<MeshRenderer>().sharedMaterials.ToList();
+                    if (randomizeColor) debugMat.color = colors[Random.Range(0, colors.Length)];
                     mats.Add(debugMat);
                     go.GetComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
                 }

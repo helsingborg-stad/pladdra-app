@@ -1,15 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.UX;
+using Pladdra.ARSandbox.Dialogues.UX;
 using Pladdra.UI;
 using Pladdra.UX;
 using UnityEngine;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
-    public class MenuManager_Dialogues : Pladdra.UI.MenuManager
+    public class DialoguesMenuManager : Pladdra.UI.MenuManager
     {
         ViewingModeManager viewingModeManager { get { return transform.parent.gameObject.GetComponentInChildren<ViewingModeManager>(); } }
+        DialoguesUXManager dialoguesUXManager { get { return (DialoguesUXManager)uxManager; } }
 
         protected override void Start()
         {
@@ -32,7 +33,7 @@ namespace Pladdra.DialogueAbility
                 {
                     Debug.Log("Zenmode clicked");
                     ToggleMenu(false);
-                    UXHandler ux = new AllowUserToViewZenMode(uxManager);
+                    IUXHandler ux = new AllowUserToViewZenMode(dialoguesUXManager);
                     uxManager.UseUxHandler(ux);
                 }
             });
@@ -64,8 +65,8 @@ namespace Pladdra.DialogueAbility
                 action = () =>
                 {
                     //TODO Disable button while exporting
-                    uxManager.Project.CreateGLBSafeTextures();
-                    ExportGLB.AdvancedExport(uxManager.Project.projectOrigin.gameObject, Application.persistentDataPath + "/" + uxManager.Project.ProposalHandler.Proposal.name + ".glb");
+                    dialoguesUXManager.Project.CreateGLBSafeTextures();
+                    ExportGLB.AdvancedExport(dialoguesUXManager.Project.projectOrigin.gameObject, Application.persistentDataPath + "/" + dialoguesUXManager.Project.ProposalHandler.Proposal.name + ".glb");
                 }
             });
         }

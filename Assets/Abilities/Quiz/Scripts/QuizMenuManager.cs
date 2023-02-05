@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.UX;
+using Pladdra.ARSandbox.Dialogues.UX;
 using Pladdra.UI;
-using Pladdra.UX;
+
 using UnityEngine;
 
-namespace Pladdra.QuizAbility
+namespace Pladdra.ARSandbox.Quizzes
 {
-    public class MenuManager_Quiz : Pladdra.UI.MenuManager
+    public class QuizMenuManager : Pladdra.UI.MenuManager
     {
         protected QuizManager quizManager { get { return transform.parent.gameObject.GetComponentInChildren<QuizManager>(); } }
 

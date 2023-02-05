@@ -1,18 +1,18 @@
-using Pladdra.DialogueAbility.Data;
-using Pladdra.UX;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UntoldGarden.Utils;
 using GLTFast;
+using Pladdra.UX;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToInspectModel : UXHandler
+    public class AllowUserToInspectModel : DialoguesUXHandler
     {
         DialogueResource resource;
         GameObject preview;
         Transform container;
-        public AllowUserToInspectModel(UXManager uxManager, DialogueResource resource)
+        public AllowUserToInspectModel(DialoguesUXManager uxManager, DialogueResource resource)
         {
             this.uxManager = uxManager;
             this.project = uxManager.Project;
@@ -26,7 +26,14 @@ namespace Pladdra.DialogueAbility.UX
             container = new GameObject("PreviewContainer").transform;
             container.SetParent(uxManager.PreviewObjectHolder.transform);
             container.localPosition = Vector3.zero;
-            CreatePreview();
+            try
+            {
+                CreatePreview();
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log("Error creating preview:" + e);
+            }
         }
 
         async void CreatePreview()
@@ -37,7 +44,7 @@ namespace Pladdra.DialogueAbility.UX
             preview.transform.position = new Vector3(0, 100, 0);
             preview.AddComponent<GltfAsset>().Url = resource.path;
 
-            while(preview.GetComponent<GltfAsset>().SceneInstance == null)
+            while (preview.GetComponent<GltfAsset>().SceneInstance == null)
             {
                 await System.Threading.Tasks.Task.Delay(100);
             }
@@ -58,7 +65,7 @@ namespace Pladdra.DialogueAbility.UX
             {
                 root.Q<Button>("close").clicked += () =>
                 {
-                    UXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
+                    IUXHandler ux = new AllowUserToViewResourceLibrary(uxManager);
                     uxManager.UseUxHandler(ux);
                 };
                 root.Q<Label>("name").text = resource.name;
@@ -69,7 +76,7 @@ namespace Pladdra.DialogueAbility.UX
                     Debug.Log("Placing model at " + position);
 
                     uxManager.Project.ProposalHandler.AddObject(resource, position, out PlacedObjectController controller);
-                    UXHandler ux = new AllowUserToManipulateSelectedModel(uxManager, controller, false);
+                    IUXHandler ux = new AllowUserToManipulateSelectedModel(uxManager, controller, false);
                     uxManager.UseUxHandler(ux);
                 };
             });

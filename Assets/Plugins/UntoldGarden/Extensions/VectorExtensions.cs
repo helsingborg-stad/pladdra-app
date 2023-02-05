@@ -45,6 +45,8 @@ namespace UntoldGarden.Utils
                 (origin.transform.right * offset.Value.x) +
                 (origin.transform.up * offset.Value.y);
 
+            pos.y = origin.transform.position.y;
+
             if (args == RelativeToObjectOptions.OnGroundLayers || args == RelativeToObjectOptions.OnGroundLayersAndNavMesh)
             {
                 RaycastHit hit;
@@ -56,7 +58,7 @@ namespace UntoldGarden.Utils
                 {
                     Debug.Log("VectorExtensions.RelativeToUser could not get RaycastHit!");
                     // gets closest point on all meshes within layermask
-                    
+
                 }
             }
 

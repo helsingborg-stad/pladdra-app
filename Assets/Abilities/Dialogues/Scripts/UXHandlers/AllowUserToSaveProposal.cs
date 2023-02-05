@@ -1,12 +1,13 @@
+
 using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToSaveProposal : UXHandler
+    public class AllowUserToSaveProposal: DialoguesUXHandler
     {
-        public AllowUserToSaveProposal(UXManager uxManager)
+        public AllowUserToSaveProposal(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -17,7 +18,7 @@ namespace Pladdra.DialogueAbility.UX
                             root.Q<Button>("confirm-button").clicked += () =>
                             {
                                 string name = root.Q<TextField>("input-text").value;
-                                UXHandler ux = new AllowUserToChooseActionAfterSaving(uxManager);
+                                IUXHandler ux = new AllowUserToChooseActionAfterSaving(uxManager);
                                 uxManager.UseUxHandler(ux);
                                 Debug.Log("Saving proposal with name: " + name);
                                 uxManager.Project.ProposalHandler.SaveProposal(name);

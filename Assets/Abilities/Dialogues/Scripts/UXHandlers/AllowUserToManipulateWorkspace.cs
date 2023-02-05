@@ -4,14 +4,14 @@ using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToManipulateWorkspace : UXHandler
+    public class AllowUserToManipulateWorkspace: DialoguesUXHandler
     {
         WorkspaceController controller;
         float oldMinTouchLimit;
 
-        public AllowUserToManipulateWorkspace(UXManager uxManager)
+        public AllowUserToManipulateWorkspace(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
             this.controller = uxManager.Project.WorkspaceController;
@@ -94,12 +94,8 @@ namespace Pladdra.DialogueAbility.UX
                 };
             });
 
-            // TODO Fix these layermask to preset states
             uxManager.RaycastManager.SetLayerMask("allowUserToManipulateWorkspace");
-            // uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("ARMesh"));
-            // uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("ScalePivot"));
-            // uxManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
-            // uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("Object"));
+
             uxManager.RaycastManager.OnTouches.AddListener(controller.SelectObject);
             uxManager.RaycastManager.OnEndTouch.AddListener(controller.FinalizeMove);
             uxManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
@@ -110,16 +106,13 @@ namespace Pladdra.DialogueAbility.UX
 
         protected virtual void Return()
         {
-            UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+            IUXHandler ux = new AllowUserToViewWorkspace(uxManager);
             uxManager.UseUxHandler(ux);
         }
         public override void Deactivate()
         {
             uxManager.RaycastManager.SetDefaultLayerMask();
-            // uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("ARMesh"));
-            // uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("ScalePivot"));
-            // uxManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
-            // uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("Object"));
+            
             uxManager.RaycastManager.OnTouches.RemoveListener(controller.SelectObject);
             uxManager.RaycastManager.OnEndTouch.RemoveListener(controller.FinalizeMove);
             uxManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);

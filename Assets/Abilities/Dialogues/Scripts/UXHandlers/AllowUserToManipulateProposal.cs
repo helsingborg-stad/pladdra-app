@@ -1,15 +1,15 @@
 using Pladdra.UX;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
     public class AllowUserToManipulateProposal : AllowUserToManipulateWorkspace
     {
-        public AllowUserToManipulateProposal(UXManager uxManager) : base(uxManager)
+        public AllowUserToManipulateProposal(DialoguesUXManager uxManager) : base(uxManager)
         {
         }
         protected override void Return()
         {
-            UXHandler ux = new AllowUserToViewProposal(uxManager);
+            IUXHandler ux = new AllowUserToViewProposal(uxManager);
             uxManager.UseUxHandler(ux);
         }
         

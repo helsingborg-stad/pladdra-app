@@ -1,9 +1,9 @@
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
-    [CreateAssetMenu(fileName = "Data", menuName = "Scriptable Objects/Pladdra/Dialogue Ability Settings", order = 1)]
+    [CreateAssetMenu(fileName = "DialogueAbilitySettings", menuName = "Pladdra/Dialogue Ability Settings", order = 1)]
     public class DialogueAbilitySettings : ScriptableObject
     {
         public float rotationSpeed = 1f;

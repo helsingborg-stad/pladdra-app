@@ -1,11 +1,12 @@
+
 using Pladdra.UX;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewProposal : UXHandler
+    public class AllowUserToViewProposal: DialoguesUXHandler
     {
-        public AllowUserToViewProposal(UXManager uxManager)
+        public AllowUserToViewProposal(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -17,12 +18,12 @@ namespace Pladdra.DialogueAbility.UX
                 root.Q<Button>("close").clicked += () =>
                 {
                     uxManager.Project.ProposalHandler.HideProposal();
-                    UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                    IUXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
                     uxManager.UseUxHandler(ux);
                 };
                 root.Q<Button>("reposition-proposal").clicked += () =>
                              {
-                                 UXHandler ux = new AllowUserToManipulateProposal(uxManager);
+                                 IUXHandler ux = new AllowUserToManipulateProposal(uxManager);
                                  uxManager.UseUxHandler(ux);
                              };
             });

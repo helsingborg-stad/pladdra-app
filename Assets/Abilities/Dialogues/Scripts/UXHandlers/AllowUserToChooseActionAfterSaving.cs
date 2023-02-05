@@ -1,12 +1,13 @@
+
 using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToChooseActionAfterSaving : UXHandler
+    public class AllowUserToChooseActionAfterSaving: DialoguesUXHandler
     {
-        public AllowUserToChooseActionAfterSaving(UXManager uxManager)
+        public AllowUserToChooseActionAfterSaving(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }
@@ -20,7 +21,7 @@ namespace Pladdra.DialogueAbility.UX
                 };
                 root.Q<Button>("proposal-library").clicked += () =>
                 {
-                    UXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
+                    IUXHandler ux = new AllowUserToViewProposalLibrary(uxManager);
                     uxManager.UseUxHandler(ux);
                 };
             });

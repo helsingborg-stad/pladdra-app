@@ -8,7 +8,7 @@ using UnityEngine.XR.ARSubsystems;
 using UntoldGarden.AR;
 using UntoldGarden.Utils;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     //TODO Clean
     //TODO Create this one if needed

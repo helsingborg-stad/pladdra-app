@@ -6,10 +6,10 @@ using System;
 using UntoldGarden.AR;
 using Pladdra.UI;
 using Pladdra.Data;
-using Pladdra.UX;
+
 using System.Linq;
 
-namespace Pladdra
+namespace Pladdra.ARSandbox
 {
     /// <summary>
     /// AppManager is the main manager for the app. 
@@ -39,7 +39,6 @@ namespace Pladdra
 
         #region Scene References
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
-        protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
         protected WebRequestHandler webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler>(); } }
         #endregion Scene References
 
@@ -104,11 +103,25 @@ namespace Pladdra
         /// <param name="id">Id of the collection.</param>
         public void LoadProjectCollection(string id)
         {
-            LoadProjectListFromURL(
-                string.Format(collectionUrlBase, id),
-                projectUrlBase,
-                () => { UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby"); }
-                );
+            StartCoroutine(webRequestHandler.LoadProjectCollection(string.Format(collectionUrlBase, id), (Result result, string errors, ProjectCollection projectCollection) =>
+                        {
+                            switch (result)
+                            {
+                                case Result.PartialSuccess:
+                                case Result.Failure:
+                                    uiManager.ShowError("DownloadFailure", new string[] { string.Format(collectionUrlBase, id), errors });
+                                    return;
+                                case Result.Success:
+                                    Debug.Log($"AppManager_Dialogues: Loaded DialogueCollection with {projectCollection.projectIds} loaded successfully.");
+                                    LoadProjectListFromIDs(
+                                        projectCollection.projectIds.ToArray(),
+                                        projectUrlBase,
+                                        () => { UnityEngine.SceneManagement.SceneManager.LoadScene("Lobby"); },
+                                        projectCollection.name,
+                                        projectCollection.description);
+                                    break;
+                            }
+                        }));
         }
 
         #endregion Loading Collections
@@ -127,14 +140,16 @@ namespace Pladdra
                 urls[i] = string.Format(urlBase, ids[i]);
             }
 
-            StartCoroutine(webRequestHandler.LoadProjectsFromIDs(urls, urlBase, (Result result, string errors, List<ProjectReference> projects) =>
+            StartCoroutine(webRequestHandler.LoadProjectReferencesFromIDs(urls, urlBase, (Result result, string errors, List<ProjectReference> projects) =>
                         {
                             switch (result)
                             {
-                                case Result.PartialSuccess:
                                 case Result.Failure:
                                     uiManager.ShowError("DownloadFailure", new string[] { string.Join(", ", urls), errors });
                                     return;
+                                case Result.PartialSuccess:
+                                    Debug.Log($"AppManager: Partial success loading projects from ids. Error: {errors}");
+                                    goto case Result.Success;
                                 case Result.Success:
                                     Debug.Log($"AppManager: Loaded {projects.Count} projects.");
                                     DisplayProjectList(projects, onReturn, collectionName, collectionInfo);
@@ -154,7 +169,7 @@ namespace Pladdra
                 Debug.LogError("AppManager: LoadProjectListFromURL: url or urlBase is null or empty.");
                 return;
             }
-            StartCoroutine(webRequestHandler.LoadProjectsFromURL(url, urlBase, (Result result, string errors, List<ProjectReference> projects) =>
+            StartCoroutine(webRequestHandler.LoadProjectReferencesFromURL(url, urlBase, (Result result, string errors, List<ProjectReference> projects) =>
                         {
                             switch (result)
                             {
@@ -176,7 +191,7 @@ namespace Pladdra
 
         public void LoadProjectFromID(string id)
         {
-            StartCoroutine(webRequestHandler.LoadProjectFromID(id, projectUrlBase, (Result result, string errors, ProjectReference project) =>
+            StartCoroutine(webRequestHandler.LoadProjectReferenceFromID(id, projectUrlBase, (Result result, string errors, ProjectReference project) =>
                         {
                             switch (result)
                             {
@@ -298,23 +313,22 @@ namespace Pladdra
                 listView.makeItem = () =>
                                 {
                                     var button = uiManager.uiAssets.Find(x => x.name == "project-button-template").visualTreeAsset.Instantiate();
+                                    button.Q<Button>("project-button").clicked += () =>
+                                    {
+                                        int i = (int)button.Q<Button>("project-button").userData;
+                                        LoadProject(projects[i]);
+                                    };
                                     return button;
                                 };
                 listView.bindItem = (element, i) =>
                                 {
-                                    if (IsProjectActive(projects[i]))
-                                    {
-                                        element.Q<Button>("project-button").SetEnabled(false);
-                                    }
-                                    else
-                                    {
-                                        element.Q<Button>("project-button").clicked += () => { actions[i](); };
-                                    }
+                                    element.Q<Button>("project-button").SetEnabled(!IsProjectActive(projects[i]));
+                                    element.Q<Button>("project-button").userData = i;
                                     element.Q<Label>("name").text = projects[i].name;
                                     element.Q<Label>("description").text = projects[i].description;
                                 };
+                listView.itemsSource = projects.ToArray();
                 listView.fixedItemHeight = 100;
-                listView.itemsSource = projects;
 
                 if (projectListTitle != "") root.Q<Label>("title").text = projectListTitle;
                 if (projectListInfo != "") root.Q<Label>("info").text = projectListInfo;
@@ -344,7 +358,7 @@ namespace Pladdra
 
         /// <summary>
         /// Base class to check if the project is active, and if it should be disabled in the project list UI.
-        /// Specific logic should be implemented in derived classes as it differs from ability type.
+        /// Specific logic should be implemented in derived classes.
         /// </summary>
         /// <param name="project">The reference to the project to check.</param>
 

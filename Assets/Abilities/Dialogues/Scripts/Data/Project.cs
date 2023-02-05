@@ -4,11 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UntoldGarden.Utils;
-using Pladdra.UX;
 using GLTFast;
 using System.Threading.Tasks;
+using Pladdra.ARSandbox.Dialogues.UX;
 
-namespace Pladdra.DialogueAbility.Data
+namespace Pladdra.ARSandbox.Dialogues.Data
 {
     [Serializable]
     public class Project
@@ -52,8 +52,8 @@ namespace Pladdra.DialogueAbility.Data
         public ProposalHandler ProposalHandler { get { return proposalHandler; } set { proposalHandler = value; } }
         PivotController pivotController;
         public PivotController PivotController { get { return pivotController; } }
-        UXManager uxManager;
-        public UXManager UXManager { get { return uxManager; } }
+        DialoguesUXManager uxManager;
+        public DialoguesUXManager UXManager { get { return uxManager; } }
         Transform geoAnchor;
         #endregion Scene References
 
@@ -70,7 +70,7 @@ namespace Pladdra.DialogueAbility.Data
         /// <param name="origin">Main projects origin</param>
         /// <param name="uxManager">UXManager</param>
         /// <param name="pivotPrefab">Prefab for scale pivot</param>
-        internal void Init(Transform origin, UXManager uxManager)
+        internal void Init(Transform origin, DialoguesUXManager uxManager)
         {
             this.origin = origin;
             this.uxManager = uxManager;
@@ -151,23 +151,7 @@ namespace Pladdra.DialogueAbility.Data
         #endregion Project
 
         #region Resources
-        // /// <summary>
-        // /// Shows all resources with display rule Static or Interactive
-        // /// </summary>
-        // internal void DisplayResources()
-        // {
-        //     if (createdResources)
-        //     {
-        //         Show();
-        //     }
-        //     else
-        //     {
-        //         CreateStaticAndInteractiveResources();
-        //         if (HasLibraryResources()) CreateLibraryResources();
-        //         if (HasMarkerResources()) CreateMarkerResources();
-        //         createdResources = true;
-        //     }
-        // }
+
 
         /// <summary>
         /// Creates all static and interactive resources, all resources that are displayed when the project is shown.
@@ -251,26 +235,40 @@ namespace Pladdra.DialogueAbility.Data
 
             // Create collider for static resources
             MeshFilter mf = staticResourcesContainer.gameObject.AddComponent<MeshFilter>();
-            mf.mesh = staticResourcesContainer.gameObject.CombineMeshesInChildren();
-            staticResourcesContainer.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.mesh;
+            Mesh mesh = staticResourcesContainer.gameObject.CombineMeshesInChildren();
+            if (mesh != null)
+            {
+                mf.mesh = mesh;
+                staticResourcesContainer.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.mesh;
+            }
+            else
+            {
+                Debug.Log("No mesh found for static resources");
+            }
 
+            // Reset projectOrigin to original position and rotation
             projectOrigin.localPosition = pos;
             projectOrigin.localRotation = Quaternion.Euler(rot);
         }
 
+        /// <summary>
+        /// Creates a container for library resources placed by the user.
+        /// Creates thumbnails for all library resources. This is a bit time consuming, but the only alternative would be to store previews on wordpress.
+        /// </summary>
+        /// <returns></returns>
         async Task CreateLibraryResources()
         {
             Debug.Log("CreateLibraryResources");
             placedResourcesContainer = new GameObject("PlacedResources").transform;
             placedResourcesContainer.SetParent(projectContainer);
-            placedResourcesContainer.localPosition = Vector3.zero;
+            placedResourcesContainer.localPosition = new Vector3(0, 0, 0);
 
-            // // Create thumbnails for all library resources
             RuntimePreviewGenerator.BackgroundColor = Color.clear;
             RuntimePreviewGenerator.MarkTextureNonReadable = false;
             foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Library))
             {
                 GameObject go = new GameObject();
+                go.transform.position = new Vector3(0, 100, 0);
                 go.AddComponent<GltfAsset>().Url = "file://" + resource.path;
                 while (go.GetComponent<GltfAsset>().SceneInstance == null)
                 {
@@ -297,7 +295,7 @@ namespace Pladdra.DialogueAbility.Data
 
         internal void LoadProposals()
         {
-            proposalHandler = projectOrigin.gameObject.AddComponent<ProposalHandler>(); // Doesn't have to be a MonoBehaviour but keeping it as such in case we need to check debug vars
+            proposalHandler = projectContainer.gameObject.AddComponent<ProposalHandler>(); // Doesn't have to be a MonoBehaviour but keeping it as such in case we need to check debug vars
             proposalHandler.Init(this);
             proposalHandler.LoadLocalProsals();
         }

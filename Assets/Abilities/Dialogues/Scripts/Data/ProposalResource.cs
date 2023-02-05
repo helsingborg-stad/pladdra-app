@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Pladdra.DialogueAbility.Data
+namespace Pladdra.ARSandbox.Dialogues.Data
 {
     [System.Serializable]
     public class ProposalResource

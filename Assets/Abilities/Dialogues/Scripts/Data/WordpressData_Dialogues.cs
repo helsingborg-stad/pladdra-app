@@ -5,7 +5,7 @@ using UnityEngine;
 using Pladdra.Data;
 using UntoldGarden.Utils;
 
-namespace Pladdra.DialogueAbility.Data
+namespace Pladdra.ARSandbox.Dialogues.Data
 {
 
     /// <summary>

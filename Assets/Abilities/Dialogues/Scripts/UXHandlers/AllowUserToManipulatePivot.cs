@@ -1,16 +1,17 @@
+
 using Pladdra.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToManipulatePivot : UXHandler
+    public class AllowUserToManipulatePivot: DialoguesUXHandler
     {
         PivotController controller;
         bool skipFirstEndTouch = true;
         LayerMask oldLayerMask;
 
-        public AllowUserToManipulatePivot(UXManager uxManager, PivotController controller, bool skipFirstEndTouch = true)
+        public AllowUserToManipulatePivot(DialoguesUXManager uxManager, PivotController controller, bool skipFirstEndTouch = true)
         {
             this.uxManager = uxManager;
             this.controller = controller;
@@ -51,7 +52,7 @@ namespace Pladdra.DialogueAbility.UX
             uxManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
 
             controller.Deselect();
-            UXHandler ux = new AllowUserToManipulateWorkspace(uxManager);
+            IUXHandler ux = new AllowUserToManipulateWorkspace(uxManager);
             uxManager.UseUxHandler(ux);
         }
 

@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.UX;
+using Pladdra.ARSandbox.Dialogues.UX;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Pladdra.DialogueAbility;
+using Pladdra.ARSandbox.Dialogues;
+
+using Pladdra.ARSandbox;
 using Pladdra.UX;
 
 namespace Pladdra.UI
@@ -20,7 +22,7 @@ namespace Pladdra.UI
         protected UIDocument uiDocument { get { return GetComponent<UIDocument>(); } }
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         protected AppManager appManager { get { return transform.parent.gameObject.GetComponentInChildren<AppManager>(); } }
-        protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
+        protected IUXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<IUXManager>(); } }
         #endregion Scene References
 
 

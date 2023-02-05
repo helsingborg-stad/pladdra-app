@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
         [DisallowMultipleComponent]
     public class SceneObjectController : MonoBehaviour
@@ -29,7 +29,7 @@ namespace Pladdra.DialogueAbility
         }
         public virtual void Select()
         {
-            Debug.Log("Selected " + gameObject.name);
+
         }
 
         /// <summary>

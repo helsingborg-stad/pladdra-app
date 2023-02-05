@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pladdra.ARDebug;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
@@ -24,6 +25,7 @@ namespace UntoldGarden.AR
         float y = 0;
         Vector3 bottom;
         List<GameObject> planes = new List<GameObject>();
+        bool firstPlane = true;
 
         #endregion Private
 
@@ -35,6 +37,8 @@ namespace UntoldGarden.AR
                 planeManager.planePrefab = arPlanePrefab;
                 Initialize(arPlaneManager, disableMeshRenderInBuild, update);
             }
+
+            FindObjectOfType<PlaneVisualiser>().AddARObject(gameObject);
         }
 
         public void Initialize(ARPlaneManager planeManager, bool disableMeshRendererInBuild, bool update)

@@ -11,11 +11,14 @@ namespace Pladdra
     {
         public AbilityManager abilityManager;
 
-        [TextArea(10,10)][SerializeField] string deeplink;
+        [TextArea(10, 10)][SerializeField] string deeplink;
         void Start()
         {
+#if UNITY_EDITOR
             if (!string.IsNullOrEmpty(deeplink))
                 abilityManager.OpenDeepLink(deeplink);
+#endif
+
         }
     }
 }

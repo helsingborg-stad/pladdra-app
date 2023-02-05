@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Pladdra.ARSandbox.Dialogues.UX;
 using Pladdra.UI;
-using Pladdra.UX;
 using UnityEngine;
 
 public class TestAnchor : MonoBehaviour
 {
-    public UXManager uxManager;
+    public DialoguesUXManager uxManager;
     public MenuManager menuManager;
     public GameObject anchor;
 

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pladdra.QuizAbility.Data
+namespace Pladdra.ARSandbox.Quizzes.Data
 {
     [System.Serializable]
     public class QuizCollection

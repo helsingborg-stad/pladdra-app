@@ -1,13 +1,14 @@
+
 using Pladdra.UX;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToManipulateSelectedModel : UXHandler
+    public class AllowUserToManipulateSelectedModel: DialoguesUXHandler
     {
         InteractiveObjectController controller;
         bool skipFirstEndTouch = true;
-        public AllowUserToManipulateSelectedModel(UXManager uxManager, InteractiveObjectController controller, bool skipFirstEndTouch = true)
+        public AllowUserToManipulateSelectedModel(DialoguesUXManager uxManager, InteractiveObjectController controller, bool skipFirstEndTouch = true)
         {
             this.uxManager = uxManager;
             this.controller = controller;
@@ -75,9 +76,6 @@ namespace Pladdra.DialogueAbility.UX
 
             // Remove currently selected object's layer from the layermask so we don't place it on itself
             uxManager.RaycastManager.SetLayerMask("allowUserToManipulateSelectedModel");
-            // uxManager.RaycastManager.LayerMask &= ~(1 << controller.gameObject.layer);
-            // uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("Default")); // TODO Quick fix so things don't appear high atop each other, change to have two meshcolliders
-            // uxManager.RaycastManager.LayerMask &= ~(1 << LayerMask.NameToLayer("Object")); // TODO Quick fix so things don't appear high atop each other, change to have two meshcolliders
 
             uxManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.AddListener(Deselect);
@@ -99,16 +97,14 @@ namespace Pladdra.DialogueAbility.UX
             uxManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
 
             controller.Deselect();
-            UXHandler ux = new AllowUserToViewWorkspace(uxManager);
+            IUXHandler ux = new AllowUserToViewWorkspace(uxManager);
             uxManager.UseUxHandler(ux);
         }
         public override void Deactivate()
         {
             // Return the layer so we can reselect it
             uxManager.RaycastManager.SetDefaultLayerMask();
-            // uxManager.RaycastManager.LayerMask |= (1 << controller.gameObject.layer);
-            // uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("Default"));
-            // uxManager.RaycastManager.LayerMask |= (1 << LayerMask.NameToLayer("Object"));
+            
             uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
         }
     }

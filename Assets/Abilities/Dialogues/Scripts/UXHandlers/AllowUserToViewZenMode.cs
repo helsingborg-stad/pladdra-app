@@ -1,12 +1,12 @@
-using Pladdra.UX;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Pladdra.DialogueAbility.UX
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewZenMode : UXHandler
+    public class AllowUserToViewZenMode: DialoguesUXHandler
     {
-        public AllowUserToViewZenMode(UXManager uxManager)
+        public AllowUserToViewZenMode(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
         }

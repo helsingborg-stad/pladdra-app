@@ -3,16 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Pladdra.Data;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
 using Siccity.GLTFUtility;
 using UnityEngine.Networking;
 using System.Linq;
 using UntoldGarden.Utils;
 
-namespace Pladdra
+namespace Pladdra.ARSandbox
 {
-    //TODO Clean up
+    //TODO Comment
     //TODO Account for duplicate models
     enum Result { Success, Failure, PartialSuccess }
     public class WebRequestHandler : MonoBehaviour
@@ -113,6 +113,12 @@ namespace Pladdra
         }
 
         // TODO Add timer
+        /// <summary>
+        /// Downloads a file from the specified URL and returns the UnityWebRequest object through a callback.
+        /// </summary>
+        /// <param name="url">The URL of the file to be downloaded.</param>
+        /// <param name="callback">The callback to be executed once the file has been downloaded, taking in the UnityWebRequest object as a parameter.</param>
+        /// <returns>An enumerator for the coroutine that downloads the file.</returns>
         protected IEnumerator DownloadFile(string url, Action<UnityWebRequest> callback)
         {
             using (UnityWebRequest req = UnityWebRequest.Get(url))
@@ -124,6 +130,12 @@ namespace Pladdra
             }
         }
 
+        /// <summary>
+        /// Loads an image from the specified URL using UnityWebRequest and returns the result and texture through a callback.
+        /// </summary>
+        /// <param name="url">The URL of the image to load.</param>
+        /// <param name="callback">The callback to be called when the image has been loaded or an error occurs.</param>
+        /// <returns>An enumerator for the coroutine that loads the image.</returns>
         internal IEnumerator LoadImage(string url, Action<Result, string, Texture2D> callback)
         {
             string error = "";
@@ -157,6 +169,23 @@ namespace Pladdra
         #endregion Load files
 
         #region Load projects
+
+        internal IEnumerator LoadProjectCollection(string collectionUrl, Action<Result, string, ProjectCollection> callback)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(collectionUrl);
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                callback(Result.Failure, request.error, null);
+            }
+            else
+            {
+                WordpressData_ProjectCollection wordpressData = JsonUtility.FromJson<WordpressData_ProjectCollection>(request.downloadHandler.text);
+                callback(Result.Success, request.error, wordpressData.MakeProjectCollection());
+            }
+            request.Dispose();
+        }
+
         internal IEnumerator LoadProjectCollections(string collectionsUrl, Action<Result, string, List<ProjectCollection>> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(collectionsUrl);
@@ -179,31 +208,7 @@ namespace Pladdra
             request.Dispose();
         }
 
-        internal IEnumerator LoadProjectsFromIDs(string[] listUrls, string projectBaseUrl, Action<Result, string, List<ProjectReference>> callback)
-        {
-            List<ProjectReference> projects = new List<ProjectReference>();
-            string error = "";
-            foreach (string url in listUrls)
-            {
-                UnityWebRequest request = UnityWebRequest.Get(url);
-                yield return request.SendWebRequest();
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    callback(Result.Failure, request.error, null);
-                    error += ", " + request.error;
-                }
-                else
-                {
-                    Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
-                    WordpressData_ProjectReference wordpressData = JsonUtility.FromJson<WordpressData_ProjectReference>(request.downloadHandler.text);
-                    projects.Add(wordpressData.MakeProjectReference(projectBaseUrl));
-                }
-                request.Dispose();
-            }
-            callback(Result.Success, error, projects);
-        }
-
-        internal IEnumerator LoadProjectFromID(string id, string projectBaseUrl, Action<Result, string, ProjectReference> callback)
+        internal IEnumerator LoadProjectReferenceFromID(string id, string projectBaseUrl, Action<Result, string, ProjectReference> callback)
         {
             UnityWebRequest request = UnityWebRequest.Get(string.Format(projectBaseUrl, id));
             yield return request.SendWebRequest();
@@ -220,7 +225,41 @@ namespace Pladdra
             request.Dispose();
         }
 
-        internal IEnumerator LoadProjectsFromURL(string url, string projectBaseUrl, Action<Result, string, List<ProjectReference>> callback)
+        internal IEnumerator LoadProjectReferencesFromIDs(string[] listUrls, string projectBaseUrl, Action<Result, string, List<ProjectReference>> callback)
+        {
+            List<ProjectReference> projects = new List<ProjectReference>();
+            string error = "";
+            foreach (string url in listUrls)
+            {
+                UnityWebRequest request = UnityWebRequest.Get(url);
+                yield return request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    error += ", " + url + " error: " + request.error;
+                }
+                else
+                {
+                    Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
+                    WordpressData_ProjectReference wordpressData = JsonUtility.FromJson<WordpressData_ProjectReference>(request.downloadHandler.text);
+                    projects.Add(wordpressData.MakeProjectReference(projectBaseUrl));
+                }
+                request.Dispose();
+            }
+            if (projects.Count == 0)
+            {
+                callback(Result.Failure, error, null);
+            }
+            else if (projects.Count == listUrls.Length)
+            {
+                callback(Result.Success, error, projects);
+            }
+            else
+            {
+                callback(Result.PartialSuccess, error, projects);
+            }
+        }
+
+        internal IEnumerator LoadProjectReferencesFromURL(string url, string projectBaseUrl, Action<Result, string, List<ProjectReference>> callback)
         {
 
             UnityWebRequest request = UnityWebRequest.Get(url);
@@ -235,10 +274,26 @@ namespace Pladdra
                 string json = request.downloadHandler.text;
                 json = json.Insert(0, "{\"projects\":");
                 json = json.Insert(json.Length, "}");
-                Debug.Log($"Downloaded project JSON: {json}");
+                // Debug.Log($"Downloaded project JSON: {json}");
 
                 ProjectList wordpressData = JsonUtility.FromJson<ProjectList>(json);
                 callback(Result.Success, request.error, wordpressData.MakeProjectList(projectBaseUrl));
+            }
+            request.Dispose();
+        }
+
+        internal IEnumerator LoadProjectReferenceFromURL(string url, string projectBaseUrl, Action<Result, string, ProjectReference> callback)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(url);
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                callback(Result.Failure, request.error, null);
+            }
+            else
+            {
+                WordpressData_ProjectReference wordpressData = JsonUtility.FromJson<WordpressData_ProjectReference>(request.downloadHandler.text);
+                callback(Result.Success, request.error, wordpressData.MakeProjectReference(projectBaseUrl));
             }
             request.Dispose();
         }
@@ -248,7 +303,7 @@ namespace Pladdra
         /// Creates a local file path for a file at a given url.
         /// </summary>
         /// <param name="url">The url to create a path from.</param>
-        /// <returns></returns>
+        /// <returns>The path to the file.</returns>
         protected string GetFilePath(string url)
         {
             string[] pieces = url.Split('/');

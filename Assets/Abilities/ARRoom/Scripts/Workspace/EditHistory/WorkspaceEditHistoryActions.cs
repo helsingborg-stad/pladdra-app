@@ -1,6 +1,6 @@
 using System;
 using Data.Dialogs;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 
 namespace Pladdra.Workspace.EditHistory
 {

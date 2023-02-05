@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using UnityEngine.Android;
 #endif
 
-namespace Pladdra
+namespace Pladdra.ARSandbox
 {
 
     public class GeospatialManager : MonoBehaviour
@@ -43,6 +43,9 @@ namespace Pladdra
 
 
         bool geospatialSupported = false;
+        [Header("Debug")]
+        [GrayOut] public bool geospatialEnabled = false;
+        public bool GeospatialEnabled { get { return geospatialEnabled; } set { geospatialEnabled = value; } }
 
 
         private const string _localizingMessage = "Localizing your device to set anchor.";
@@ -156,6 +159,9 @@ namespace Pladdra
         void Update()
         {
 #if UNITY_IOS || UNITY_ANDROID
+
+            if (!geospatialEnabled)
+                return;
 
             UpdateDebugInfo();
 
@@ -567,42 +573,50 @@ namespace Pladdra
         // Place anchor at lat long with camera altitude
         public async void PlaceGeoAnchorAtLocation(string id, double latitude, double longitude, Quaternion rotation, Action<bool, string, GameObject> callback)
         {
-            Debug.Log("Placing anchor at location");
+            try
+            {
+                Debug.Log("Placing anchor at location");
 #if UNITY_EDITOR
-            callback?.Invoke(false, "Not mobile player.", null);
-            return;
-#endif
-            bool debugLocalisation = true;
-            while (!isLocalized)
-            {
-                if (debugLocalisation) Debug.Log("Waiting for localization");
-                debugLocalisation = false;
-                await Task.Yield();
-            }
-
-            Debug.Log("Is localized");
-            var anchor = AnchorManager.AddAnchor(latitude, longitude, EarthManager.CameraGeospatialPose.Altitude, rotation);
-            if (anchor == null)
-            {
-                Debug.LogError("Failed to add anchor.");
-                callback?.Invoke(false, "Failed to add anchor.", null);
+                callback?.Invoke(false, "Not mobile player.", null);
                 return;
+#endif
+                bool debugLocalisation = true;
+                while (!isLocalized)
+                {
+                    if (debugLocalisation) Debug.Log("Waiting for localization");
+                    debugLocalisation = false;
+                    await Task.Yield();
+                }
+
+                Debug.Log("Is localized");
+                var anchor = AnchorManager.AddAnchor(latitude, longitude, EarthManager.CameraGeospatialPose.Altitude, rotation);
+                if (anchor == null)
+                {
+                    Debug.LogError("Failed to add anchor.");
+                    callback?.Invoke(false, "Failed to add anchor.", null);
+                    return;
+                }
+
+                if (anchorContainer != null)
+                    anchor.transform.parent = anchorContainer;
+
+                if (anchorPrefab != null)
+                {
+                    var anchorObject = Instantiate(anchorPrefab, anchor.transform);
+                    anchorObject.transform.localPosition = Vector3.zero;
+                    anchorObject.transform.localRotation = Quaternion.identity;
+                }
+
+                anchors.Add(id, anchor.gameObject);
+                float acc = Mathf.CeilToInt((float)EarthManager.CameraGeospatialPose.HorizontalAccuracy * 100) / 100;
+                callback?.Invoke(true, "Anchor successfuly added at lat " + latitude + " lng " + longitude + ". Horizontal localization accuracy: " + acc + "m", anchor.gameObject);
             }
-
-            if (anchorContainer != null)
-                anchor.transform.parent = anchorContainer;
-
-            if (anchorPrefab != null)
+            catch (Exception e)
             {
-                var anchorObject = Instantiate(anchorPrefab, anchor.transform);
-                anchorObject.transform.localPosition = Vector3.zero;
-                anchorObject.transform.localRotation = Quaternion.identity;
+                Debug.LogError("Geospatial error: " + e);
             }
-
-            anchors.Add(id, anchor.gameObject);
-            float acc = Mathf.CeilToInt((float)EarthManager.CameraGeospatialPose.HorizontalAccuracy * 100) / 100;
-            callback?.Invoke(true, "Anchor successfuly added at lat " + latitude + " lng " + longitude + ". Horizontal localization accuracy: " + acc + "m", anchor.gameObject);
         }
+
         public GameObject GetGeoAnchor(string id)
         {
             if (anchors.ContainsKey(id))

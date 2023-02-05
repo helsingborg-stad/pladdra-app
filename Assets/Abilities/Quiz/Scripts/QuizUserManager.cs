@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Pladdra.QuizAbility.Data;
+using Pladdra.ARSandbox.Quizzes.Data;
 using System.Linq;
 using Pladdra.UI;
 using UnityEngine.UIElements;
 
-namespace Pladdra.QuizAbility
+namespace Pladdra.ARSandbox.Quizzes
 {
     public class QuizUserManager : MonoBehaviour
     {

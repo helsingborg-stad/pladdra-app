@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Pladdra.DialogueAbility.Data;
-using Pladdra.UX;
-using System.Linq;
+using Pladdra.ARSandbox.Dialogues.Data;
 
-namespace Pladdra.DialogueAbility.UX
+using System.Linq;
+using Pladdra.UX;
+
+namespace Pladdra.ARSandbox.Dialogues.UX
 {
-    public class AllowUserToViewResourceLibrary : UXHandler
+    public class AllowUserToViewResourceLibrary: DialoguesUXHandler
     {
-        public AllowUserToViewResourceLibrary(UXManager uxManager)
+        public AllowUserToViewResourceLibrary(DialoguesUXManager uxManager)
         {
             this.uxManager = uxManager;
             this.project = uxManager.Project;
@@ -32,7 +33,7 @@ namespace Pladdra.DialogueAbility.UX
             {
                 actions.Add(resource, () =>
                 {
-                    UXHandler ux = new AllowUserToInspectModel(uxManager, resource);
+                    IUXHandler ux = new AllowUserToInspectModel(uxManager, resource);
                     uxManager.UseUxHandler(ux);
                 });
             }
@@ -50,7 +51,6 @@ namespace Pladdra.DialogueAbility.UX
                     button.Q<Button>("button").clicked += () => { actions[resource](); };
                     resourceList.RegisterCallback<GeometryChangedEvent>(e =>
                     {
-                        // Debug.Log($"Device orientation: {Input.deviceOrientation}");
                         if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft || Input.deviceOrientation == DeviceOrientation.LandscapeRight)
                         {
                             button.style.width = (resourceList.resolvedStyle.width - (resourceList.resolvedStyle.paddingLeft + resourceList.resolvedStyle.paddingRight)) / 5.1f;
@@ -70,7 +70,7 @@ namespace Pladdra.DialogueAbility.UX
 
         public override void Deactivate()
         {
-            // TODO
+            
         }
     }
 }

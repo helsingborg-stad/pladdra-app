@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Pladdra.Data;
-using Pladdra.DialogueAbility.Data;
+using Pladdra.ARSandbox.Dialogues.Data;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
-    public class AppManager_Dialogues : Pladdra.AppManager
+    public class DialoguesAppManager : AppManager
     {
         #region Private
         protected ProjectManager projectManager { get { return transform.parent.gameObject.GetComponentInChildren<ProjectManager>(); } }
@@ -48,6 +48,7 @@ namespace Pladdra.DialogueAbility
 
         protected override bool IsProjectActive(ProjectReference project)
         {
+            
             return projectManager.Project != null && project.id == projectManager.Project.id;
         }
     }

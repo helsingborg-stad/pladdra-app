@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pladdra.UI;
 using Pladdra.Data;
-using Pladdra.DialogueAbility.Data;
-using Pladdra.DialogueAbility.UX;
+using Pladdra.ARSandbox.Dialogues.Data;
+using Pladdra.ARSandbox.Dialogues.UX;
 using UnityEngine.Events;
 using Pladdra.UX;
 
-namespace Pladdra.DialogueAbility
+namespace Pladdra.ARSandbox.Dialogues
 {
     /// <summary>
     /// Manages project data: loading, unloading, and switching projects.
@@ -26,7 +26,7 @@ namespace Pladdra.DialogueAbility
         protected UIManager uiManager { get { return transform.parent.gameObject.GetComponentInChildren<UIManager>(); } }
         protected WebRequestHandler webRequestHandler { get { return transform.parent.gameObject.GetComponentInChildren<WebRequestHandler>(); } }
         public WebRequestHandler WebRequestHandler { get { return webRequestHandler; } }
-        protected UXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<UXManager>(); } }
+        protected DialoguesUXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<DialoguesUXManager>(); } }
         protected ViewingModeManager viewingModeManager { get { return transform.parent.gameObject.GetComponentInChildren<ViewingModeManager>(); } }
         protected RaycastManager raycastManager { get { return transform.parent.gameObject.GetComponentInChildren<RaycastManager>(); } }
         protected Transform origin;
@@ -39,13 +39,14 @@ namespace Pladdra.DialogueAbility
         public UnityEvent OnOpenProject = new UnityEvent();
         #endregion Private
 
+        int t = 0;
         /// <summary>
         /// Downloads the JSON with project data from wordpress.
         /// </summary>
         /// <param name="projectReference">The project link containing name and url</param>
         public void LoadProjectJSON(ProjectReference projectReference)
         {
-            Debug.Log($"ProjectManager: Loading project JSON {projectReference.name} from {projectReference.url}");
+            Debug.Log($"ProjectManager: Loading project JSON {projectReference.name} from {projectReference.url} t = {t++}");
 
             uiManager.ShowLoading("Laddar projekt " + projectReference.name + "\n Titta dig omkring för att stabilisera AR!");
 
@@ -65,7 +66,7 @@ namespace Pladdra.DialogueAbility
                         uiManager.ShowError("DownloadFailure", new string[] { projectReference.name, errors });
                         return;
                     case Result.Success:
-                        Debug.Log($"ProjectManager: Project {projectReference.name} JSON loaded successfully.");
+                        Debug.Log($"ProjectManager: Project JSON for {projectReference.name} loaded successfully.");
                         // Debug.Log($"Downloaded project JSON: {request.downloadHandler.text}");
                         // WordpressData_Dialogues wordpressData = JsonUtility.FromJson<WordpressData_Dialogues>(json);
                         LoadProject(JsonUtility.FromJson<WordpressData_Dialogues>(json).MakeProject());
@@ -113,7 +114,7 @@ namespace Pladdra.DialogueAbility
                         uiManager.ShowError("DownloadPartialSuccess", new string[] { project.name, errors });
                         break;
                     case Result.Success:
-                        Debug.Log($"ProjectManager: Project {project.name} loaded successfully.");
+                        Debug.Log($"ProjectManager: Project data for {project.name} loaded successfully.");
                         break;
                 }
                 foreach (var file in files)
@@ -151,7 +152,7 @@ namespace Pladdra.DialogueAbility
             this.currentProject = projects[projectName];
             uxManager.Project = currentProject;
 
-            UXHandler ux = new AllowUserToViewProject(uxManager);
+            IUXHandler ux = new AllowUserToViewProject(uxManager);
             uxManager.UseUxHandler(ux);
         }
 
