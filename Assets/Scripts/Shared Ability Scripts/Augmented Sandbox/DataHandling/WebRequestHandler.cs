@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Pladdra.Data;
-using Pladdra.ARSandbox.Dialogues.Data;
 using UnityEngine;
-using Siccity.GLTFUtility;
 using UnityEngine.Networking;
 using System.Linq;
 using UntoldGarden.Utils;
@@ -125,6 +123,15 @@ namespace Pladdra.ARSandbox
             {
                 req.timeout = maxDownloadTimePerCoroutine; // TODO Fix
                 req.downloadHandler = new DownloadHandlerFile(GetFilePath(url));
+                yield return req.SendWebRequest();
+                callback(req);
+            }
+        }
+
+        protected IEnumerator DownloadTexture2D(string url, Action<UnityWebRequest> callback)
+        {
+            using (UnityWebRequest req = UnityWebRequestTexture.GetTexture(url))
+            {
                 yield return req.SendWebRequest();
                 callback(req);
             }

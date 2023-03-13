@@ -18,6 +18,7 @@ namespace Pladdra.ARSandbox.Dialogues
         public DialogueResource resource;
         protected string id;
         public string Id { get => id; }
+        bool isSelected = false;
 
         public virtual void Init(Project project, DialogueResource resource)
         {
@@ -60,11 +61,13 @@ namespace Pladdra.ARSandbox.Dialogues
             boxCollider.size = bounds.size;
             boxCollider.center = bounds.center;
 
-            gameObject.SetAllChildLayers("Object");
+            if (!isSelected)
+                gameObject.SetAllChildLayers("Object");
         }
 
         public override void Select()
         {
+            isSelected = true;
             Debug.Log("Selecting " + gameObject.name);
             base.Select();
             gameObject.SetAllChildLayers("Selected");
@@ -72,6 +75,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
         public override void Deselect()
         {
+            isSelected = false;
             Debug.Log("Deselecting " + gameObject.name);
             base.Deselect();
             gameObject.SetAllChildLayers("Object");

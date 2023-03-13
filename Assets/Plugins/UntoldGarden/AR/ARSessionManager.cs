@@ -59,11 +59,6 @@ namespace UntoldGarden.AR
             user = transform.GetChild(0);
             anchorManager = GetComponent<ARAnchorManager>();
 
-            if (anchorManager)
-            {
-                anchorManager.anchorsChanged += AddAnchor;
-            }
-
             if (defaultPlanePrefab)
             {
                 defaultPlane = Instantiate(defaultPlanePrefab, new Vector3(0, -1, 0), Quaternion.identity);
@@ -76,12 +71,6 @@ namespace UntoldGarden.AR
         {
             Start();
         }
-
-        void OnDisable()
-        {
-            if (anchorManager) anchorManager.anchorsChanged -= AddAnchor;
-        }
-
         private void Update()
         {
             if (checkTrackingState && isTracking) CheckTrackingState();
@@ -95,7 +84,6 @@ namespace UntoldGarden.AR
 
         IEnumerator CrWaitForARSessionInit()
         {
-            //UntoldGarden.AR.Logger.Log("SessionManager waiting for tracking");
 #if UNITY_EDITOR
             yield return new WaitForSeconds(.5f);
 #else
@@ -104,7 +92,7 @@ namespace UntoldGarden.AR
 
             string trackingState = session.subsystem.trackingState.ToString();
             string sessionID = session.subsystem.sessionId.ToString();
-            UntoldGarden.AR.Logger.Log("SessionManager is tracking!");
+            Debug.Log("SessionManager is tracking!");
 #endif
             OnSessionInitalisedAndTracking.Invoke(user);
             isTracking = true;
@@ -159,33 +147,6 @@ namespace UntoldGarden.AR
         }
         #endregion
 
-        #region Anchor
-
-        // TODO Fix! Listens to ARAnchorManager.OnUpdateAnchor
-        public void AddAnchor(ARAnchorsChangedEventArgs eventArgs)
-        {
-            if (eventArgs.added != null && eventArgs.added.Count > 0)
-            {
-                if (!hasAnchor) hasAnchor = true;
-
-                foreach (ARAnchor anchor in eventArgs.added)
-                {
-                    anchors.Add(anchor);
-                    if (anchor.sessionId != session.subsystem.sessionId)
-                    {
-                        UntoldGarden.AR.Logger.Log("Anchor was remoter! Anchor sessionID: " + anchor.sessionId);
-                    }
-                    else
-                    {
-                        UntoldGarden.AR.Logger.Log("Anchor was local. Anchor sessionID: " + anchor.sessionId);
-                    }
-                    anchor.gameObject.GetComponent<MeshRenderer>().enabled = false;
-                }
-                UntoldGarden.AR.Logger.Log($"We have {anchors.Count} anchors");
-            }
-        }
-        #endregion
-
         #region Public functions
 
         public bool IsTracking()
@@ -231,13 +192,20 @@ hasPlane  = planeManager != null && planeManager.trackables != null && planeMana
 
         public void ResetARSession()
         {
-            UntoldGarden.AR.Logger.Log("Reset AR session");
             session.Reset();
         }
 
-        public float GetDefaultPlaneY()
+        public float? GetDefaultPlaneY()
         {
-            return defaultPlane.transform.position.y;
+            if(defaultPlane == null)
+            {
+                Debug.LogError("No default plane!");
+                return null;
+            }
+            else
+            {
+                return defaultPlane.transform.position.y;
+            }
         }
 
         #endregion

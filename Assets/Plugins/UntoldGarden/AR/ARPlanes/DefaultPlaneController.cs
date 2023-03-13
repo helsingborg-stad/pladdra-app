@@ -98,7 +98,7 @@ namespace UntoldGarden.AR
             if (bottom.y < (y - .01f))
             {
                 gameObject.transform.position = new Vector3(gameObject.transform.position.x, bottom.y, gameObject.transform.position.z);
-                if (debugLog) UntoldGarden.AR.Logger.Log($"{bottom.y} is less than {y}, move Default Plane to {gameObject.transform.position}");
+                if (debugLog) Debug.Log($"{bottom.y} is less than {y}, move Default Plane to {gameObject.transform.position}");
                 y = bottom.y; // To still move default plane up in case it would be instantiated below the lowest ARPlane point before any ARPlane was added
             }
         }

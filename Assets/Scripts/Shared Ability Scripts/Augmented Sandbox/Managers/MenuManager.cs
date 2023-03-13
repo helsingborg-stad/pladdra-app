@@ -66,7 +66,7 @@ namespace Pladdra.UI
                     ToggleMenu(true);
                 }
             });
-            
+
             uiDocument.rootVisualElement.Q<Button>("menu-button").clicked += () =>
             {
                 ToggleMenu(true);
@@ -113,12 +113,13 @@ namespace Pladdra.UI
 
             if (menu.visible == true)
             {
-                uxManager.SetUXToNull();
+                if (uxManager != null)
+                    uxManager.SetUXToNull();
 
                 NonMenuBlockingUIElements = uiManager.blockingUIElements;
                 uiDocument.rootVisualElement.Query<VisualElement>().ForEach(element =>
                 {
-                    if (element.ClassListContains("blockRaycast"))
+                    if (element.ClassListContains("blockRaycast") && uiManager != null)
                     {
                         uiManager.blockingUIElements.Add(element);
                     }
@@ -126,13 +127,15 @@ namespace Pladdra.UI
             }
             else
             {
-                if (showLastUX) uxManager.UseLastUX();
+                if (showLastUX && uxManager != null) uxManager.UseLastUX();
                 uiManager.blockingUIElements = NonMenuBlockingUIElements;
             }
-
-            uiManager.RegisterMouseDownCallback();
-            uiManager.RegisterMouseUpCallback();
-            uiManager.RegisterMouseLeaveCallback();
+            if (uiManager != null)
+            {
+                uiManager.RegisterMouseDownCallback();
+                uiManager.RegisterMouseUpCallback();
+                uiManager.RegisterMouseLeaveCallback();
+            }
         }
 
         /// <summary>

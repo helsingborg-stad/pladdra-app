@@ -111,10 +111,18 @@ namespace Pladdra.ARDebug
             {
                 foreach (GameObject go in arObjects)
                 {
-                    List<Material> mats = go.GetComponent<MeshRenderer>().sharedMaterials.ToList();
-                    if (randomizeColor) debugMat.color = colors[Random.Range(0, colors.Length)];
-                    mats.Add(debugMat);
-                    go.GetComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
+                    try
+                    {
+                        if(go.GetComponent<MeshRenderer>() == null) continue;
+                        List<Material> mats = go.GetComponent<MeshRenderer>().sharedMaterials.ToList();
+                        if (randomizeColor) debugMat.color = colors[Random.Range(0, colors.Length)];
+                        mats.Add(debugMat);
+                        go.GetComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.Log("Show AR Debug error: " + e);
+                    }
                 }
                 shown = true;
             }
@@ -122,9 +130,17 @@ namespace Pladdra.ARDebug
             {
                 foreach (GameObject go in arObjects)
                 {
-                    List<Material> mats = go.GetComponent<MeshRenderer>().sharedMaterials.ToList();
-                    mats.Remove(debugMat);
-                    go.GetComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
+                    try
+                    {
+                        if(go.GetComponent<MeshRenderer>() == null) continue;
+                        List<Material> mats = go.GetComponent<MeshRenderer>().sharedMaterials.ToList();
+                        mats.Remove(debugMat);
+                        go.GetComponent<MeshRenderer>().sharedMaterials = mats.ToArray();
+                    }
+                    catch (System.Exception e)
+                    {
+                        Debug.Log("Hide AR Debug error: " + e);
+                    }
                 }
                 shown = false;
             }

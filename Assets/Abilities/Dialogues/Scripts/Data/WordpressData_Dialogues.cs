@@ -97,8 +97,10 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                         scale = scale,
                         position = new Vector3(posx, posy, posz),
                         rotation = new Vector3(rotx, roty, rotz),
-                        marker = (item.marker.image, width),
+                        marker = (item.marker.image, null, width),
                     });
+
+                    Debug.Log($"Added marker {item.marker.image} for item {item.name}");
                 }
             }
 

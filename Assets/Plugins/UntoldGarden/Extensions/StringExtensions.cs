@@ -9,7 +9,7 @@ namespace UntoldGarden.Utils
     {
         public static bool IsNullOrEmptyOrFalse(this string s)
         {
-            if (string.IsNullOrEmpty(s) || s == "false")
+            if (string.IsNullOrEmpty(s) || s == "false" || s == "False" || s == "FALSE" || s == "0" || s == "0.0" || s == "0.00" || s == "failed" || s == "Failed" || s == "FAILED" || s == "failed/" || s == "error")
             {
                 return true;
             }

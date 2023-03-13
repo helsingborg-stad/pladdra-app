@@ -123,6 +123,66 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &157510740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 157510742}
+  - component: {fileID: 157510741}
+  m_Layer: 0
+  m_Name: GameObject (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &157510741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157510740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d407f41acbdce50458909aad06df0b4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Textbox: JAMES WEBB
+  font3D: {fileID: 11400000, guid: acada8d438845424e8397d18a748cb4a, type: 2}
+  material: {fileID: 2100000, guid: 72c44f820e292664ead684b85643fada, type: 2}
+  empty: {fileID: 0}
+  fontwidth: 0
+  spaceWidth: 1
+  _thickness: 2
+  _scale: 30
+  _width: 0.5
+  _rotation: 0
+  _shear: 1
+  charcterCount: 0
+  AlignLeft: 0
+  AlignCenter: 0
+  AlignRight: 0
+  alignment: 0
+--- !u!4 &157510742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 157510740}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.2139642, y: 0.95521367, z: -6.211074}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &184528267
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,7 +236,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &336898121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,6 +265,7 @@ MonoBehaviour:
   debugMat: {fileID: 2100000, guid: 738f118aa214360489366338953cfd32, type: 2}
   arPlaneManager: {fileID: 0}
   menuManager: {fileID: 1817261652}
+  randomizeColor: 1
 --- !u!4 &336898123
 Transform:
   m_ObjectHideFlags: 0
@@ -433,7 +494,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &722303350
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -791,7 +852,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1100722258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1343,7 +1404,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1817261652
 MonoBehaviour:
   m_ObjectHideFlags: 0

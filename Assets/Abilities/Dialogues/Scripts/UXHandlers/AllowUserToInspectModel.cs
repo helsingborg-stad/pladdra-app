@@ -72,7 +72,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                 root.Q<Button>("place").clicked += () =>
                 {
                     uxManager.Project.Show();
-                    Vector3 position = uxManager.User.RelativeToObjectOnGround(new Vector3(0, 2f, 2f), VectorExtensions.RelativeToObjectOptions.OnGroundLayers, uxManager.RaycastManager.GetLayerMask("placeableLayers"));
+                    Vector3 position = uxManager.User.RelativeToObjectOnGround(new Vector3(0, 2f, 2f), VectorExtensions.RelativeToObjectOptions.OnGroundLayers, uxManager.RaycastManager.GetLayerMask("placeableLayers"), uxManager.Project.StaticResourcesMeshCollider);
                     Debug.Log("Placing model at " + position);
 
                     uxManager.Project.ProposalHandler.AddObject(resource, position, out PlacedObjectController controller);

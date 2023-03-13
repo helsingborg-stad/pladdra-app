@@ -37,6 +37,8 @@ namespace Pladdra.Data
 
             foreach (WordpressData_ProjectCollection dialogueCollection in collections)
             {
+                if(dialogueCollection.acf.visible == "false")
+                    continue;
                 List<int> projectIds = new List<int>();
                 foreach (DialogueCollection_Projects project in dialogueCollection.acf.projects)
                 {
@@ -85,6 +87,7 @@ namespace Pladdra.Data
         public string description;
         public string image;
         public DialogueCollection_Projects[] projects;
+        public string visible;
     }
 
     [System.Serializable]

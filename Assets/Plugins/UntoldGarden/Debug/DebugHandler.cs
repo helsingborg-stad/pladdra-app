@@ -1,12 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
-using Pladdra.UI;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
-using UntoldGarden;
 
-namespace Pladdra
+namespace UntoldGarden
 {
     [RequireComponent(typeof(UIDocument))]
     public class DebugHandler : MonoBehaviour
@@ -19,53 +16,54 @@ namespace Pladdra
         }
 
         #region Public
-        [SerializeField] int maxLogLength = 100;
-        [SerializeField] int maxLogDisplayLength = 400;
-        [SerializeField] MenuManager menuManager;
-        [SerializeField] UIManager uiManager;
+        [SerializeField] protected bool logCrashes = true;
+        [SerializeField] protected bool sendLogOnError = false;
+        [SerializeField] protected int maxLogLength = 100;
+        [SerializeField] protected int maxLogDisplayLength = 400;
         public UnityEvent<string, string> onSendLog = new UnityEvent<string, string>();
+        public UnityEvent<string, string> onSendHtmlLog = new UnityEvent<string, string>();
+
         #endregion Public
 
         #region Scene References
-        UIDocument uiDocument { get { return GetComponent<UIDocument>(); } }
+        protected UIDocument uiDocument { get { return GetComponent<UIDocument>(); } }
         #endregion Scene References
 
         #region Private
-        bool menuItemAdded = false;
-        static string myLog = "";
-        private string output;
-        private string stack;
-        bool storeLog = false;
-        List<LogEntry> logEntries = new List<LogEntry>();
+        protected bool menuItemAdded = false;
+        protected static string myLog = "";
+        protected private string output;
+        protected private string stack;
+        protected bool storeLog = false;
+        protected List<LogEntry> logEntries = new List<LogEntry>();
         #endregion Private
 
-        void OnEnable()
+        protected void OnEnable()
         {
             Application.logMessageReceived += Log;
         }
 
-        void OnDisable()
+        protected void OnDisable()
         {
             Application.logMessageReceived -= Log;
             if (PlayerPrefs.HasKey("log"))
                 PlayerPrefs.DeleteKey("log");
         }
 
-        void OnApplicationQuit()
+        protected void OnApplicationQuit()
         {
             if (PlayerPrefs.HasKey("log"))
                 PlayerPrefs.DeleteKey("log");
         }
 
-        void Start()
+        protected void Start()
         {
             uiDocument.enabled = false;
-
         }
 
-        void Update()
+        protected virtual void Update()
         {
-            if (!storeLog)
+            if (!storeLog && logCrashes)
             {
                 // Check for saved log and send it on startup
                 if (PlayerPrefs.HasKey("log"))
@@ -74,10 +72,11 @@ namespace Pladdra
                     string crashReport = "";
                     foreach (var report in reports)
                     {
-                        crashReport += report.time + "---" + report.text + "<br>\n";
+                        crashReport += report.time + "---" + report.text + "\n";
                     }
 
-                    onSendLog.Invoke("Crash Report", DeviceInfo() + "<br>\nCrash report:<br>\n" + crashReport + "<br>\nLog:<br>\n" + PlayerPrefs.GetString("log"));
+                    onSendLog.Invoke("Crash Report", DeviceInfo() + "\nCrash report:\n" + crashReport + "\nLog:\n" + PlayerPrefs.GetString("log"));
+                    onSendHtmlLog.Invoke("Crash Report", DeviceInfoHTML() + "<br><br>Crash report:" + crashReport + "<br><br>Log:" + PlayerPrefs.GetString("log").Replace("\n", "<br>"));
 
                     foreach (var report in reports)
                     {
@@ -88,11 +87,6 @@ namespace Pladdra
                 }
                 PlayerPrefs.SetString("log", "");
                 storeLog = true;
-            }
-            if (!menuItemAdded)
-            {
-                AddMenuItem();
-                menuItemAdded = true;
             }
         }
 
@@ -115,7 +109,9 @@ namespace Pladdra
 
                 uiDocument.rootVisualElement.Q<Button>("send").clicked += () =>
                 {
-                    onSendLog.Invoke("Debug log", DeviceInfo() + "<br>\n Log:<br>\n" + FormatLog());
+                    onSendLog.Invoke("Debug log", DeviceInfo() + "\n Log:\n" + FormatLog());
+                    onSendHtmlLog.Invoke("Debug log", DeviceInfoHTML() + "<br><br>Log:" + FormatHTMLLog());
+
                 };
                 uiDocument.rootVisualElement.Q<Button>("close").clicked += () =>
                             {
@@ -134,36 +130,46 @@ namespace Pladdra
             }
             logEntries.Insert(0, new LogEntry { timestamp = "[" + System.DateTime.Now.ToString("HH:mm:ss") + "]", logString = logString, type = type });
 
+            if(sendLogOnError && type == LogType.Error)
+            {
+                onSendLog.Invoke("Error", DeviceInfo() + "\n Log:\n" + FormatLog());
+                onSendHtmlLog.Invoke("Error", DeviceInfoHTML() + "<br><br>Log:" + FormatHTMLLog());
+            }
+
             if (storeLog)
                 PlayerPrefs.SetString("log", FormatLog());
         }
 
-        string DeviceInfo()
+        protected string DeviceInfo()
         {
-            return "Device type: " + SystemInfo.deviceType + "<br>\nDevice model: " + SystemInfo.deviceModel + "<br>\nOS: " + SystemInfo.operatingSystem + "<br>\n";
+            return "Device type: " + SystemInfo.deviceType + "\nDevice model: " + SystemInfo.deviceModel + "\nOS: " + SystemInfo.operatingSystem + "\n";
         }
 
-        string FormatLog()
+        protected string DeviceInfoHTML()
+        {
+            return "Device type: " + SystemInfo.deviceType + "<br>Device model: " + SystemInfo.deviceModel + "<br>OS: " + SystemInfo.operatingSystem + "<br>";
+        }
+
+        protected string FormatLog()
+        {
+            string myLog = "";
+            foreach (LogEntry entry in logEntries)
+            {
+                myLog += (entry.type == LogType.Error ? "<font color='red'>" : "") + (entry.type == LogType.Warning ? "<font color='orange'>" : "") +
+                entry.timestamp + " " + entry.logString + (entry.type == LogType.Error ? "</font>" : "") + (entry.type == LogType.Warning ? "</font>" : "") + "\n";
+            }
+            return myLog;
+        }
+
+        protected string FormatHTMLLog()
         {
             string myLogHTML = "";
             foreach (LogEntry entry in logEntries)
             {
                 myLogHTML += (entry.type == LogType.Error ? "<font color='red'>" : "") + (entry.type == LogType.Warning ? "<font color='orange'>" : "") +
-                entry.timestamp + " " + entry.logString + (entry.type == LogType.Error ? "</font>" : "") + (entry.type == LogType.Warning ? "</font>" : "") + "<br>\n";
+                entry.timestamp + " " + entry.logString + (entry.type == LogType.Error ? "</font>" : "") + (entry.type == LogType.Warning ? "</font>" : "") + "<br>";
             }
             return myLogHTML;
-        }
-
-        void AddMenuItem()
-        {
-            menuManager.AddMenuItem(new MenuItem()
-            {
-                name = "Debug",
-                action = () =>
-                {
-                    ToggleDebugLog();
-                }
-            });
         }
     }
 }

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 8070694585138260205}
   - component: {fileID: 1277505307449409305}
   - component: {fileID: 7609507885557999877}
-  - component: {fileID: -2150316119998065088}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -63,8 +62,7 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 738f118aa214360489366338953cfd32, type: 2}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -112,15 +110,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DestroyOnRemoval: 1
---- !u!114 &-2150316119998065088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8000112312785372276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24f38f09b69494e6fa6092fee42ca0d2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

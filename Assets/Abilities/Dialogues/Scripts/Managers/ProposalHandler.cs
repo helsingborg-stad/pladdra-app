@@ -72,7 +72,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
             proposal.placedObjects.Add(new ProposalResource()
             {
-                path = resource.path,
+                path = resource.path.Split('/').Last(),
                 id = controller.Id,
                 name = resource.name,
                 position = obj.transform.localPosition,
@@ -100,7 +100,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
             GameObject model = new GameObject("Model");
             model.transform.SetParent(modelContainer.transform);
-            model.AddComponent<GltfAsset>().Url = resource.path;
+            model.AddComponent<GltfAsset>().Url = Application.persistentDataPath + "/Files/" + (resource.path.Contains("/") ? resource.path.Split('/').Last() : resource.path);
 
             modelContainer.transform.localPosition = position;
             modelContainer.transform.rotation = Quaternion.Euler(rotation);
@@ -150,7 +150,7 @@ namespace Pladdra.ARSandbox.Dialogues
                 Debug.LogError($"Could not find proposal resource with id {id}");
                 return;
             }
-            Debug.Log($"Updating proposal {resource.name} at {position} with rotation {y} and scale {currentScale}");
+            // Debug.Log($"Updating proposal {resource.name} at {position} with rotation {y} and scale {currentScale}");
             resource.position = position;
             resource.rotation = new Vector3(0, y, 0);
             resource.scale = currentScale;
@@ -170,13 +170,13 @@ namespace Pladdra.ARSandbox.Dialogues
                 //TODO clean this up
             }
             this.proposal = project.proposals.Find(p => p.name == proposal);
-            float scale = project.WorkspaceController.CurrentScale;
-            project.WorkspaceController.Scale(1);
+            // float scale = project.WorkspaceController.CurrentScale;
+            // project.WorkspaceController.Scale(1);
             foreach (ProposalResource resource in this.proposal.placedObjects)
             {
                 AddObject(resource, resource.position, resource.rotation);
             }
-            project.WorkspaceController.Scale(scale);
+            // project.WorkspaceController.Scale(scale);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Pladdra.ARSandbox.Dialogues
         {
             if (proposal == null) return;
             string proposalJSON = JsonUtility.ToJson(proposal);
-            Debug.Log($"Saving working proposal {proposalJSON}");
+            // Debug.Log($"Saving working proposal");
             SaveProposalLocally("working-proposal", proposalJSON);
         }
 
@@ -295,7 +295,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
                 foreach (ProposalResource resource in resources)
                 {
-                    DialogueResource DialogueResource = project.resources.Find(x => x.path == resource.path);
+                    DialogueResource DialogueResource = project.resources.Find(x => x.path.Split('/').Last() == resource.path);
                     AddObject(DialogueResource, resource.position.MakeGlobal(project.projectContainer), out PlacedObjectController controller, false);
                     
                     if (controller == null)

@@ -177,8 +177,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 45723947}
-  - component: {fileID: 45723946}
   - component: {fileID: 45723944}
+  - component: {fileID: 45723948}
   m_Layer: 0
   m_Name: Debug
   m_TagString: Untagged
@@ -203,37 +203,6 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: f1f83310f3f6b430ea03caae8f9b8896,
     type: 3}
   m_SortingOrder: 10
---- !u!114 &45723946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 45723943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f362da204ced47b9a58eeddef8e4716, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxLogLength: 50
-  maxLogDisplayLength: 8000
-  menuManager: {fileID: 1263072919}
-  uiManager: {fileID: 1844812294}
-  onSendLog:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 499424762}
-        m_TargetAssemblyTypeName: UntoldGarden.EmailHandler, Pladdra
-        m_MethodName: SendEmail
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!4 &45723947
 Transform:
   m_ObjectHideFlags: 0
@@ -249,6 +218,41 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &45723948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45723943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df5d8e2ffa4cf49a18114fef0ab52aea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  logCrashes: 1
+  sendLogOnError: 0
+  maxLogLength: 1000
+  maxLogDisplayLength: 10000
+  onSendLog:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 499424762}
+        m_TargetAssemblyTypeName: UntoldGarden.EmailHandler, Pladdra
+        m_MethodName: SendEmail
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onSendHtmlLog:
+    m_PersistentCalls:
+      m_Calls: []
+  menuManager: {fileID: 1263072919}
 --- !u!1 &137384577
 GameObject:
   m_ObjectHideFlags: 0
@@ -1364,10 +1368,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1485604904}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8589172d3c0a14bd6a8d3aa770be0ffc, type: 3}
+  m_Script: {fileID: 11500000, guid: 0bf1356a923a043c18adc1bea5eba8c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxCoroutines: 1
+  maxCoroutines: 3
   maxDownloadTimePerCoroutine: 10
 --- !u!1 &1694104021
 GameObject:
@@ -1567,12 +1571,25 @@ MonoBehaviour:
     staticResourcesContainer: {fileID: 0}
     interactiveResourcesContainer: {fileID: 0}
     placedResourcesContainer: {fileID: 0}
+    markerResourcesContainer: {fileID: 0}
     OnSaveProposal:
       m_PersistentCalls:
         m_Calls: []
   OnSaveProposal:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499424762}
+        m_TargetAssemblyTypeName: UntoldGarden.EmailHandler, Pladdra
+        m_MethodName: SendEmail
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   OnOpenProject:
     m_PersistentCalls:
       m_Calls: []
@@ -2124,7 +2141,7 @@ MonoBehaviour:
   EarthManager: {fileID: 1079597712}
   ARCoreExtensions: {fileID: 188740533}
   anchorContainer: {fileID: 1787853464}
-  anchorPrefab: {fileID: 3406635588061655856, guid: abaf3f4c1868c4d568b9ee9fa0a12c6f,
+  anchorPrefab: {fileID: 4501210536887284960, guid: e421336e530b544239c42db5b2836b71,
     type: 3}
   OnLowLocalizationAccuracy:
     m_PersistentCalls:
@@ -2234,11 +2251,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualizeTouch: 0
   tapLength: 0
-  mapTouch: 0
   mapTouch_Bottom: 0
   mapTouch_Top: 0
   minTouchLimit: 300
-  maxTouchLimit: 100
+  maxTouchLimit: 300
   cam: {fileID: 233913797}
   namedLayerMasks:
   - name: allowUserToManipulateSelectedModel
@@ -2312,6 +2328,9 @@ MonoBehaviour:
   prefab: {fileID: 8000112312785372276, guid: 29de65bcc86264335aace74ba65b6f6d, type: 3}
   arSessionManager: {fileID: 1079597705}
   arTrackedImageManager: {fileID: 1079597711}
+  OnImageTracked:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &3635566855535602565
 Transform:
   m_ObjectHideFlags: 0

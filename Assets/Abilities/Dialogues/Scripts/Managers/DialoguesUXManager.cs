@@ -51,7 +51,6 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             // PreviewObjectHolder = User.transform.Find("PreviewObjectHolder").gameObject; //TODO Move to inherited class
         }
 
-
         /// <summary>
         /// Sets our UXHandler, that deals with all currently displayed UI and user-accessible functionality
         /// There can only be one UXHandler at a time, this is a simple state machine
@@ -114,6 +113,26 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                     UseUxHandler(new AllowUserToManipulatePivot(this, obj.GetComponentInParent<PivotController>()));
                     break;
             }
+        }
+
+        public void CleanProject()
+        {
+            Debug.Log("UXManager: Cleaning project");
+            // Remove all layers that have been added throughout the previous project.
+            raycastManager.CleanLayerMasksFromlayersToRemove();
+            // Remove all images that have been tracked throughout the previous project.
+            arReferenceImageHandler.CleanTrackedImages();
+            arReferenceImageHandler.OnImageTracked.RemoveAllListeners();
+        }
+
+        public void KeepProjectAlignedToGeoAnchor()
+        {
+            InvokeRepeating("AlignProjectToGeoAnchor", 0, 1);
+        }
+
+        internal void AlignProjectToGeoAnchor()
+        {
+            project.AlignToGeoAnchor();
         }
     }
 }

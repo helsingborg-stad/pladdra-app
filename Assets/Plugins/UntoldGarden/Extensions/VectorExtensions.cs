@@ -34,9 +34,10 @@ namespace UntoldGarden.Utils
         /// <param name="args">OnGroundLayer gets a raycast downward from the relative position and returns the first hit.point. 
         /// OnNavMesh returns the closest point to the relative position on the NavMesh.
         /// OnGroundLayersAndNavMesh does both of the above.</param>
-        /// <param name="layers">The GroundLayers to look for RaycastHit's on.</param>
+        /// <param name="collider">Collider to use for getting closest point on ground layers, in case first raycast doesn't hit.</param>
+        /// <param name="layerMask">The LayerMask to look for RaycastHit's on.</param>
         /// <returns></returns>
-        public static Vector3 RelativeToObjectOnGround(this GameObject origin, Vector3? offset, RelativeToObjectOptions args, LayerMask layerMask = default)
+        public static Vector3 RelativeToObjectOnGround(this GameObject origin, Vector3? offset, RelativeToObjectOptions args, LayerMask layerMask = default, Collider collider = null)
         {
 
             Vector3 pos = origin.transform.position;
@@ -53,12 +54,21 @@ namespace UntoldGarden.Utils
                 if (Physics.Raycast(pos, Vector3.down, out hit, 100, layerMask))
                 {
                     pos = hit.point;
+                    Debug.Log("VectorExtensions.RelativeToUser got RaycastHit on " + hit.collider.gameObject.name);
+                }
+                else if (collider != null)
+                {
+                    pos = collider.ClosestPointOnBounds(pos);
+                    if (Physics.Raycast(pos, Vector3.down, out hit, 100, layerMask))
+                    {
+                        pos = hit.point;
+                        Debug.Log("VectorExtensions.RelativeToUser got RaycastHit after setting closest point on bounds " + hit.collider.gameObject.name);
+                    }
+                    Debug.Log("VectorExtensions.RelativeToUser could not get RaycastHit, but got closest point on collider!");
                 }
                 else
                 {
-                    Debug.Log("VectorExtensions.RelativeToUser could not get RaycastHit!");
-                    // gets closest point on all meshes within layermask
-
+                    Debug.Log("VectorExtensions.RelativeToUser could not get RaycastHit, and no collider was provided, returning original position.");
                 }
             }
 

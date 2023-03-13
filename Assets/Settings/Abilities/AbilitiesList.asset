@@ -33,9 +33,3 @@ MonoBehaviour:
     - ar-dialogue-room
     showInList: 1
     scene: SceneWithScreensWithAR
-  - name: "Tjurf\xE4ktning"
-    description: Inte okej.
-    deepLinkIdentifiers:
-    - bull
-    showInList: 1
-    scene: "Tjurfa\u0308ktning"

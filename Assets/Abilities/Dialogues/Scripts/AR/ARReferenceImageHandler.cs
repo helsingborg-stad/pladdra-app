@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Pladdra.UI;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UntoldGarden.AR;
 using UntoldGarden.Utils;
+using UnityEngine.Events;
 
 namespace Pladdra.ARSandbox.Dialogues
 {
@@ -20,16 +20,18 @@ namespace Pladdra.ARSandbox.Dialogues
         public GameObject CurrentlyTrackedImage { get { return currentlyTrackedImage; } }
         // Start is called before the first frame update
         public ARTrackedImageManager arTrackedImageManager;
-        MenuManager menuManager { get { return transform.parent.gameObject.GetComponentInChildren<MenuManager>(); } }
         ProjectManager projectManager { get { return transform.parent.gameObject.GetComponentInChildren<ProjectManager>(); } }
         Dictionary<ARTrackedImage, GameObject> trackedImages = new Dictionary<ARTrackedImage, GameObject>();
         bool addedMenuItem = false;
+        public UnityEvent<ARTrackedImage> OnImageTracked = new UnityEvent<ARTrackedImage>();
+        List<GameObject> trackedImagePrefabs = new List<GameObject>();
+
         void Start()
         {
             arTrackedImageManager.trackedImagesChanged += ImageChanged;
 
         }
-        public void AddReferenceImage(Texture2D image,string id, float width)
+        public void AddReferenceImage(Texture2D image, string id, float width)
         {
             // Debug.Log("AddImage " + image.name);
             StartCoroutine(AddImageCoroutine(image, id));
@@ -42,7 +44,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
             if (arTrackedImageManager.referenceLibrary is MutableRuntimeReferenceImageLibrary mutableLibrary)
             {
-                Debug.Log("Try to add image " + image.name + " texture sixe is y " + image.width + "x" + image.height);
+                Debug.Log("Try to add image " + id + " texture sixe is y " + image.width + "x" + image.height);
                 var jobHandle = mutableLibrary.ScheduleAddImageWithValidationJob(image, id, 0.21f);
                 yield return new WaitUntil(() => jobHandle.jobHandle.IsCompleted);
             }
@@ -51,7 +53,7 @@ namespace Pladdra.ARSandbox.Dialogues
                 Debug.Log("Not a MutableRuntimeReferenceImageLibrary");
             }
 
-            // Debug.Log("AddImageCoroutine done");
+            Debug.Log("AddImageCoroutine done for " + id);
         }
 
         private void ImageChanged(ARTrackedImagesChangedEventArgs eventArgs)
@@ -83,6 +85,7 @@ namespace Pladdra.ARSandbox.Dialogues
             {
                 Debug.Log("New tracked image! " + trackedImage.name);
                 GameObject go = Instantiate(prefab, trackedImage.transform.position, trackedImage.transform.rotation);
+                trackedImagePrefabs.Add(go);
                 UnityEngine.Object.FindObjectOfType<Pladdra.ARDebug.PlaneVisualiser>().AddARObject(go); //Temporary solution for AR viz
 
                 // trackedImage.referenceImage.name
@@ -90,20 +93,7 @@ namespace Pladdra.ARSandbox.Dialogues
                 trackedImages.Add(trackedImage, go);
                 currentlyTrackedImage = go;
 
-                //only for 
-                if (!addedMenuItem)
-                {
-                    menuManager.AddMenuItem(new MenuItem()
-                    {
-                        id = "alignToARMarker",
-                        name = "Placera på markör",
-                        action = () =>
-                        {
-                            projectManager.Project.AlignToARMarker(trackedImage.transform.position, trackedImage.transform.rotation);
-                        }
-                    });
-                    addedMenuItem = true;
-                }
+                OnImageTracked.Invoke(trackedImage);
             }
             else
             {
@@ -119,7 +109,7 @@ namespace Pladdra.ARSandbox.Dialogues
             }
             else
             {
-                Debug.Log("No tracked image found for " + trackedImage.name);
+                AddImage(trackedImage);
             }
         }
 
@@ -130,6 +120,16 @@ namespace Pladdra.ARSandbox.Dialogues
                 Destroy(trackedImages[trackedImage]);
                 trackedImages.Remove(trackedImage);
             }
+        }
+
+        public void CleanTrackedImages()
+        {
+            trackedImages.Clear();
+            foreach (GameObject go in trackedImagePrefabs)
+            {
+                Destroy(go);
+            }
+            trackedImagePrefabs.Clear();
         }
     }
 }

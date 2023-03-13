@@ -34,6 +34,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                 Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
                 uxManager.GeospatialManager.GeospatialEnabled = true;
                 uxManager.GeospatialManager.OnLocalizationUnsuccessful.AddListener(GeolocationUnsuccessful);
+                // SetGeoAnchorAndDisplayProject(true, "test", new GameObject());
                 uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.lat, uxManager.Project.location.lon, Quaternion.identity, placedObject);
             }
             else
@@ -44,7 +45,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                 {
                     Debug.Log("Project requires marker to be displayed.");
                     uxManager.UIManager.DisplayUI("look-for-marker");
-                    // TODO Hook up listeners to marker found event
+                    WaitForMarker();
                 }
                 else
                 {
@@ -52,6 +53,31 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                 }
             }
         }
+
+        #region Marker
+
+        async void WaitForMarker()
+        {
+            uxManager.Project.CreateProjectContainers();
+            await uxManager.Project.CreateProjectMarker();
+            
+            bool debug = true;
+            while (!uxManager.Project.hasTrackerMarker)
+            {
+                if (debug)
+                {
+                    Debug.Log("Waiting for marker");
+                    debug = false;
+                }
+                await System.Threading.Tasks.Task.Delay(100);
+            }
+            Debug.Log("Marker found");
+            DisplayProject();
+        }
+
+        #endregion Marker
+
+        #region Geolocation
 
         void SetGeoAnchorAndDisplayProject(bool b, string s, GameObject anchor)
         {
@@ -63,6 +89,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             else
             {
                 uxManager.Project.SetGeoAnchor(anchor);
+                uxManager.KeepProjectAlignedToGeoAnchor();
                 // uxManager.UIManager.MenuManager.AddMenuItem(new MenuItem()
                 // {
                 //     id = "alignToGeoAnchor",
@@ -94,6 +121,10 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             });
         }
 
+        #endregion Geolocation
+
+        #region Display Project
+
         async void DisplayProject()
         {
             Debug.Log("Display project");
@@ -114,6 +145,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                         uxManager.AppManager.DisplayRecentProjectList(() => { uxManager.AppManager.LoadProjectCollections(); });
                     };
                     root.Q<Button>("option-one").text = "Återgå till projektmenyn";
+                    root.Q<Button>("option-two").visible = false;
                 });
             }
         }
@@ -156,6 +188,8 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                     }
             );
         }
+
+        #endregion Display Project
 
         public override void Deactivate()
         {

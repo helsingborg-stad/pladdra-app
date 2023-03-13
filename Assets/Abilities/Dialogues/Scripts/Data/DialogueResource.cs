@@ -21,6 +21,6 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public Vector3 position = Vector3.zero;
         public Vector3 rotation = Vector3.zero;
         public float scale = 0;
-        public (string url, float width) marker;
+        public (string url, Texture2D image, float width) marker;
     }
 }

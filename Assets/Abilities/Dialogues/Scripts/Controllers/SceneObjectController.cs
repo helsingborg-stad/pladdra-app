@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Pladdra.ARSandbox.Dialogues
 {
-        [DisallowMultipleComponent]
+    [DisallowMultipleComponent]
     public class SceneObjectController : MonoBehaviour
     {
         protected Project project;
@@ -16,7 +16,6 @@ namespace Pladdra.ARSandbox.Dialogues
         protected Vector2 initVector;
         protected float currentScale;
         public float CurrentScale { get => currentScale; }
-        // TODO Set the resource also from static generation
 
         /// <summary>
         /// Initializes the controller
@@ -27,6 +26,7 @@ namespace Pladdra.ARSandbox.Dialogues
         {
             this.project = project;
         }
+        //TODO Move up a level
         public virtual void Select()
         {
 
@@ -99,6 +99,8 @@ namespace Pladdra.ARSandbox.Dialogues
 
         public virtual void Delete()
         {
+            Debug.Log("Deleting");
+
             Destroy(gameObject);
         }
 

@@ -7,6 +7,9 @@ using UntoldGarden.Utils;
 using GLTFast;
 using System.Threading.Tasks;
 using Pladdra.ARSandbox.Dialogues.UX;
+using System.IO;
+using UnityEngine.XR.ARFoundation;
+using Pladdra.UI;
 
 namespace Pladdra.ARSandbox.Dialogues.Data
 {
@@ -22,9 +25,11 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public List<DialogueResource> resources;
         public List<Proposal> proposals;
         public Proposal currentProposal;
-        // public Texture2D markerImage;
         public (string url, bool required, float width, Texture2D image) marker;
         public (double lat, double lon, float rotation) location;
+        #endregion Project variables
+
+        #region Project containers
         public Transform origin;
         public Transform projectOrigin;
         public Transform scalePivot;
@@ -32,7 +37,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public Transform staticResourcesContainer;
         public Transform interactiveResourcesContainer;
         public Transform placedResourcesContainer;
-        #endregion Project variables
+        public Transform markerResourcesContainer;
+        #endregion Project containers
 
         #region Project state
         // internal bool isLoadedAndInit;
@@ -43,6 +49,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         internal bool hasInteractiveResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Interactive).Count() > 0; } }
         internal bool hasMarkerResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0; } }
         internal bool requiresGeolocation { get { return location.lat != 0 && location.lon != 0 && !overrideGeolocation; } }
+        internal bool hasTrackerMarker { get { return trackedImage != null; } }
         #endregion Project state
 
         #region Scene References
@@ -54,25 +61,36 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public PivotController PivotController { get { return pivotController; } }
         DialoguesUXManager uxManager;
         public DialoguesUXManager UXManager { get { return uxManager; } }
+        ProjectManager projectManager;
+        public ProjectManager ProjectManager { get { return projectManager; } }
         Transform geoAnchor;
         #endregion Scene References
-
-
 
         #region Events
         public UnityEvent<string, string> OnSaveProposal = new UnityEvent<string, string>();
         #endregion Events
 
+        #region Private
+        bool createdProjectContainers;
+        bool hasAddedMarkerListener = false;
+        bool addedAlignToARMenuItem = false;
+        ARTrackedImage trackedImage;
+        MeshCollider staticResourcesMeshCollider;
+        public MeshCollider StaticResourcesMeshCollider { get { return staticResourcesMeshCollider; } }
+        #endregion Privateß
+
+
         #region Project handling
         /// <summary>
         /// Initializes the project.
         /// </summary>
-        /// <param name="origin">Main projects origin</param>
+        /// <param name="projectManager">ProjectManager</param>
         /// <param name="uxManager">UXManager</param>
         /// <param name="pivotPrefab">Prefab for scale pivot</param>
-        internal void Init(Transform origin, DialoguesUXManager uxManager)
+        internal void Init(ProjectManager projectManager, DialoguesUXManager uxManager)
         {
-            this.origin = origin;
+            this.projectManager = projectManager;
+            this.origin = projectManager.Origin();
             this.uxManager = uxManager;
         }
 
@@ -84,11 +102,12 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             }
             else
             {
-                CreateProjectContainers();
-                PlaceProject();
+                if (!createdProjectContainers) CreateProjectContainers();
+                if (!marker.required) PlaceProject();
+                if (!marker.url.IsNullOrEmptyOrFalse() && marker.image == null) await CreateProjectMarker();
                 await CreateStaticAndInteractiveResources();
                 if (hasLibraryResources) await CreateLibraryResources();
-                if (hasMarkerResources) CreateMarkerResources();
+                if (hasMarkerResources) await CreateMarkerResources();
                 LoadProposals();
                 DisplayWorkingProposal();
 
@@ -96,15 +115,22 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             }
         }
 
-        void CreateProjectContainers()
+        internal void CreateProjectContainers()
         {
             // Create containers
             projectOrigin = new GameObject(name).transform;
             projectOrigin.SetParent(origin);
 
+            if (geoAnchor != null)
+            {
+                AlignToGeoAnchor();
+            }
+
             //scale pivot container
             scalePivot = GameObject.Instantiate(uxManager.settings.pivotPrefab).transform;
             scalePivot.SetParent(projectOrigin);
+            scalePivot.localPosition = Vector3.zero;
+
             pivotController = scalePivot.GetComponent<PivotController>();
             pivotController.Init(this);
 
@@ -118,14 +144,24 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             projectContainer.localPosition += raycastOffset;
             workspaceController = projectContainer.gameObject.AddComponent<WorkspaceController>(); //TODO Don't add if not needed
             workspaceController.Init(this);
+
+            createdProjectContainers = true;
         }
         void PlaceProject()
         {
-            projectOrigin.localPosition = requiresGeolocation ? Vector3.zero : uxManager.AppManager.ARSessionManager.GetUser().gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
-                VectorExtensions.RelativeToObjectOptions.OnGroundLayers,
-                uxManager.RaycastManager.GetLayerMask("ARMesh"))
-                + startPosition;
+            if (!requiresGeolocation)
+            {
+                projectOrigin.localPosition = uxManager.AppManager.ARSessionManager.GetUser().gameObject.RelativeToObjectOnGround(new Vector3(0, 0, 4),
+                    VectorExtensions.RelativeToObjectOptions.OnGroundLayers,
+                    uxManager.RaycastManager.GetLayerMask("ARMesh"))
+                    + startPosition;
+            }
+            else
+            {
+                AlignToGeoAnchor();
+            }
         }
+
 
         /// <summary>
         /// Hides the project.
@@ -175,7 +211,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                     resourcesToDisplay = new List<DialogueResource>();
                 resourcesToDisplay.Add(groundPlane);
             }
-            else if (resourcesToDisplay == null)
+            else if (resourcesToDisplay == null || resourcesToDisplay.Count == 0)
             {
                 // Add layers so we can place objects on ARMesh 
                 uxManager.RaycastManager.AddLayerToLayerMask("allowUserToManipulateSelectedModel", "ARMesh");
@@ -184,7 +220,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                 return;
             }
 
-            // Zero the projectorigin while creating resources to avoid issues with meshCollider generation and other positioning issues
+            // Zero the projectorigin while creating resources to avoid issues with staticResourcesMeshCollider generation and other positioning issues
             Vector3 pos = projectOrigin.localPosition;
             projectOrigin.localPosition = Vector3.zero;
             Vector3 rot = projectOrigin.localRotation.eulerAngles;
@@ -239,7 +275,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             if (mesh != null)
             {
                 mf.mesh = mesh;
-                staticResourcesContainer.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.mesh;
+                staticResourcesMeshCollider = staticResourcesContainer.gameObject.AddComponent<MeshCollider>();
+                staticResourcesMeshCollider.sharedMesh = mf.mesh;
             }
             else
             {
@@ -258,38 +295,173 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         /// <returns></returns>
         async Task CreateLibraryResources()
         {
-            Debug.Log("CreateLibraryResources");
             placedResourcesContainer = new GameObject("PlacedResources").transform;
             placedResourcesContainer.SetParent(projectContainer);
             placedResourcesContainer.localPosition = new Vector3(0, 0, 0);
 
             RuntimePreviewGenerator.BackgroundColor = Color.clear;
             RuntimePreviewGenerator.MarkTextureNonReadable = false;
+
+            string imagesPath = Application.persistentDataPath + "/Images";
+            if (!Directory.Exists(imagesPath))
+            {
+                Directory.CreateDirectory(imagesPath);
+            }
+
             foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Library))
             {
-                GameObject go = new GameObject();
-                go.transform.position = new Vector3(0, 100, 0);
-                go.AddComponent<GltfAsset>().Url = "file://" + resource.path;
-                while (go.GetComponent<GltfAsset>().SceneInstance == null)
+                Debug.Log("Creating library resource for " + resource.name);
+                try
                 {
-                    await Task.Yield();
+                    string thumbnailPath = Path.Combine(imagesPath, resource.name + ".png");
+
+                    if (File.Exists(thumbnailPath))
+                    {
+                        byte[] bytes = File.ReadAllBytes(thumbnailPath);
+                        resource.thumbnail = new Texture2D(256, 256);
+                        resource.thumbnail.LoadImage(bytes);
+                    }
+                    else
+                    {
+                        GameObject go = new GameObject();
+                        go.transform.position = new Vector3(0, 100, 0);
+                        go.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+                        while (go.GetComponent<GltfAsset>().SceneInstance == null)
+                        {
+                            await Task.Yield();
+                        }
+                        resource.thumbnail = RuntimePreviewGenerator.GenerateModelPreview(go.transform, 256, 256);
+                        File.WriteAllBytes(thumbnailPath, resource.thumbnail.EncodeToPNG());
+                        UnityEngine.Object.Destroy(go);
+
+                        await Task.Yield();
+                    }
                 }
-                resource.thumbnail = RuntimePreviewGenerator.GenerateModelPreview(go.transform, 256, 256);
-                UnityEngine.Object.Destroy(go);
-
-                await Task.Yield();
-            }
-        }
-
-        void CreateMarkerResources()
-        {
-            foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Marker))
-            {
-                // uxManager.ARReferenceImageHandler.AddReferenceImage()
+                catch (Exception e)
+                {
+                    Debug.Log("Error while loading library resource: " + e);
+                }
             }
         }
 
         #endregion Resources
+
+        #region Markers
+
+        internal async Task CreateProjectMarker()
+        {
+            projectManager.WebRequestHandler.StartCoroutine(projectManager.WebRequestHandler.LoadImage(marker.url, (Result result, string errors, Texture2D image) =>
+                {
+                    if (result == Result.Success)
+                        marker.image = image;
+                    else
+                        uxManager.UIManager.ShowError($"Error loading marker image for project {name}, error: {errors}");
+                }));
+
+            bool debug = true;
+
+            while (marker.image == null && Application.isPlaying)
+            {
+                if (debug)
+                {
+                    Debug.Log($"Waiting for project {name} marker image to load");
+                    debug = false;
+                }
+                await Task.Yield();
+            }
+
+            uxManager.ARReferenceImageHandler.AddReferenceImage(marker.image, name, marker.width);
+
+            CreateMarkerListener();
+        }
+
+        async Task CreateMarkerResources()
+        {
+            markerResourcesContainer = new GameObject("MarkerResources").transform;
+            markerResourcesContainer.SetParent(projectContainer);
+            markerResourcesContainer.localPosition = new Vector3(0, 0, 0);
+
+            foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Marker))
+            {
+                Debug.Log($"Project: Creating marker resource {resource.name} with url {resource.marker.url}");
+                projectManager.WebRequestHandler.StartCoroutine(projectManager.WebRequestHandler.LoadImage(resource.marker.url, (Result result, string errors, Texture2D image) =>
+                {
+                    if (result == Result.Success)
+                        resource.marker.image = image;
+                    else
+                        uxManager.UIManager.ShowError($"Error loading marker image for resource {resource.name}, error: {errors}");
+                }));
+
+                bool debug = true;
+
+                while (resource.marker.image == null && Application.isPlaying)
+                {
+                    if (debug)
+                    {
+                        Debug.Log($"Waiting for resource {resource.name} marker image to load");
+                        debug = false;
+                    }
+                    await Task.Yield();
+                }
+
+                uxManager.ARReferenceImageHandler.AddReferenceImage(resource.marker.image, resource.name, resource.marker.width);
+            }
+
+            CreateMarkerListener();
+        }
+
+        void CreateMarkerListener()
+        {
+            if (!hasAddedMarkerListener)
+            {
+                uxManager.ARReferenceImageHandler.OnImageTracked.AddListener(OnMarkerFound);
+                hasAddedMarkerListener = true;
+            }
+        }
+
+        void OnMarkerFound(ARTrackedImage trackedImage)
+        {
+            Debug.Log($"Found marker {trackedImage.referenceImage.name}");
+            if (trackedImage.referenceImage.name == this.name)
+            {
+                Debug.Log($"Found project {name} marker");
+                this.trackedImage = trackedImage;
+                AlignToARMarker();
+                if (!addedAlignToARMenuItem)
+                {
+                    uxManager.UIManager.MenuManager.AddMenuItem(new MenuItem()
+                    {
+                        id = "alignToARMarker",
+                        name = "Placera på markör",
+                        action = () =>
+                        {
+                            AlignToARMarker();
+                        }
+                    });
+                    addedAlignToARMenuItem = true;
+                }
+            }
+            else
+            {
+                DialogueResource resource = resources.FirstOrDefault(r => r.name == trackedImage.referenceImage.name);
+                Debug.Log($"Found resource {trackedImage.referenceImage.name} marker");
+                if (resource != null)
+                {
+                    resource.gameObject = new GameObject(resource.name);
+                    resource.gameObject.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+                    resource.gameObject.transform.SetParent(markerResourcesContainer);
+                    if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
+                    resource.gameObject.AddComponent<MarkerObjectController>().Init(resource, trackedImage);
+                }
+                else
+                {
+                    Debug.Log($"No resource found for marker {trackedImage.referenceImage.name}");
+                }
+            }
+        }
+
+
+        #endregion Markers
 
         #region Proposals
 
@@ -334,10 +506,10 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         /// </summary>
         /// <param name="position"></param>
         /// <param name="rotation"></param>
-        internal void AlignToARMarker(Vector3 position, Quaternion rotation)
+        internal void AlignToARMarker()
         {
-            pivotController.MoveWithoutOffset(position);
-            var euler = rotation.eulerAngles;
+            pivotController.MoveWithoutOffset(trackedImage.transform.position);
+            var euler = trackedImage.transform.rotation.eulerAngles;
             pivotController.SetRotation(euler.y);
         }
 
@@ -349,14 +521,6 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         {
             geoAnchor = anchor.transform;
 
-            Vector3 pos = geoAnchor.position;
-            pos.y = uxManager.AppManager.ARSessionManager.GetDefaultPlaneY();
-            projectOrigin.transform.position = pos;
-
-            var euler = geoAnchor.rotation.eulerAngles;
-            float y = euler.y + location.rotation;
-            projectOrigin.transform.rotation = Quaternion.Euler(0, y, 0);
-
             UnityEngine.Object.FindObjectOfType<Pladdra.ARDebug.PlaneVisualiser>().AddARObject(geoAnchor.gameObject); //Temporary solution for AR viz
         }
 
@@ -365,7 +529,21 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         /// </summary>
         internal void AlignToGeoAnchor()
         {
-            throw new NotImplementedException();
+            if (projectOrigin == null || geoAnchor == null)
+                return;
+
+            if (Vector3.Distance(geoAnchor.position, projectOrigin.transform.position) > 0.1f)
+            {
+                Debug.Log("Setting project to geoanchor. Position: " + geoAnchor.position);
+                Vector3 pos = geoAnchor.position;
+                pos.y = uxManager.AppManager.ARSessionManager.GetDefaultPlaneY() ?? -1;
+                projectOrigin.transform.position = pos;
+
+                var euler = geoAnchor.rotation.eulerAngles;
+                float y = euler.y + location.rotation;
+                projectOrigin.transform.rotation = Quaternion.Euler(0, y, 0);
+            }
+
         }
         #endregion Alignment
 

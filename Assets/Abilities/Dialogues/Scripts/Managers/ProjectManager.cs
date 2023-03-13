@@ -8,6 +8,7 @@ using Pladdra.ARSandbox.Dialogues.Data;
 using Pladdra.ARSandbox.Dialogues.UX;
 using UnityEngine.Events;
 using Pladdra.UX;
+using UntoldGarden.Utils;
 
 namespace Pladdra.ARSandbox.Dialogues
 {
@@ -28,7 +29,6 @@ namespace Pladdra.ARSandbox.Dialogues
         public WebRequestHandler WebRequestHandler { get { return webRequestHandler; } }
         protected DialoguesUXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<DialoguesUXManager>(); } }
         protected ViewingModeManager viewingModeManager { get { return transform.parent.gameObject.GetComponentInChildren<ViewingModeManager>(); } }
-        protected RaycastManager raycastManager { get { return transform.parent.gameObject.GetComponentInChildren<RaycastManager>(); } }
         protected Transform origin;
         #endregion Scene References
 
@@ -119,11 +119,17 @@ namespace Pladdra.ARSandbox.Dialogues
                 }
                 foreach (var file in files)
                 {
-                    project.resources.Find(x => x.name == file.name).path = file.path;
+                    if (file.path.IsNullOrEmptyOrFalse())
+                    {
+                        project.resources.Remove(project.resources.Find(x => x.name == file.name));
+                        Debug.LogError($"ProjectManager: Project {project.name} failed to load {file.name}. Path: {file.path}");
+                    }
+                    else
+                        project.resources.Find(x => x.name == file.name).path = file.path;
                 }
 
                 projects.Add(project.name, project);
-                project.Init(Origin(), uxManager);
+                project.Init(this, uxManager);
 
                 // Listens to Project.OnSaveProposal to save proposal to whatever backend is hooked up
                 project.OnSaveProposal.AddListener((string proposalName, string proposalData) => OnSaveProposal.Invoke(proposalName, proposalData));
@@ -140,8 +146,7 @@ namespace Pladdra.ARSandbox.Dialogues
         public void ShowProject(string projectName)
         {
             Debug.Log($"ProjectManager: Showing project {projectName}");
-            // Remove all layers that have been added throughout the previous project.
-            raycastManager.CleanLayerMasksFromlayersToRemove();
+            uxManager.CleanProject();
 
             if (this.currentProject != null && this.currentProject.isCreated)
             {
@@ -156,10 +161,10 @@ namespace Pladdra.ARSandbox.Dialogues
             uxManager.UseUxHandler(ux);
         }
 
-        // public void SaveProposal(string name, string json)
-        // {
-        //     OnSaveProposal.Invoke(name, json);
-        // }
+        public void SaveProposal(string name, string json)
+        {
+            OnSaveProposal.Invoke(name, json);
+        }
 
         /// <summary>
         /// Transform that contains all project objects.

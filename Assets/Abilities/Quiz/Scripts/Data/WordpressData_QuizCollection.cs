@@ -34,7 +34,15 @@ namespace Pladdra.ARSandbox.Quizzes.Data
                         {
                             Debug.Log("Error parsing question bool:" + e);
                         }
-                        question.answers.Add(new Answer(answerGroup.answer.text, correct));
+                        // Temporary solution to account for Swedish special characters
+                        string text = answerGroup.answer.text;
+                        text = text.Replace("Ä", "Ae");
+                        text = text.Replace("ä", "ae");
+                        text = text.Replace("Ö", "O");
+                        text = text.Replace("ö", "o");
+                        text = text.Replace("Å", "A");
+                        text = text.Replace("å", "a");
+                        question.answers.Add(new Answer(text, correct));
                     }
                     quiz.questions.Add(question);
                 }

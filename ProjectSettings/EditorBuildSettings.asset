@@ -21,12 +21,12 @@ EditorBuildSettings:
     path: Assets/Abilities/Quiz/QuizPladdra.unity
     guid: a57768005516b498297df942a54d385b
   - enabled: 0
-    path: Assets/Scenes/ARImageTest.unity
-    guid: e94f452a269a74b92ba6cd32dcf108e6
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 0
     path: Assets/Abilities/Dialogues/Scenes/Default Pladdra - Geospatial.unity
     guid: 74e6453efc0694e6f8ee20ae07853d36
-  - enabled: 1
+  - enabled: 0
     path: "Assets/Abilities/Tjurfa\u0308ktning/Tjurfa\u0308ktning.unity"
     guid: 8be7668c689a64e7194f3a89e9cb9e82
   m_configObjects:

@@ -123,54 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &186520966
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 186520968}
-  - component: {fileID: 186520967}
-  m_Layer: 0
-  m_Name: PlaneVisualiser
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &186520967
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 186520966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b2ad7328f9ab4785b60a9048ff921f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debugMat: {fileID: 0}
-  arPlaneManager: {fileID: 1193469039}
-  menuManager: {fileID: 790826284}
-  randomizeColor: 1
---- !u!4 &186520968
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 186520966}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.8905342, y: 0.6620389, z: 0.15545475}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &207425852
 GameObject:
   m_ObjectHideFlags: 0
@@ -797,6 +749,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menuButtonTemplate: {fileID: 9197481963319205126, guid: cf39bdab2a5524620817f87b17b2a40c,
     type: 3}
+--- !u!1 &938153962
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 938153964}
+  - component: {fileID: 938153963}
+  m_Layer: 0
+  m_Name: ARDebug
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &938153963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938153962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b2ad7328f9ab4785b60a9048ff921f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMat: {fileID: 2100000, guid: 738f118aa214360489366338953cfd32, type: 2}
+  arPlaneManager: {fileID: 1193469039}
+  menuManager: {fileID: 790826284}
+  randomizeColor: 1
+--- !u!4 &938153964
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 938153962}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.0434744, y: -6.440046, z: 33.2612}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &950946207
 GameObject:
   m_ObjectHideFlags: 0
@@ -1091,10 +1091,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f362da204ced47b9a58eeddef8e4716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  logCrashes: 1
+  sendLogOnError: 0
   maxLogLength: 100
   maxLogDisplayLength: 400
-  menuManager: {fileID: 790826284}
-  uiManager: {fileID: 523192217}
   onSendLog:
     m_PersistentCalls:
       m_Calls:
@@ -1110,6 +1110,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  onSendHtmlLog:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &1200386190
 Transform:
   m_ObjectHideFlags: 0
