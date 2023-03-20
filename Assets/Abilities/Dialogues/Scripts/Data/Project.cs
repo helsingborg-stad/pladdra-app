@@ -50,6 +50,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         internal bool hasMarkerResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0; } }
         internal bool requiresGeolocation { get { return location.lat != 0 && location.lon != 0 && !overrideGeolocation; } }
         internal bool hasTrackerMarker { get { return trackedImage != null; } }
+
+        internal bool hasWorkingProposal { get { return proposals != null && proposals.Where(p => p.name == "working-proposal") != null; } }
         #endregion Project state
 
         #region Scene References
@@ -105,10 +107,19 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                 if (!createdProjectContainers) CreateProjectContainers();
                 if (!marker.required) PlaceProject();
                 if (!marker.url.IsNullOrEmptyOrFalse() && marker.image == null) await CreateProjectMarker();
-                await CreateStaticAndInteractiveResources();
+                await CreateStaticResources();
                 if (hasLibraryResources) await CreateLibraryResources();
                 if (hasMarkerResources) await CreateMarkerResources();
                 LoadProposals();
+                if (hasInteractiveResources && !hasWorkingProposal)
+                {
+                    Debug.Log($"Create interactive! hasInteractiveResources {hasInteractiveResources} hasWorkingProposal {hasWorkingProposal}");
+                    CreateInteractiveResources();
+                }
+                else
+                {
+                    Debug.Log($"Dont create interactive! hasInteractiveResources {hasInteractiveResources} hasWorkingProposal {hasWorkingProposal}");
+                }
                 DisplayWorkingProposal();
 
                 isCreated = true;
@@ -188,17 +199,16 @@ namespace Pladdra.ARSandbox.Dialogues.Data
 
         #region Resources
 
-
         /// <summary>
-        /// Creates all static and interactive resources, all resources that are displayed when the project is shown.
+        /// Creates all static resources, all resources that are displayed when the project is shown.
         /// </summary>
-        async Task CreateStaticAndInteractiveResources()
+        async Task CreateStaticResources()
         {
 
-            List<DialogueResource> resourcesToDisplay = resources.Where(r => r.displayRule == ResourceDisplayRules.Static || r.displayRule == ResourceDisplayRules.Interactive).ToList();
-            Debug.Log("CreateStaticAndInteractiveResources, count " + resourcesToDisplay.Count);
+            List<DialogueResource> staticResources = resources.Where(r => r.displayRule == ResourceDisplayRules.Static).ToList();
+            Debug.Log("Create static resources, count " + staticResources.Count);
 
-            DialogueResource groundPlane = resourcesToDisplay.FirstOrDefault(r => r.name == "GroundPlane");
+            DialogueResource groundPlane = staticResources.FirstOrDefault(r => r.name == "GroundPlane");
             if (groundPlane != null && groundPlane.gameObject != null)
             {
                 groundPlane.gameObject.SetActive(true);
@@ -207,11 +217,11 @@ namespace Pladdra.ARSandbox.Dialogues.Data
 
                 //TODO Clean up so groundplane is always in static resources
                 // select all resources with displayRule auto
-                if (resourcesToDisplay == null)
-                    resourcesToDisplay = new List<DialogueResource>();
-                resourcesToDisplay.Add(groundPlane);
+                if (staticResources == null)
+                    staticResources = new List<DialogueResource>();
+                staticResources.Add(groundPlane);
             }
-            else if (resourcesToDisplay == null || resourcesToDisplay.Count == 0)
+            else if (staticResources == null || staticResources.Count == 0)
             {
                 // Add layers so we can place objects on ARMesh 
                 uxManager.RaycastManager.AddLayerToLayerMask("allowUserToManipulateSelectedModel", "ARMesh");
@@ -232,32 +242,16 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             staticResourcesContainer.localPosition = Vector3.zero;
             staticResourcesContainer.localRotation = Quaternion.identity;
 
-            if (hasInteractiveResources)
-            {
-                interactiveResourcesContainer = new GameObject("InteractiveResources").transform;
-                interactiveResourcesContainer.SetParent(projectContainer);
-                interactiveResourcesContainer.localPosition = Vector3.zero;
-                interactiveResourcesContainer.localRotation = Quaternion.identity;
-            }
-
             // Create all static and interactive resources
-            foreach (var resource in resourcesToDisplay)
+            foreach (var resource in staticResources)
             {
                 resource.gameObject = new GameObject(resource.name);
+
+                Debug.Log($"Project: Creating static resource {resource.name}");
+
                 resource.gameObject.AddComponent<GltfAsset>().Url = "file://" + resource.path;
-
-                Debug.Log($"Project: Creating static resource {resource.name} with display rule {resource.displayRule}");
-
-                if (resource.displayRule == ResourceDisplayRules.Static)
-                {
-                    resource.gameObject.transform.parent = staticResourcesContainer;
-                    resource.gameObject.SetAllChildLayers("StaticResources");
-                }
-                else if (resource.displayRule == ResourceDisplayRules.Interactive)
-                {
-                    resource.gameObject.transform.parent = interactiveResourcesContainer;
-                    resource.gameObject.AddComponent<InteractiveObjectController>().Init(this, resource);
-                }
+                resource.gameObject.transform.parent = staticResourcesContainer;
+                resource.gameObject.SetAllChildLayers("StaticResources");
 
                 if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
                 resource.gameObject.transform.localPosition = resource.position;
@@ -286,6 +280,40 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             // Reset projectOrigin to original position and rotation
             projectOrigin.localPosition = pos;
             projectOrigin.localRotation = Quaternion.Euler(rot);
+        }
+
+        /// <summary>
+        /// Creates all interactive resources, all resources that are displayed when the project is shown and that can be moved around.
+        /// </summary>
+        void CreateInteractiveResources()
+        {
+            List<DialogueResource> interactiveResources = resources.Where(r => r.displayRule == ResourceDisplayRules.Interactive).ToList();
+            Debug.Log("Create interactive resources, count " + interactiveResources.Count);
+
+            // interactiveResourcesContainer = new GameObject("InteractiveResources").transform;
+            // interactiveResourcesContainer.SetParent(projectContainer);
+            // interactiveResourcesContainer.localPosition = Vector3.zero;
+            // interactiveResourcesContainer.localRotation = Quaternion.identity;
+
+            // Create all static and interactive resources
+            foreach (var resource in interactiveResources)
+            {
+                Debug.Log($"Project: Creating interactive resource {resource.name}");
+                // DialogueResource DialogueResource = resources.Find(x => x.path.Split('/').Last() == resource.path);
+                // DialogueResource =
+                proposalHandler.AddObject(resource, resource.position, out PlacedObjectController controller, false);
+                resource.gameObject = controller.gameObject;
+                controller.gameObject.transform.localPosition = resource.position;
+                // resource.gameObject = new GameObject(resource.name);
+
+                // Debug.Log($"Project: Creating interactive resource {resource.name}");
+
+                // resource.gameObject.transform.parent = interactiveResourcesContainer;
+                // resource.gameObject.transform.localPosition = resource.position;
+                // PlacedObjectController placedObjectController = resource.gameObject.AddComponent<PlacedObjectController>();
+                // proposalHandler.placedObjects.Add(placedObjectController);
+                // placedObjectController.Init(this, resource);
+            }
         }
 
         /// <summary>

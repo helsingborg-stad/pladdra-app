@@ -36,9 +36,20 @@ namespace Pladdra.ARSandbox.Dialogues
         /// Moves the object to a new position
         /// </summary>
         /// <param name="position">The position to move the object to</param>
-        public virtual void Move(Vector3 position)
+        public virtual void Move(Vector3 position, GameObject hit)
         {
+            // if (IsDescendant(hit.transform, transform))
+            // {
+            //     return;
+            // }
             transform.position = position;
+        }
+
+        private bool IsDescendant(Transform child, Transform parent)
+        {
+            if (child == parent) return true;
+            if (child.parent == null) return false;
+            return IsDescendant(child.parent, parent);
         }
 
 

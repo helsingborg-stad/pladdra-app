@@ -208,9 +208,10 @@ namespace UntoldGarden.Utils
         /// </summary>
         /// <param name="go">GameObject to set layer for</param>
         /// <param name="layer">Layer to set</param>
-        public static void SetAllChildLayers(this GameObject go, string layer)
+        public static void SetAllChildLayers(this GameObject go, string layer, bool setParent = true)
         {
-            go.layer = LayerMask.NameToLayer(layer);
+            if (setParent)
+                go.layer = LayerMask.NameToLayer(layer);
             foreach (Transform child in go.transform)
             {
                 child.gameObject.layer = LayerMask.NameToLayer(layer); ;

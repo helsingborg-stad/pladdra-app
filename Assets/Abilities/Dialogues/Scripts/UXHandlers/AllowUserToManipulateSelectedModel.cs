@@ -77,7 +77,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             // Remove currently selected object's layer from the layermask so we don't place it on itself
             uxManager.RaycastManager.SetLayerMask("allowUserToManipulateSelectedModel");
 
-            uxManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.AddListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.AddListener(Deselect);
             uxManager.RaycastManager.OnTwoFingerTouch.AddListener(controller.Rotate);
             uxManager.RaycastManager.OnSecondFingerEnd.AddListener(controller.FinalizeRotation);
@@ -91,7 +91,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                 skipFirstEndTouch = false;
                 return;
             }
-            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.RemoveListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
             uxManager.RaycastManager.OnTwoFingerTouch.RemoveListener(controller.Rotate);
             uxManager.RaycastManager.OnSecondFingerEnd.RemoveListener(controller.FinalizeRotation);
@@ -105,7 +105,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             // Return the layer so we can reselect it
             uxManager.RaycastManager.SetDefaultLayerMask();
             
-            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.RemoveListener(controller.Move);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
 
             uxManager.RaycastManager.SetLayerMask("allowUserToManipulatePivot");
             // uxManager.RaycastManager.LayerMask = LayerMask.GetMask("StaticResources");
-            uxManager.RaycastManager.OnHitPoint.AddListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.AddListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.AddListener(Deselect);
         }
 
@@ -48,7 +48,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             //     skipFirstEndTouch = false;
             //     return;
             // }
-            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.RemoveListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
 
             controller.Deselect();
@@ -63,7 +63,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             controller.ToggleVisibility(false);
 
             uxManager.RaycastManager.SetDefaultLayerMask();
-            uxManager.RaycastManager.OnHitPoint.RemoveListener(controller.Move);
+            uxManager.RaycastManager.OnHitPointAndObject.RemoveListener(controller.Move);
             uxManager.RaycastManager.OnEndTouch.RemoveListener(Deselect);
 
             // controller.gameObject.layer = LayerMask.NameToLayer("ScalePivot");

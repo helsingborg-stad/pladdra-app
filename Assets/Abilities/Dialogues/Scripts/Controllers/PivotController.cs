@@ -36,11 +36,11 @@ namespace Pladdra.ARSandbox.Dialogues
 
         public void ResetPivot()
         {
-            Move(Vector3.zero);
+            Move(Vector3.zero, null);
         }
 
         // TODO clean these up
-        public override void Move(Vector3 position)
+        public override void Move(Vector3 position, GameObject hit)
         {
             Vector3 workspacePos = project.UXManager.Project.WorkspaceController.transform.position;
             transform.position = position;

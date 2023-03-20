@@ -22,6 +22,7 @@ namespace Pladdra.ARSandbox.Dialogues
 
         public virtual void Init(Project project, DialogueResource resource)
         {
+            Debug.Log("Init interactive object " + resource.name);
             this.project = project;
             this.resource = resource;
             id = Guid.NewGuid().ToString();
@@ -32,11 +33,12 @@ namespace Pladdra.ARSandbox.Dialogues
             }
             catch (Exception e)
             {
-                Debug.Log("Eror creating model:" + e);
+                Debug.Log("Error creating model:" + e);
             }
         }
         async void CreateModel()
         {
+
             GameObject model = new GameObject("Model");
             model.transform.SetParent(transform);
             model.transform.localPosition = Vector3.zero;
@@ -46,6 +48,25 @@ namespace Pladdra.ARSandbox.Dialogues
             {
                 await Task.Yield();
             }
+
+            Vector3 pos = gameObject.transform.position;
+            gameObject.transform.position = Vector3.zero;
+
+            MeshFilter mf = model.AddComponent<MeshFilter>();
+            Mesh mesh = gameObject.CombineMeshesInChildren();
+
+            if (mesh != null)
+            {
+                mf.mesh = mesh;
+                MeshCollider meshCollider = model.AddComponent<MeshCollider>();
+                meshCollider.sharedMesh = mf.mesh;
+            }
+            else
+            {
+                Debug.Log("No mesh found for interactive resource " + resource.name);
+            }
+
+            gameObject.transform.position = pos;
 
             if (resource.scale != 0) model.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
 
@@ -62,7 +83,14 @@ namespace Pladdra.ARSandbox.Dialogues
             boxCollider.center = bounds.center;
 
             if (!isSelected)
-                gameObject.SetAllChildLayers("Object");
+            {
+                gameObject.SetAllChildLayers("StaticResources", false);
+                gameObject.layer = LayerMask.NameToLayer("Object");
+            }
+
+            if (resource.scale != 0) gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
+            if (resource.position != Vector3.zero) gameObject.transform.localPosition = resource.position;
+            if (resource.position != Vector3.zero) gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
         }
 
         public override void Select()
@@ -71,6 +99,7 @@ namespace Pladdra.ARSandbox.Dialogues
             Debug.Log("Selecting " + gameObject.name);
             base.Select();
             gameObject.SetAllChildLayers("Selected");
+            // gameObject.layer = LayerMask.NameToLayer("Selected");
         }
 
         public override void Deselect()
@@ -78,7 +107,9 @@ namespace Pladdra.ARSandbox.Dialogues
             isSelected = false;
             Debug.Log("Deselecting " + gameObject.name);
             base.Deselect();
-            gameObject.SetAllChildLayers("Object");
+            // gameObject.SetAllChildLayers("Object");
+            gameObject.layer = LayerMask.NameToLayer("Object");
+            gameObject.SetAllChildLayers("StaticResources", false);
         }
 
     }

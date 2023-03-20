@@ -16,16 +16,17 @@ namespace Pladdra.ARSandbox.Dialogues
     {
 
         Coroutine updateProposal;
-        public override void Move(Vector3 position)
+        public override void Move(Vector3 position, GameObject hit)
         {
+
             if (updateProposal != null)
             {
                 StopCoroutine(updateProposal);
             }
-            base.Move(position);
+            base.Move(position, hit);
             updateProposal = StartCoroutine(UpdateProposal());
         }
-
+        
         public override void Rotate(Touch touch1, Touch touch2)
         {
             if (updateProposal != null)

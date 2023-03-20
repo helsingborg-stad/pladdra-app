@@ -39,6 +39,7 @@ namespace Pladdra.ARSandbox.Dialogues
         /// <param name="controller">The controller of the object</param>
         public void AddObject(DialogueResource resource, Vector3 position, out PlacedObjectController controller, bool save = true)
         {
+            Debug.Log($"Adding object {resource.name} at {position} and path {resource.path}");
             if (resource == null)
             {
                 Debug.Log("Resource is null");
@@ -295,8 +296,14 @@ namespace Pladdra.ARSandbox.Dialogues
 
                 foreach (ProposalResource resource in resources)
                 {
+                    Vector3 position = Vector3.zero;
+                    if(resource.position != Vector3.zero) position = resource.position.MakeGlobal(project.projectContainer);
+                    // Debug.Log($"Loading resource {resource.name} with position {resource.position} and global position {position}");
+                    // resource.position = position;
+                    // Debug.Log($"Set resource {resource.name} position to {resource.position}");
                     DialogueResource DialogueResource = project.resources.Find(x => x.path.Split('/').Last() == resource.path);
-                    AddObject(DialogueResource, resource.position.MakeGlobal(project.projectContainer), out PlacedObjectController controller, false);
+                    // DialogueResource =
+                    AddObject(DialogueResource, position, out PlacedObjectController controller, false);
                     
                     if (controller == null)
                         continue;
