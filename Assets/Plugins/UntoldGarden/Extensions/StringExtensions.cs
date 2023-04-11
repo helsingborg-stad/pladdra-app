@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace UntoldGarden.Utils
@@ -21,11 +22,11 @@ namespace UntoldGarden.Utils
             bool b = false;
             try
             {
-                b = (s != "") ? Convert.ToBoolean(s) : false;
+                b = (s != "") ? Convert.ToBoolean(s,CultureInfo.InvariantCulture) : false;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+                Debug.Log($"Error converting string {s} to bool for {errorRef}, Error: " + e.Message);
             }
             return b;
         }
@@ -35,11 +36,11 @@ namespace UntoldGarden.Utils
             double b = 0;
             try
             {
-                b = (s != "") ? Convert.ToDouble(s) : 0;
+                b = (s != "") ? Convert.ToDouble(s,CultureInfo.InvariantCulture) : 0;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+                Debug.Log($"Error converting string {s} to double for {errorRef}, Error: " + e.Message);
             }
             return b;
         }
@@ -49,11 +50,11 @@ namespace UntoldGarden.Utils
             float b = 0;
             try
             {
-                b = (s != "") ? Convert.ToSingle(s) : 0;
+                b = (s != "") ? Convert.ToSingle(s,CultureInfo.InvariantCulture) : 0;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error converting to bool for {errorRef}, Error " + e.Message);
+                Debug.Log($"Error converting string {s} to single for {errorRef}, Error: " + e.Message);
             }
             return b;
         }   

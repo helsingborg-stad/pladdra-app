@@ -87,3 +87,7 @@ ARFoundationRemoteInstaller
 deeplink.dev
 password.txt
 password.txt.meta
+
+# Closed source plugins
+Assets/Plugins/Feel/
+

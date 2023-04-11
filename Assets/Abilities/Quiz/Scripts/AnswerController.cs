@@ -94,6 +94,7 @@ namespace Pladdra.ARSandbox.Quizzes
             }
             else
             {
+                quizManager.WrongAnswer();
                 SetMeshRenderersMaterial(quizManager.settings.wrongAnswer);
             }
             disabled = true;

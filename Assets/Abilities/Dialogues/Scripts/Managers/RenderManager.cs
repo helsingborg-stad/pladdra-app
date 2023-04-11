@@ -33,6 +33,7 @@ namespace Pladdra.ARSandbox.Dialogues
         {
             //TODO Make generic, store all changed render features
             ToggleFeature(false, "BlurRenderFeature");
+            ToggleFeature(true, "ScreenSpaceAmbientOcclusion");
         }
 
         /// <summary>

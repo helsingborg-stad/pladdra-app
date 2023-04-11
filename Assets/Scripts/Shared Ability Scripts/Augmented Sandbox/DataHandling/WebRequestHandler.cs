@@ -319,38 +319,5 @@ namespace Pladdra.ARSandbox
             return $"{filePath}{filename}";
         }
 
-        #region Obsolete
-        // protected GameObject LoadModel(string path, string name)
-        // {
-        //     // Debug.Log($"Loading model {name} from {path}");
-        //     try
-        //     {
-        //         ImportSettings settings = new ImportSettings();
-        //         settings.animationSettings = new AnimationSettings();
-        //         settings.animationSettings.useLegacyClips = true;
-        //         settings.animationSettings.interpolationMode = InterpolationMode.STEP;
-        //         GameObject model = Importer.LoadFromFile(path, settings, out AnimationClip[] animations);
-
-        //         if (animations != null && animations.Length > 0)
-        //         {
-        //             Animation animation = model.AddComponent<Animation>();
-        //             animation.AddClip(animations[0], animations[0].name);
-        //             animation.clip = animation.GetClip(animations[0].name);
-        //             animation.Play();
-        //             animation.wrapMode = WrapMode.Loop;
-        //         }
-
-        //         model.name = name;
-        //         model.SetActive(false);
-        //         return model;
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         Debug.Log($"Error loading model {name}: {e.Message}");
-        //         return null;
-        //     }
-        // }
-        #endregion
-
     }
 }

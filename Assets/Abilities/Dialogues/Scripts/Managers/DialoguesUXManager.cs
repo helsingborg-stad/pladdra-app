@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using Pladdra.ARSandbox.Dialogues.UX;
 using Pladdra;
@@ -18,6 +19,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
 
         #region Public
         public DialogueAbilitySettings settings;
+        public UnityEvent OnPlacedResource = new UnityEvent();
         #endregion Public
 
         #region Private
@@ -48,7 +50,6 @@ namespace Pladdra.ARSandbox.Dialogues.UX
         protected virtual void Start()
         {
             User = AppManager.ARSessionManager.GetUser().gameObject; // TODO Set this from ARSessionOrigin
-            // PreviewObjectHolder = User.transform.Find("PreviewObjectHolder").gameObject; //TODO Move to inherited class
         }
 
         /// <summary>
@@ -113,6 +114,10 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                     UseUxHandler(new AllowUserToManipulatePivot(this, obj.GetComponentInParent<PivotController>()));
                     break;
             }
+        }
+
+        public void PlacedResource(){
+            OnPlacedResource?.Invoke();
         }
 
         public void CleanProject()

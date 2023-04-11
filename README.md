@@ -87,3 +87,13 @@ The app uses cocoapods for Google ARCore Extensions, which is used for geolocati
 -   `Pods` > `ARCore-ARCoreResources` > `signing and capabilities`.
 
 3.  Build to device.
+
+# Plugins
+
+The app uses some closed source plugins that need to be bought from the Unity Asset Store and added to your project locally. The plugins are:
+## Feel 
+
+Feel is used for their Nice Vibrations package, which provides haptic feedback to the app. To use this plugin, please follow these steps:
+
+1. Buy Feel from the Unity Asset Store by visiting this link:  https://assetstore.unity.com/packages/tools/particles-effects/feel-183370
+2. Add it to your package manager by going to `Window` > `Package Manager` > `+` > `My Assets`, select the Feel package, download and import it.

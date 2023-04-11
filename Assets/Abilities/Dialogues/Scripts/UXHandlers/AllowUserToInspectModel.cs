@@ -21,6 +21,8 @@ namespace Pladdra.ARSandbox.Dialogues.UX
         public override void Activate()
         {
             uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(true, "BlurRenderFeature");
+            uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(false, "ScreenSpaceAmbientOcclusion");
+
             uxManager.Project.Hide();
 
             container = new GameObject("PreviewContainer").transform;
@@ -78,6 +80,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                     uxManager.Project.ProposalHandler.AddObject(resource, position, out PlacedObjectController controller);
                     IUXHandler ux = new AllowUserToManipulateSelectedModel(uxManager, controller, false);
                     uxManager.UseUxHandler(ux);
+                    uxManager.PlacedResource();
                 };
             });
         }
@@ -90,6 +93,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             preview = null;
             container = null;
             uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(false, "BlurRenderFeature");
+            uxManager.RenderManager.GetComponent<RenderManager>().ToggleFeature(true, "ScreenSpaceAmbientOcclusion");
             uxManager.Project.Show();
         }
     }

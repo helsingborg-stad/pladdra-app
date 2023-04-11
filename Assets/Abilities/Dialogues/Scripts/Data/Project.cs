@@ -353,7 +353,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                     {
                         GameObject go = new GameObject();
                         go.transform.position = new Vector3(0, 100, 0);
-                        go.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+                        GltfAsset gltfAsset = go.AddComponent<GltfAsset>();
+                        gltfAsset.Url = "file://" + resource.path;
                         while (go.GetComponent<GltfAsset>().SceneInstance == null)
                         {
                             await Task.Yield();

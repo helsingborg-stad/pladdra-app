@@ -7,6 +7,7 @@ using Pladdra.ARSandbox.Quizzes.Data;
 using Pladdra.UI;
 
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 using UntoldGarden.Utils;
 using UntoldGarden.AR;
@@ -25,6 +26,9 @@ namespace Pladdra.ARSandbox.Quizzes
         [GrayOut] public QuizCollection currentQuizCollection;
         [GrayOut] public Quiz currentQuiz;
         [GrayOut] public Question currentQuestion;
+
+        public UnityEvent OnCorrectAnswer = new UnityEvent();
+        public UnityEvent OnWrongAnswer = new UnityEvent();
 
         #endregion Public
 
@@ -270,6 +274,13 @@ namespace Pladdra.ARSandbox.Quizzes
                 root.Q<Label>("text").text = currentQuestion.response != "" ? currentQuestion.response : ("Rätt svar! " + currentQuestion.text + " = " + answer.text);
             });
             quizUserManager.UpdateScore();
+
+            OnCorrectAnswer?.Invoke();
+        }
+
+        public void WrongAnswer()
+        {
+            OnWrongAnswer?.Invoke();
         }
 
         public void ClearQuiz()
