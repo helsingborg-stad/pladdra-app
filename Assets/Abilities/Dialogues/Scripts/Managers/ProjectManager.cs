@@ -157,8 +157,24 @@ namespace Pladdra.ARSandbox.Dialogues
             this.currentProject = projects[projectName];
             uxManager.Project = currentProject;
 
-            IUXHandler ux = new AllowUserToViewProject(uxManager);
-            uxManager.UseUxHandler(ux);
+            IUXHandler ux = null;
+            switch (currentProject.GetProjectType())
+            {
+                case ProjectType.Geospatial:
+                    ux = new LoadGeospatialProject(uxManager);
+                    uxManager.UseUxHandler(ux);
+                    break;
+                case ProjectType.Marker:
+                    ux = new AllowUserToViewProject(uxManager);
+                    uxManager.UseUxHandler(ux);
+                    break;
+                case ProjectType.Standard:
+                default:
+                    ux = new LoadStandardProject(uxManager);
+                    uxManager.UseUxHandler(ux);
+                    break;
+            }
+
         }
 
         public void SaveProposal(string name, string json)

@@ -25,7 +25,8 @@ namespace Pladdra.ARSandbox
 
         void Start()
         {
-            filePath = $"{Application.persistentDataPath}/Files/";
+            // filePath = $"{Application.persistentDataPath}/Files/";
+            filePath = transform.parent.GetComponentInChildren<FileManager>().FilePath();
         }
 
         #region Load files

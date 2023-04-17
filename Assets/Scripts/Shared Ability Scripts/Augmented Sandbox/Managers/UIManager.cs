@@ -55,7 +55,15 @@ namespace Pladdra.UI
                 }
             }
 
-            //TODO Validate UI list so there are no duplicates
+            // Validate ui list so there are no duplicates
+            for (int i = uiAssets.Count - 1; i > 0; i--)
+            {
+                if (uiAssets.FindAll(ui => ui.name == uiAssets[i].name).Count > 1)
+                {
+                    Debug.Log($"UIManager: Removed duplicate UI Asset with name {uiAssets[i].name}");
+                    uiAssets.RemoveAt(i);
+                }
+            }
         }
 
         #region UI Controls
@@ -104,6 +112,8 @@ namespace Pladdra.UI
             RegisterMouseLeaveCallback();
 
             onUpdatedUI.Invoke();
+
+            StopLoadingIndicator();
         }
 
         /// <summary>
@@ -122,7 +132,12 @@ namespace Pladdra.UI
         /// </summary>
         public void DisplayPreviousUI()
         {
+            bool loading = previousUI == "loading";
             DisplayUI(previousUI, previousUIAction);
+            if (loading)
+            {
+                StartLoadingIndicator();
+            }
         }
 
         #endregion UI Controls
@@ -171,15 +186,33 @@ namespace Pladdra.UI
                             root.Q<Label>("LoadingText").text = loadingText;
                         });
 
+            StartLoadingIndicator();
+        }
+
+        void StartLoadingIndicator()
+        {
             if (loadingIndicator != null)
             {
                 loadingIndicator.StartLoadingIndicator();
-                onUpdatedUI.AddListener(() =>
-                {
-                    loadingIndicator.StopLoadingIndicator();
-                    onUpdatedUI.RemoveListener(loadingIndicator.StopLoadingIndicator);
-                });
             }
+        }
+
+        void StopLoadingIndicator()
+        {
+            if (loadingIndicator != null)
+            {
+                loadingIndicator.StopLoadingIndicator();
+            }
+        }
+
+        public void ShowTimedPrompt(string text, float delay)
+        {
+            long l = (long)delay * 1000;
+            DisplayUI("timed-prompt", root =>
+            {
+                root.Q<Label>("prompt").text = text;
+                root.schedule.Execute(() => DisplayPreviousUI()).StartingIn(l);
+            });
         }
 
         #region Block UI Raycasts

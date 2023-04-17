@@ -10,9 +10,11 @@ using Pladdra.ARSandbox.Dialogues.UX;
 using System.IO;
 using UnityEngine.XR.ARFoundation;
 using Pladdra.UI;
+using UnityEngine.UIElements;
 
 namespace Pladdra.ARSandbox.Dialogues.Data
 {
+    public enum ProjectType { Standard, Geospatial, Marker }
     [Serializable]
     public class Project
     {
@@ -25,8 +27,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public List<DialogueResource> resources;
         public List<Proposal> proposals;
         public Proposal currentProposal;
-        public (string url, bool required, float width, Texture2D image) marker;
-        public (double lat, double lon, float rotation) location;
+        public (string url, bool required, float width, bool onground, Texture2D image) marker;
+        public (double lat, double lon, float rotation, bool disable) location;
         #endregion Project variables
 
         #region Project containers
@@ -48,7 +50,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         internal bool hasLibraryResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Library).Count() > 0; } }
         internal bool hasInteractiveResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Interactive).Count() > 0; } }
         internal bool hasMarkerResources { get { return resources.Where(r => r.displayRule == ResourceDisplayRules.Marker).Count() > 0; } }
-        internal bool requiresGeolocation { get { return location.lat != 0 && location.lon != 0 && !overrideGeolocation; } }
+        internal bool requiresGeolocation { get { return location.lat != 0 && location.lon != 0 && !overrideGeolocation && !location.disable; } }
         internal bool hasTrackerMarker { get { return trackedImage != null; } }
 
         internal bool hasWorkingProposal { get { return proposals != null && proposals.Where(p => p.name == "working-proposal") != null; } }
@@ -73,6 +75,13 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         #endregion Events
 
         #region Private
+        float loadingTimeout = 10f;
+        float loadingTimer = 0f;
+        bool displayLoadingTimeout = false;
+        bool staticResourcesBreakFlag = false;
+        bool libraryResourcesBreakFlag = false;
+        bool interactiveResourcesBreakFlag = false;
+        bool markerResourcesBreakFlag = false;
         bool createdProjectContainers;
         bool hasAddedMarkerListener = false;
         bool addedAlignToARMenuItem = false;
@@ -82,7 +91,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         #endregion Privateß
 
 
-        #region Project handling
+        #region Project loading
         /// <summary>
         /// Initializes the project.
         /// </summary>
@@ -258,8 +267,28 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                 resource.gameObject.transform.localRotation = Quaternion.Euler(resource.rotation);
             }
 
-            while (staticResourcesContainer.gameObject.GetComponentsInChildren<GltfAsset>().Any(g => g.SceneInstance == null))
+            loadingTimer = 0;
+            displayLoadingTimeout = true;
+            while (staticResourcesContainer.gameObject.GetComponentsInChildren<GltfAsset>().Any(g => g.SceneInstance == null) && !staticResourcesBreakFlag)
             {
+                if (loadingTimer > loadingTimeout && displayLoadingTimeout)
+                {
+                    string notLoaded = "";
+                    foreach (var resource in staticResourcesContainer.gameObject.GetComponentsInChildren<GltfAsset>())
+                    {
+                        if (resource.SceneInstance == null)
+                        {
+                            notLoaded += resource.name + ", ";
+                        }
+                    }
+                    DisplayLoadingWarning(ResourceDisplayRules.Static, notLoaded);
+
+                    displayLoadingTimeout = false;
+                }
+                else
+                {
+                    loadingTimer += Time.deltaTime;
+                }
                 await Task.Yield();
             }
 
@@ -338,6 +367,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
 
             foreach (var resource in resources.Where(r => r.displayRule == ResourceDisplayRules.Library))
             {
+                libraryResourcesBreakFlag = false;
                 Debug.Log("Creating library resource for " + resource.name);
                 try
                 {
@@ -355,8 +385,24 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                         go.transform.position = new Vector3(0, 100, 0);
                         GltfAsset gltfAsset = go.AddComponent<GltfAsset>();
                         gltfAsset.Url = "file://" + resource.path;
-                        while (go.GetComponent<GltfAsset>().SceneInstance == null)
+                        // while (go.GetComponent<GltfAsset>().SceneInstance == null)
+                        // {
+                        //     await Task.Yield();
+                        // }
+                        loadingTimer = 0;
+                        displayLoadingTimeout = true;
+                        while (go.GetComponent<GltfAsset>().SceneInstance == null && !libraryResourcesBreakFlag)
                         {
+                            if (loadingTimer > loadingTimeout && displayLoadingTimeout)
+                            {
+                                DisplayLoadingWarning(ResourceDisplayRules.Library, resource.name);
+
+                                displayLoadingTimeout = false;
+                            }
+                            else
+                            {
+                                loadingTimer += Time.deltaTime;
+                            }
                             await Task.Yield();
                         }
                         resource.thumbnail = RuntimePreviewGenerator.GenerateModelPreview(go.transform, 256, 256);
@@ -450,7 +496,14 @@ namespace Pladdra.ARSandbox.Dialogues.Data
 
         void OnMarkerFound(ARTrackedImage trackedImage)
         {
+            CreateMarkerResource(trackedImage);
+        }
+
+        async void CreateMarkerResource(ARTrackedImage trackedImage)
+        {
             Debug.Log($"Found marker {trackedImage.referenceImage.name}");
+            uxManager.UIManager.ShowTimedPrompt($"Marker {trackedImage.referenceImage.name} hittad", 6f);
+
             if (trackedImage.referenceImage.name == this.name)
             {
                 Debug.Log($"Found project {name} marker");
@@ -472,15 +525,39 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             }
             else
             {
+                markerResourcesBreakFlag = false;
+                displayLoadingTimeout = true;
                 DialogueResource resource = resources.FirstOrDefault(r => r.name == trackedImage.referenceImage.name);
                 Debug.Log($"Found resource {trackedImage.referenceImage.name} marker");
                 if (resource != null)
                 {
-                    resource.gameObject = new GameObject(resource.name);
-                    resource.gameObject.AddComponent<GltfAsset>().Url = "file://" + resource.path;
-                    resource.gameObject.transform.SetParent(markerResourcesContainer);
-                    if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
-                    resource.gameObject.AddComponent<MarkerObjectController>().Init(resource, trackedImage);
+                    try
+                    {
+                        resource.gameObject = new GameObject(resource.name);
+                        resource.gameObject.AddComponent<GltfAsset>().Url = "file://" + resource.path;
+
+                        while (resource.gameObject.GetComponent<GltfAsset>().SceneInstance == null && !markerResourcesBreakFlag)
+                        {
+                            if (loadingTimer > loadingTimeout && displayLoadingTimeout)
+                            {
+                                DisplayLoadingWarning(ResourceDisplayRules.Marker, resource.name);
+
+                                displayLoadingTimeout = false;
+                            }
+                            else
+                            {
+                                loadingTimer += Time.deltaTime;
+                            }
+                            await Task.Yield();
+                        }
+                        resource.gameObject.transform.SetParent(markerResourcesContainer);
+                        if (resource.scale != 0) resource.gameObject.transform.localScale = new Vector3(resource.scale, resource.scale, resource.scale);
+                        resource.gameObject.AddComponent<MarkerObjectController>().Init(resource, trackedImage, marker.onground ? uxManager.AppManager.ARSessionManager : null);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log("Error while loading marker resource: " + e);
+                    }
                 }
                 else
                 {
@@ -537,7 +614,10 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         /// <param name="rotation"></param>
         internal void AlignToARMarker()
         {
-            pivotController.MoveWithoutOffset(trackedImage.transform.position);
+            Vector3 pos = trackedImage.transform.position;
+            if (marker.onground)
+                pos.y = uxManager.AppManager.ARSessionManager.GetDefaultPlaneY() ?? pos.y;
+            pivotController.MoveWithoutOffset(pos);
             var euler = trackedImage.transform.rotation.eulerAngles;
             pivotController.SetRotation(euler.y);
         }
@@ -575,6 +655,50 @@ namespace Pladdra.ARSandbox.Dialogues.Data
 
         }
         #endregion Alignment
+
+        public ProjectType GetProjectType()
+        {
+            return requiresGeolocation ? ProjectType.Geospatial : marker.required ? ProjectType.Marker : ProjectType.Standard;
+        }
+
+        //TODO Move this + all while loops to a loading manager
+        public void DisplayLoadingWarning(ResourceDisplayRules resourceType, string notLoaded)
+        {
+
+            Debug.Log("Static resources loading timeout");
+            uxManager.UIManager.DisplayUI("warning-with-text-and-options", root =>
+        {
+            root.Q<Label>("warning").text = "Problem med att ladda projekt";
+            root.Q<Label>("text").text = "Timeout på följande resurser: " + notLoaded + ". \nVill du fortsätta eller avbryta laddning?";
+            root.Q<Button>("option-one").clicked += () =>
+    {
+        loadingTimer = 0;
+        displayLoadingTimeout = true;
+        uxManager.UIManager.DisplayPreviousUI();
+    };
+            root.Q<Button>("option-one").text = "Fortsätt ladda";
+            root.Q<Button>("option-two").clicked += () =>
+    {
+        switch (resourceType)
+        {
+            case ResourceDisplayRules.Static:
+                staticResourcesBreakFlag = true;
+                break;
+            case ResourceDisplayRules.Library:
+                libraryResourcesBreakFlag = true;
+                break;
+            case ResourceDisplayRules.Interactive:
+                interactiveResourcesBreakFlag = true;
+                break;
+            case ResourceDisplayRules.Marker:
+                markerResourcesBreakFlag = true;
+                break;
+        }
+        uxManager.UIManager.DisplayPreviousUI();
+    };
+            root.Q<Button>("option-two").text = "Avbryt laddning";
+        });
+        }
 
         /// <summary>   
         /// Creates 1x1 textures for all materials that have no texture.

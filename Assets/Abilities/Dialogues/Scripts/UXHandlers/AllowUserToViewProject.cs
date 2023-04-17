@@ -16,114 +16,110 @@ namespace Pladdra.ARSandbox.Dialogues.UX
         public override void Activate()
         {
             Debug.Log("Init Project " + uxManager.Project.name);
-
-            //TODO Not sure if this is the right place for this logic. 
-            if (uxManager.Project.requiresGeolocation)
-            {
-                uxManager.UIManager.DisplayUI("prompt", root =>
-                {
-                    root.Q<Label>("prompt").text = "Titta dig omkring för att lokalisera AR.";
-                    root.Q<Button>("option-one").clicked += () =>
-                    {
-                        uxManager.Project.overrideGeolocation = true;
-                        DisplayProject();
-                    };
-                    root.Q<Button>("option-one").text = "Skippa geolokalisering";
-                });
-                Debug.Log("Project requires location to be displayed.");
-                Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
-                uxManager.GeospatialManager.GeospatialEnabled = true;
-                uxManager.GeospatialManager.OnLocalizationUnsuccessful.AddListener(GeolocationUnsuccessful);
-                // SetGeoAnchorAndDisplayProject(true, "test", new GameObject());
-                uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.lat, uxManager.Project.location.lon, Quaternion.identity, placedObject);
-            }
-            else
-            {
-                uxManager.GeospatialManager.GeospatialEnabled = false;
-                uxManager.GeospatialManager.OnLocalizationUnsuccessful.RemoveAllListeners();
-                if (uxManager.Project.marker.required)
-                {
-                    Debug.Log("Project requires marker to be displayed.");
-                    uxManager.UIManager.DisplayUI("look-for-marker");
-                    WaitForMarker();
-                }
-                else
-                {
-                    DisplayProject();
-                }
-            }
-        }
-
-        #region Marker
-
-        async void WaitForMarker()
-        {
-            uxManager.Project.CreateProjectContainers();
-            await uxManager.Project.CreateProjectMarker();
-            
-            bool debug = true;
-            while (!uxManager.Project.hasTrackerMarker)
-            {
-                if (debug)
-                {
-                    Debug.Log("Waiting for marker");
-                    debug = false;
-                }
-                await System.Threading.Tasks.Task.Delay(100);
-            }
-            Debug.Log("Marker found");
+            // Disable the "Home" menu item during project load.
+            uxManager.UIManager.MenuManager.ToggleMenuItemInteractable("project-list", false);
             DisplayProject();
+
+            // //TODO Split into UXHandler AllowUserToViewStandardProject, AllowUserToViewGeolocatedProject and AllowUserToViewMarkerProject
+            // if (uxManager.Project.requiresGeolocation)
+            // {
+            //     uxManager.UIManager.DisplayUI("prompt", root =>
+            //     {
+            //         root.Q<Label>("prompt").text = "Titta dig omkring för att lokalisera AR.";
+            //         root.Q<Button>("option-one").clicked += () =>
+            //         {
+            //             uxManager.Project.overrideGeolocation = true;
+            //             DisplayProject();
+            //         };
+            //         root.Q<Button>("option-one").text = "Skippa geolokalisering";
+            //     });
+            //     Debug.Log("Project requires location to be displayed.");
+            //     Action<bool, string, GameObject> placedObject = SetGeoAnchorAndDisplayProject;
+            //     uxManager.GeospatialManager.GeospatialEnabled = true;
+            //     uxManager.GeospatialManager.OnLocalizationUnsuccessful.AddListener(GeolocationUnsuccessful);
+            //     uxManager.GeospatialManager.PlaceGeoAnchorAtLocation("id", uxManager.Project.location.lat, uxManager.Project.location.lon, Quaternion.identity, placedObject);
+            // }
+            // else
+            // {
+            //     uxManager.GeospatialManager.GeospatialEnabled = false;
+            //     uxManager.GeospatialManager.OnLocalizationUnsuccessful.RemoveAllListeners();
+            //     if (uxManager.Project.marker.required)
+            //     {
+            //         Debug.Log("Project requires marker to be displayed.");
+            //         uxManager.UIManager.DisplayUI("look-for-marker");
+            //         WaitForMarker();
+            //     }
+            //     else
+            //     {
+            //         DisplayProject();
+            //     }
+            // }
         }
 
-        #endregion Marker
+        // #region Marker
 
-        #region Geolocation
+        // async void WaitForMarker()
+        // {
+        //     uxManager.Project.CreateProjectContainers();
+        //     await uxManager.Project.CreateProjectMarker();
 
-        void SetGeoAnchorAndDisplayProject(bool b, string s, GameObject anchor)
-        {
-            Debug.Log("SetGeoAnchorAndDisplayProject: " + s);
-            if (!b)
-            {
-                GeolocationUnsuccessful();
-            }
-            else
-            {
-                uxManager.Project.SetGeoAnchor(anchor);
-                uxManager.KeepProjectAlignedToGeoAnchor();
-                // uxManager.UIManager.MenuManager.AddMenuItem(new MenuItem()
-                // {
-                //     id = "alignToGeoAnchor",
-                //     name = "Geolocalisera",
-                //     action = () =>
-                //     {
-                //         uxManager.Project.AlignToGeoAnchor();
-                //     }
-                // });
-                DisplayProject();
-            }
-        }
-        void GeolocationUnsuccessful()
-        {
-            uxManager.UIManager.DisplayUI("warning-with-options", root =>
-            {
-                root.Q<Label>("warning").text = "Det gick inte att geolokalisera!";
-                root.Q<Button>("option-one").clicked += () =>
-                {
-                    uxManager.Project.overrideGeolocation = true;
-                    DisplayProject();
-                };
-                root.Q<Button>("option-one").text = "Visa projektet ändå";
-                root.Q<Button>("option-two").clicked += () =>
-                {
-                    uxManager.AppManager.DisplayRecentProjectList(() => { uxManager.AppManager.LoadProjectCollections(); });
-                };
-                root.Q<Button>("option-two").text = "Återgå till projektmenyn";
-            });
-        }
+        //     bool debug = true;
+        //     while (!uxManager.Project.hasTrackerMarker)
+        //     {
+        //         if (debug)
+        //         {
+        //             Debug.Log("Waiting for marker");
+        //             debug = false;
+        //         }
+        //         await System.Threading.Tasks.Task.Delay(100);
+        //     }
+        //     Debug.Log("Marker found");
+        //     DisplayProject();
+        // }
 
-        #endregion Geolocation
+        // #endregion Marker
 
-        #region Display Project
+        // #region Geolocation
+
+        // void SetGeoAnchorAndDisplayProject(bool b, string s, GameObject anchor)
+        // {
+        //     Debug.Log("SetGeoAnchorAndDisplayProject: " + s);
+        //     if (!b)
+        //     {
+        //         GeolocationUnsuccessful();
+        //     }
+        //     else
+        //     {
+        //         uxManager.Project.SetGeoAnchor(anchor);
+        //         uxManager.KeepProjectAlignedToGeoAnchor();
+        //         DisplayProject();
+        //     }
+        // }
+        // void GeolocationUnsuccessful()
+        // {
+        //     uxManager.UIManager.MenuManager.ToggleMenuItemInteractable("project-list", true);
+        //     uxManager.UIManager.DisplayUI("warning-with-options", root =>
+        //     {
+        //         root.Q<Label>("warning").text = "Det gick inte att geolokalisera!";
+        //         root.Q<Button>("option-one").clicked += () =>
+        //         {
+        //             uxManager.Project.overrideGeolocation = true;
+        //             uxManager.GeospatialManager.GeospatialEnabled = false;
+        //             uxManager.GeospatialManager.OnLocalizationUnsuccessful.RemoveAllListeners();
+        //             DisplayProject();
+        //         };
+        //         root.Q<Button>("option-one").text = "Visa projektet ändå";
+        //         root.Q<Button>("option-two").clicked += () =>
+        //         {
+        //             uxManager.AppManager.DisplayRecentProjectList(() => { uxManager.AppManager.LoadProjectCollections(); });
+        //         };
+        //         root.Q<Button>("option-two").text = "Återgå till projektmenyn";
+        //     });
+        // }
+
+        // #endregion Geolocation
+
+        // #region Display Project
 
         async void DisplayProject()
         {
@@ -131,12 +127,14 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             try
             {
                 uxManager.UIManager.ShowLoading("Skapar projekt...");
+                // Waiting for the project to load 
                 await uxManager.Project.CreateProject();
                 DisplayProjectInfo();
             }
             catch (Exception e)
             {
                 Debug.Log("Exception: " + e.Message);
+                uxManager.UIManager.MenuManager.ToggleMenuItemInteractable("project-list", true);
                 uxManager.UIManager.DisplayUI("warning-with-options", root =>
                 {
                     root.Q<Label>("warning").text = "Det gick inte att skapa projektet!";
@@ -145,12 +143,14 @@ namespace Pladdra.ARSandbox.Dialogues.UX
                         uxManager.AppManager.DisplayRecentProjectList(() => { uxManager.AppManager.LoadProjectCollections(); });
                     };
                     root.Q<Button>("option-one").text = "Återgå till projektmenyn";
-                    root.Q<Button>("option-two").visible = false;
+                    root.Q<Button>("option-two").style.display = DisplayStyle.None;
                 });
             }
         }
         void DisplayProjectInfo()
         {
+            uxManager.UIManager.MenuManager.ToggleMenuItemInteractable("project-list", true);
+
             uxManager.UIManager.DisplayUI("project-info", root =>
                     {
                         root.Q<Label>("Name").text = uxManager.Project.name;
@@ -189,7 +189,7 @@ namespace Pladdra.ARSandbox.Dialogues.UX
             );
         }
 
-        #endregion Display Project
+        // #endregion Display Project
 
         public override void Deactivate()
         {

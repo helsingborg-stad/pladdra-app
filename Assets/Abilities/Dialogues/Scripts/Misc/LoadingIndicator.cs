@@ -18,12 +18,14 @@ namespace Pladdra
         }
         public void StartLoadingIndicator()
         {
+            Debug.Log("StartLoadingIndicator");
             loadingIndicator.SetActive(true);
             spin = StartCoroutine(Spin());
         }
 
         public void StopLoadingIndicator()
         {
+            Debug.Log("StopLoadingIndicator");
             loadingIndicator.SetActive(false);
             if (spin != null)
                 StopCoroutine(spin);

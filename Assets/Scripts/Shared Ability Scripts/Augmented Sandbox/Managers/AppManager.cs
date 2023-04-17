@@ -19,14 +19,16 @@ namespace Pladdra.ARSandbox
     {
         #region Public
         [Header("URLs")]
+        [Tooltip("Base url for wordpress")]
+        [SerializeField] protected string baseUrl = "https://modul-test.helsingborg.io/augmented-sandbox/";
         [Tooltip("Url to public projects, pointing directly to a wordpress post type.")]
-        [SerializeField] protected string publicProjectsUrl = "";
+        [SerializeField] protected string publicProjectsSlug = "";
         [Tooltip("Url to public collections, pointing directly to a wordpress post type containing collections. Collections need to follow same wordpress structure as dialoge-collections.")]
-        [SerializeField] protected string collectionsUrl = "https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/dialogue-collections";
+        [SerializeField] protected string collectionsUrlSlug = "wp-json/wp/v2/dialogue-collections";
         [Tooltip("Url base for collection, replace {0} with collection post id.")]
-        [SerializeField] protected string collectionUrlBase = "https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/collections/{0}?acf_format=standard";
+        [SerializeField] protected string collectionUrlSlug = "wp-json/wp/v2/collections/{0}?acf_format=standard";
         [Tooltip("Url base for project, replace {0} with project post id.")]
-        [SerializeField] protected string projectUrlBase = "https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/dialogues/{0}?acf_format=standard";
+        [SerializeField] protected string projectUrlSlug = "wp-json/wp/v2/dialogues/{0}?acf_format=standard";
         [Header("UI")]
         [Tooltip("Title shown above collection list.")]
         [SerializeField] protected string collectionListTitle;
@@ -45,6 +47,12 @@ namespace Pladdra.ARSandbox
         #region Private
         List<ProjectReference> recentProjectList = new List<ProjectReference>();
         protected bool openingDeepLink = false;
+
+        protected string publicProjectsUrl { get { return baseUrl + publicProjectsSlug; } }
+        protected string collectionsUrl { get { return baseUrl + collectionsUrlSlug; } }
+        protected string collectionUrlBase { get { return baseUrl + collectionUrlSlug; } }
+        protected string projectUrlBase { get { return baseUrl + projectUrlSlug; } }
+        
         #endregion Private
 
 
@@ -237,6 +245,7 @@ namespace Pladdra.ARSandbox
                 int index = i;
                 actions[i] = () =>
                 {
+                    uiManager.ShowLoading("Loading projects...");
                     LoadProjectListFromIDs(
                         projectCollections[index].projectIds.ToArray(),
                         projectUrlBase,

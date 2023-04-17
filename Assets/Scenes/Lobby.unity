@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilityManager: {fileID: 2049301693}
-  deeplink: pladdra://dialogue-collections/280
+  deeplink: 
 --- !u!4 &171125280
 Transform:
   m_ObjectHideFlags: 0

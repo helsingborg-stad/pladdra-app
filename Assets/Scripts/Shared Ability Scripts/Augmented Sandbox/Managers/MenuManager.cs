@@ -25,6 +25,7 @@ namespace Pladdra.UI
         protected IUXManager uxManager { get { return transform.parent.gameObject.GetComponentInChildren<IUXManager>(); } }
         #endregion Scene References
 
+        //TODO Add menu states that dictates which buttons are shown, and add those states to the menuItems list
 
         #region Private
         VisualElement menu;
@@ -91,6 +92,7 @@ namespace Pladdra.UI
             menulist.bindItem = (element, i) =>
             {
                 Button button = element.Q<Button>();
+                button.name = menuItems[i].id;
                 button.text = menuItems[i].name;
                 button.clicked += () =>
                 {
@@ -155,6 +157,11 @@ namespace Pladdra.UI
             };
             menuItems.Add(item);
             PopulateMenu();
+        }
+
+        public void ToggleMenuItemInteractable(string id, bool interactable)
+        {
+            uiDocument.rootVisualElement.Q<Button>(id).SetEnabled(interactable);
         }
 
         public void ToggleMenuButtonVisibility(bool visible)

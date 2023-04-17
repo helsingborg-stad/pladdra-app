@@ -27,7 +27,9 @@ namespace Pladdra.ARSandbox.Dialogues.Data
             double lat = acf.settings.geolocation.latitude.TryConvertToDouble($"project {name}");
             double lon = acf.settings.geolocation.longitude.TryConvertToDouble($"project {name}");
             float rotation = acf.settings.geolocation.rotation.TryConvertToSingle($"project {name}");
+            bool disable = acf.settings.geolocation.disable.TryConvertToBoolean($"project {name}");
             bool markerRequired = acf.settings.marker.required.TryConvertToBoolean("marker required in " + name);
+            bool onground = acf.settings.marker.onground.TryConvertToBoolean("marker onground in " + name);
             float markerWidth = acf.settings.marker.width.TryConvertToSingle($"project {name}");
 
             Project project = new Project()
@@ -36,8 +38,8 @@ namespace Pladdra.ARSandbox.Dialogues.Data
                 name = name,
                 description = acf.settings.description,
                 startScale = startScale,
-                marker = (acf.settings.marker.image, markerRequired, markerWidth, null),
-                location = (lat, lon, rotation),
+                marker = (acf.settings.marker.image, markerRequired, markerWidth, onground, null),
+                location = (lat, lon, rotation, disable),
             };
 
             project.resources = new List<DialogueResource>();
@@ -142,6 +144,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public string image;
         public string required;
         public string width;
+        public string onground;
     }
 
     [System.Serializable]
@@ -150,6 +153,7 @@ namespace Pladdra.ARSandbox.Dialogues.Data
         public string latitude;
         public string longitude;
         public string rotation;
+        public string disable;
     }
 
     [System.Serializable]

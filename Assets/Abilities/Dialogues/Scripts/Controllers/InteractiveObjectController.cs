@@ -20,6 +20,8 @@ namespace Pladdra.ARSandbox.Dialogues
         public string Id { get => id; }
         bool isSelected = false;
 
+
+
         public virtual void Init(Project project, DialogueResource resource)
         {
             Debug.Log("Init interactive object " + resource.name);
@@ -44,11 +46,22 @@ namespace Pladdra.ARSandbox.Dialogues
             model.transform.localPosition = Vector3.zero;
             model.AddComponent<GltfAsset>().Url = resource.path;
 
-            while (model.GetComponent<GltfAsset>().SceneInstance == null)
+            float f = 0;
+            bool breakFlag = false;
+            while (model.GetComponent<GltfAsset>().SceneInstance == null && !breakFlag)
             {
+                if (f > 30)
+                {
+                    Debug.Log("Loading timeout for " + resource.name);
+                    project.UXManager.UIManager.ShowTimedPrompt("Misslyckades med att ladda interaktiv model " + resource.name, 3f);
+                    breakFlag = true;
+                }
+                else
+                {
+                    f += Time.deltaTime;
+                }
                 await Task.Yield();
             }
-
             Vector3 pos = gameObject.transform.position;
             gameObject.transform.position = Vector3.zero;
 

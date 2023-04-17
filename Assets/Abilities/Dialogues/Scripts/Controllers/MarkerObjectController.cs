@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using Pladdra.ARSandbox.Dialogues.Data;
+using UntoldGarden.AR;
 
 namespace Pladdra.ARSandbox.Dialogues
 {
@@ -12,18 +13,30 @@ namespace Pladdra.ARSandbox.Dialogues
     {
         ARTrackedImage trackedImage;
         DialogueResource resource;
-        public void Init(DialogueResource resource, ARTrackedImage trackedImage)
+        ARSessionManager arSessionManager;
+        Vector3 pos = Vector3.zero;
+        bool onground = false;
+        public void Init(DialogueResource resource, ARTrackedImage trackedImage, ARSessionManager arSessionManager = null)
         {
             Debug.Log("Init MarkerObjectController for " + resource.name);
             this.resource = resource;
             this.trackedImage = trackedImage;
+            if (arSessionManager != null)
+            {
+                onground = true;
+                this.arSessionManager = arSessionManager;
+            }
         }
 
         private void Update()
         {
             if (trackedImage.trackingState == TrackingState.Tracking)
             {
-                transform.position = trackedImage.transform.position;
+
+                pos = trackedImage.transform.position;
+                if (onground)
+                    pos.y = arSessionManager.GetDefaultPlaneY() ?? pos.y;
+                transform.position = pos;
                 transform.rotation = trackedImage.transform.rotation;
             }
         }

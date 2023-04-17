@@ -1000,6 +1000,50 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 987619791}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1042232593
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1042232594}
+  - component: {fileID: 1042232595}
+  m_Layer: 0
+  m_Name: FileManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1042232594
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042232593}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1842159173}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1042232595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042232593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26969602c59c34532854db0139cae9e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1079597704
 GameObject:
   m_ObjectHideFlags: 0
@@ -1439,10 +1483,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cacb34622ee2244f6be0f164450e83b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  publicProjectsUrl: 
-  collectionsUrl: https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/dialogue-collections
-  collectionUrlBase: https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/dialogue-collections/{0}?acf_format=standard
-  projectUrlBase: https://modul-test.helsingborg.io/augmented-sandbox/wp-json/wp/v2/dialogues/{0}?acf_format=standard
+  baseUrl: https://modul-test.helsingborg.io/augmented-sandbox/
+  publicProjectsSlug: 
+  collectionsUrlSlug: wp-json/wp/v2/dialogue-collections
+  collectionUrlSlug: wp-json/wp/v2/collections/{0}?acf_format=standard
+  projectUrlSlug: wp-json/wp/v2/dialogues/{0}?acf_format=standard
   collectionListTitle: "V\xE4lj kluster"
   collectionListInfo: "Dessa \xE4r de publika kluster som finns tillg\xE4ngliga just
     nu:"
@@ -1769,6 +1814,7 @@ Transform:
   - {fileID: 3638211562768370277}
   - {fileID: 3635566855535602565}
   - {fileID: 5451709760654319565}
+  - {fileID: 1042232594}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1906,6 +1952,12 @@ MonoBehaviour:
       type: 3}
   - name: prompt
     visualTreeAsset: {fileID: 9197481963319205126, guid: 9043809b53f704744930ef179c4b1f4d,
+      type: 3}
+  - name: timed-prompt
+    visualTreeAsset: {fileID: 9197481963319205126, guid: f53976afdd1f2467ea331c524aa28fae,
+      type: 3}
+  - name: warning-with-text-and-options
+    visualTreeAsset: {fileID: 9197481963319205126, guid: d73e5572f8f6c448b9b7c7a221f8b8dd,
       type: 3}
   uiTextAsset: {fileID: 4900000, guid: 41ff86a9b140e4ed8b935f0d57feaebb, type: 3}
   useSwedishLanguage: 1
@@ -2482,7 +2534,19 @@ MonoBehaviour:
   arTrackedImageManager: {fileID: 1079597711}
   OnImageTracked:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 569831291}
+        m_TargetAssemblyTypeName: Pladdra.Plugins.VibrationHandler, Pladdra
+        m_MethodName: PositiveVibration
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &3635566855535602565
 Transform:
   m_ObjectHideFlags: 0
